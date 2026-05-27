@@ -7,7 +7,6 @@ provide *
 import starter2024 as Starter 
 import constants as Consts
 provide from Consts: PI, E end
-provide from Starter: 
 provide from Starter:
     * hiding(translate, filter, range, sort, sin, cos, tan)
 end
