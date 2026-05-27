@@ -1,0 +1,189 @@
+use context essentials2021
+
+#Let's make the US Flag!
+
+############################################
+#
+# Contents:
+#
+# 1. Define a new data type: Posn which we use to store ordered pairs
+# 2. Define some constants about the parameters of US Flag
+# 3. Define the actual components of the flag
+# 4. Define some general use functions that we use to assemble the flag
+# 5. Define two functions that handle the alternating nature of the flag
+# 6. We assemble the flag
+#
+
+# 1. #######################################
+#
+# new data type. Here,
+# Posn is an ordered pair which provides
+# the (x, y) for some element 
+
+data Posn:
+  | posn(x :: Number, y :: Number) 
+end
+
+# 2. ########################################
+
+# Let's define some constants 
+
+FLAG-HT      = 500.00
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STAR-DI      = FLAG-HT * 0.03125
+SPACE-X      = FLAG-HT * (0.76 / 12)
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+EVEN-COUNT   = 5
+ODD-COUNT    = 6
+NUM-ROWS     = 9 
+NUM-STRIPES  = 13
+
+RED          = "crimson"
+WHITE        = "white"
+SILVER       = "ghost-white"
+BLUE         = "midnight-blue"
+
+# 3. ########################################
+
+# Flag components
+
+red-stripe   = rectangle(FLAG-WT,STRP-HT,"solid",RED)
+white-stripe = rectangle(FLAG-WT,STRP-HT,"solid",WHITE)
+white-star   = star(STAR-DI, "solid", SILVER)
+blue-rect    = rectangle(UNON-WT, UNON-HT, "solid",BLUE)
+
+# 4. ########################################
+
+# These utility functions allow us to stack together 
+# Lists of things into a single thing.
+
+# test images and elements for the below examples:
+rd = circle(10, "solid", "red")
+wh = circle(10, "solid", "white")
+bl = circle(10, "solid", "blue")
+br = rectangle(UNON-WT, UNON-HT, "solid",BLUE)
+em = empty-image
+md = posn(UNON-WT / 2, UNON-HT / 2) #this is the center of blue-rect
+
+stack-above :: Image, List -> Image
+# stack-above consumes a base image and a List
+# containings images. The function will use above()
+# to place each element in the list above the previous 
+# image one, beginning with the base image.
+examples:
+  stack-above(rd, [list: wh, bl]) is above(rd, above(wh, bl))
+  stack-above(em, [list: rd, bl]) is above(rd, bl)
+end
+fun stack-above(start, images):
+  fold(lam(x,y): above(x,y) end, start, images)
+end
+
+stack-beside :: Image, List -> Image
+# stack-beside consumes a base image and a List
+# containings images. The function will use beside()
+# to place each element in the list to the right of 
+# the previous image one, beginning with the base image.
+examples:
+  stack-beside(rd, [list: wh, bl]) is beside(rd, beside(wh, bl))
+  stack-beside(em, [list: rd, bl]) is beside(rd, bl)
+end
+fun stack-beside(start, images):
+  fold(lam(x,y): beside(x,y) end, start, images)
+end
+
+stack-lists :: List -> List
+# stack-lists consumes a List containing other lists and
+# returns a new List whose elements come from the elements
+# of the component Lists which are appended to the elements 
+# of the previous component List. (did you follow that?)
+# (it just smashes Lists together.)
+examples:
+  stack-lists([list: [list:1],[list: 2],[list: 3]]) is [list: 1,2,3]
+  stack-lists([list: [list: ],[list:  ],[list:  ]]) is [list: ]
+end
+fun stack-lists(lists):
+  fold(lam(x,y): append(x,y) end, [list:], lists)
+end
+
+arrange-images :: Image, List, List -> Image
+# arrange-images consumes a base Image, a List of Posns, 
+# and a List of Images and will return a new image
+# where the elements of the List of images is placed on the base 
+# Image at locations from the cooresponding element in the List of
+# Posns. 
+examples:
+  arrange-images(br,[list: md], [list: wh]) is put-image(wh,md.x,md.y,br)
+  arrange-images(br,[list: md], [list: rd]) is put-image(rd,md.x,md.y,br)
+end
+fun arrange-images(base, point-lists, image-lists):
+  fold2(lam(b, pt,i): put-image(i,pt.x,pt.y,b) end, base, point-lists, image-lists)
+end
+
+# 5. ########################################
+
+# These functions allow us to create alternating
+# elements of the US Flag
+
+alternating-colors :: Number -> Image
+# alternating-colors consumes a number and returns
+# a colored stripe. Even stripes are white; 
+# odd stripes are red
+examples:
+  alternating-colors(0) is white-stripe
+  alternating-colors(1) is   red-stripe
+end
+fun alternating-colors(x):
+  if num-modulo(x,2) == 0:
+    white-stripe
+  else:
+    red-stripe
+  end
+end
+
+alternating-rows :: Number -> List
+# alternating-rows consumes a number and returns
+# a list containing the evenly placed Posns with
+# even rows having EVEN-COUNT Posns and 
+# odd  rows having ODD-COUNT Posns
+fun alternating-rows(y):
+  if num-modulo(y,2) == 0:
+    x-list = map(lam(x): 2 * x end, range(1,EVEN-COUNT + 1))
+    map(lam(x): posn(SPACE-X * x, SPACE-Y * y) end, x-list)
+  else:
+    x-list = map(lam(x): (2 * x) - 1 end, range(1,ODD-COUNT + 1))
+    map(lam(x): posn(SPACE-X * x, SPACE-Y * y) end, x-list)
+  end
+end
+
+# 6. ########################################
+
+# Now we are ready to make our nation's flag!!!
+
+# p       is the list of coordinates of the stars
+# n       is total number positions, which will be the total number of stars
+# s       is a list containing the stars
+#
+# stripes is a list containing the individual stripes
+# union   is the assembled blue field with stars
+# USFlag  is the final flag
+
+p       = stack-lists(map(alternating-rows, range(1,NUM-ROWS + 1)))
+n       = length(p)
+s       = repeat(n, white-star)  
+
+stripes = map(alternating-colors, range(1,NUM-STRIPES + 1))
+union   = arrange-images(blue-rect, p, s)
+
+USFlag  = overlay-align("left","top", union, stack-above(empty-image, stripes))
+  
+USFlag
+
+
+
+
+
+

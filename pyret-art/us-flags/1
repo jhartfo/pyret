@@ -1,1 +1,92 @@
+use context essentials2021
+include color
+
+# no abstraction
+# no values defined (other than the flag dimensions and the 5 shapes)
+
+FLAG-HT      = 500
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) * 2
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+####################################################3
+
+# all of these lines have a function inside a function....that's function composition
+
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", color(0,33,71,1))
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", color(187,19,62,1))
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", color(255,255,250,1))
+WHITE-STAR   = star(STAR-DI, "solid", color(255,255,250,1))
+BLUE-STAR    = overlay( WHITE-STAR, rectangle(SPACE-X, SPACE-Y, "solid", color(0,33,71,1)))
+
+# this is lot's of function composition but! does this make since?
+overlay-align("left", "top", 
+  overlay-align("center", "center", 
+    below(
+      beside(
+        BLUE-STAR, beside(
+          BLUE-STAR, beside(
+            BLUE-STAR, beside(
+              BLUE-STAR, beside(
+                BLUE-STAR, BLUE-STAR))))), below(
+        beside(
+          BLUE-STAR, beside(
+            BLUE-STAR, beside(
+              BLUE-STAR, beside(
+                BLUE-STAR, BLUE-STAR)))), below(
+          beside(
+            BLUE-STAR, beside(
+              BLUE-STAR, beside(
+                BLUE-STAR, beside(
+                  BLUE-STAR, beside(
+                    BLUE-STAR, BLUE-STAR))))), below(
+            beside(
+              BLUE-STAR, beside(
+                BLUE-STAR, beside(
+                  BLUE-STAR, beside(
+                    BLUE-STAR, BLUE-STAR)))), below(
+              beside(
+                BLUE-STAR, beside(
+                  BLUE-STAR, beside(
+                    BLUE-STAR, beside(
+                      BLUE-STAR, beside(
+                        BLUE-STAR, BLUE-STAR))))), below(
+                beside(
+                  BLUE-STAR, beside(
+                    BLUE-STAR, beside(
+                      BLUE-STAR, beside(
+                        BLUE-STAR, BLUE-STAR)))), below(
+                  beside(
+                    BLUE-STAR, beside(
+                      BLUE-STAR, beside(
+                        BLUE-STAR, beside(
+                          BLUE-STAR, beside(
+                            BLUE-STAR, BLUE-STAR))))), below(
+                    beside(
+                      BLUE-STAR, beside(
+                        BLUE-STAR, beside(
+                          BLUE-STAR, beside(
+                            BLUE-STAR, BLUE-STAR)))), beside(
+                      BLUE-STAR, beside(
+                        BLUE-STAR, beside(
+                          BLUE-STAR, beside(
+                            BLUE-STAR, beside(
+                              BLUE-STAR, BLUE-STAR))))))))))))), BLUE-RECT), 
+  below(
+    RED-STRIPE, below(
+      above(RED-STRIPE, WHITE-STRIPE), below(
+        above(RED-STRIPE, WHITE-STRIPE), below(
+          above(RED-STRIPE, WHITE-STRIPE), below(
+            above(RED-STRIPE, WHITE-STRIPE), below(
+              above(RED-STRIPE, WHITE-STRIPE), 
+              above(RED-STRIPE, WHITE-STRIPE))))))))
+
+
 

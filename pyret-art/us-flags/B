@@ -1,0 +1,130 @@
+use context essentials2021
+include color
+
+########################################
+#
+#       Let's make the US Flag!
+#
+########################################
+
+####################################################
+# Let's define some constants 
+
+EVEN-COUNT   = 5
+ODD-COUNT    = 6
+NUM-ROWS     = 9 
+NUM-STRIPES  = 13
+
+A            = 500
+B            = A * 1.9
+C            = A * (7 / 13)
+D            = A * 0.76
+E            = A * (7 / 13 / 10)
+F            = E
+G            = A * (0.76 / 12)
+H            = G
+K            = A * 0.03125
+L            = A / 13
+
+FLAG-HT      = A
+FLAG-WT      = B
+UNON-HT      = C
+UNON-WT      = D
+STRP-HT      = L
+STRP-WT      = B
+STAR-DI      = K
+SPACE-X      = G
+SPACE-Y      = E
+
+RED          = color(187,19,62,1)
+WHITE        = "white"
+SILVER       = "ghost-white"
+BLUE         = color(0,33,71,1)
+
+####################################################
+# Let's define some functions
+
+stack-lists :: List -> List
+# stack-lists consumes a List containing other lists and
+# returns a new List whose elements come from the elements
+# of the component Lists which are appended to the elements 
+# of the previous component List. (did you follow that?)
+# (it just smashes Lists together.)
+examples:
+  stack-lists([list: [list:1],[list: 2],[list: 3]]) is [list: 1,2,3]
+  stack-lists([list: [list: ],[list:  ],[list:  ]]) is [list: ]
+end
+fun stack-lists(lists):
+  fold(lam(x,y): append(x,y) end, [list:], lists)
+end
+
+# test images and elements for the below examples:
+rd           = circle(10, "solid", "red")
+wh           = circle(10, "solid", "white")
+bl           = circle(10, "solid", "blue")
+br           = rectangle(UNON-WT, UNON-HT, "solid",BLUE)
+em           = empty-image
+
+arrange-images :: Image, List, List, List -> Image
+# arrange-images consumes a base Image, a List of x-coords, a List of y-coords, and a List of Images and will return a new image
+# where the elements of the List of images is placed on the base 
+# Image at locations from the list of coordinates.
+examples:
+  arrange-images(
+    br,[list:0,10,20,30],[list:0,10,20,30], [list: rd,wh,rd,wh]) is 
+  fold3(lam(b,x,y,i): put-image(i,x,y,b) end, br, [list:0,10,20,30],[list:0,10,20,30] , [list: rd,wh,rd,wh])
+end
+fun arrange-images(base, xs,ys, image-lists):
+  fold3(lam(b,x,y,i): put-image(i,x,y,b) end, base, xs,ys, image-lists)
+end
+
+####################################################
+# List of coordinates
+
+Y-list       = map(SPACE-Y * _ , stack-lists([list:
+      repeat(ODD-COUNT,1), repeat(EVEN-COUNT,2), 
+      repeat(ODD-COUNT,3), repeat(EVEN-COUNT,4), 
+      repeat(ODD-COUNT,5), repeat(EVEN-COUNT,6),
+      repeat(ODD-COUNT,7), repeat(EVEN-COUNT,8), 
+      repeat(ODD-COUNT,9)]))
+
+X-list-odd   = map(lam(x): ((2 * x) - 1) * SPACE-X end, 
+  range(1,ODD-COUNT + 1))
+
+X-list-even  = map(lam(x): (2 * SPACE-X) * x end, 
+  range(1,EVEN-COUNT + 1))
+
+X-list       = stack-lists(
+  repeat(4,X-list-odd.append(X-list-even)))
+  .append(X-list-odd)
+
+####################################################
+# Flag components
+
+red-stripe   = rectangle(STRP-WT,STRP-HT,"solid",RED)
+white-stripe = rectangle(FLAG-WT,STRP-HT,"solid",WHITE)
+white-star   = star(STAR-DI, "solid", SILVER)
+blue-rect    = rectangle(UNON-WT, UNON-HT, "solid",BLUE)
+rd-wt-stripe = above(red-stripe, white-stripe)
+stripe-list  = repeat(6,rd-wt-stripe).append([list:red-stripe])
+stripes      = fold(above,empty-image,stripe-list)
+stars50      = repeat(50, white-star)
+union        = arrange-images(blue-rect, X-list,Y-list, stars50)
+USFlag       = overlay-align("left","top", union, stripes)
+
+
+# fancy stuff...
+
+fringe       = rectangle(B + 20, A + 40, "solid","gold")
+strip        = rectangle(40, B - 80, "solid", "white")
+block        = overlay(
+  circle(10,"outline","black"),
+  square(40,"solid","white"))
+binding      = above(block,above(strip,block))
+    
+pt1 = overlay-align("left", "middle", USFlag, fringe)
+pt2 = beside(binding, pt1)
+
+
+
+

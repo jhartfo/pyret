@@ -1,0 +1,58 @@
+use context essentials2021
+include color
+
+# we abstracted out the dimension constants, colors
+# and defined some intermediate values to organize the program better
+
+# for iteration 3, we also abstracted out the assemby process with the fold function
+
+####################################################
+
+## The official diminensions
+FLAG-HT      = 500
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) * 2
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+##  Colors
+RED          = color(187,19,62,1)
+WHITE        = color(255,255,250,1)
+SILVER       = color(255,255,250,1)
+BLUE         = color(0,33,71,1)
+
+##  Parts of the flag
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", BLUE)
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", RED)
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", WHITE)
+WHITE-STAR   = star(STAR-DI, "solid", SILVER)
+BUFFER       = rectangle(SPACE-X, SPACE-Y, "solid", BLUE)
+BLUE-STAR    = overlay( WHITE-STAR, BUFFER)
+
+######################################################
+
+# let's define some values along the way so we understand what's
+# going on.
+
+# fold REQUIRES function compostion to work, both in the calling
+# and the execution
+rw-stripe    = above(RED-STRIPE, WHITE-STRIPE)
+the-stripes  = fold(below, RED-STRIPE, repeat(6, rw-stripe))
+
+star-5       = fold(beside, BLUE-STAR, repeat(4, BLUE-STAR))  
+star-6       = fold(beside, BLUE-STAR, repeat(5, BLUE-STAR))
+two-rows     = above(star-6, star-5)
+stars        = fold(below, star-6, repeat(4,two-rows))
+the-union    = overlay-align("center", "center", stars, BLUE-RECT)
+
+# now we can easily assembe the flag
+# lots of abstraction no (visible) function composition
+USFlag       = overlay-align("left", "top", the-union, the-stripes)
+USFlag
+

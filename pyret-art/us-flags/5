@@ -1,0 +1,120 @@
+use context essentials2021
+include color
+
+# now, we build the US Flag using put-image, we will begin with
+# the dimensions, colors and shapes apbstracted out and just do 63 nested 
+# put-image expressions. This is "Function composition."
+
+# for readibility, we formed the union separately
+
+# overall this is not Ideal, because I had to manually find and type the individual 
+# coordinates for each star. This further meant I could not leverage the defined 
+# constant FLAG-HT, this iteration is locked in at 950 x 500.
+# While the code is straight forward, it is hard follow where these parts come from 
+# or how they fit together.
+
+####################################################
+
+## The official diminensions
+
+################################
+FLAG-HT      = 500 # in this iteration FLAG-HT MUST be set to 500!
+################################
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) * 2
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+##  Colors
+RED          = color(187,19,62,1)
+WHITE        = color(255,255,250,1)
+SILVER       = color(255,255,250,1)
+BLUE         = color(0,33,71,1)
+
+##  Parts of the flag
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", BLUE)
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", RED)
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", WHITE)
+WHITE-STAR   = star(STAR-DI, "solid", SILVER)
+BUFFER       = rectangle(SPACE-X, SPACE-Y, "solid", BLUE)
+BLUE-STAR    = overlay( WHITE-STAR, BUFFER)
+
+######################################################
+outline = rectangle(FLAG-WT, FLAG-HT, "outline", "black")
+
+union = 
+put-image(BLUE-STAR,95/3, 350/13,
+  put-image(BLUE-STAR,95, 350/13,
+    put-image(BLUE-STAR,475/3, 350/13,
+      put-image(BLUE-STAR,665/3, 350/13,
+        put-image(BLUE-STAR,285, 350/13,
+          put-image(BLUE-STAR,1045/3, 350/13,
+            put-image(BLUE-STAR,190/3, 700/13,
+              put-image(BLUE-STAR,380/3, 700/13,
+                put-image(BLUE-STAR,190, 700/13,
+                  put-image(BLUE-STAR,760/3, 700/13,
+                    put-image(BLUE-STAR,950/3, 700/13,
+                      put-image(BLUE-STAR,95/3, 1050/13,
+                        put-image(BLUE-STAR,95, 1050/13,
+                          put-image(BLUE-STAR,475/3, 1050/13,
+                            put-image(BLUE-STAR,665/3, 1050/13,
+                              put-image(BLUE-STAR,285, 1050/13,
+                                put-image(BLUE-STAR,1045/3, 1050/13,
+                                  put-image(BLUE-STAR,190/3, 1400/13,
+                                    put-image(BLUE-STAR,380/3, 1400/13,
+                                      put-image(BLUE-STAR,190, 1400/13,
+                                        put-image(BLUE-STAR,760/3, 1400/13,
+                                          put-image(BLUE-STAR,950/3, 1400/13,
+                                            put-image(BLUE-STAR,95/3, 1750/13,
+                                              put-image(BLUE-STAR,95, 1750/13,
+                                                put-image(BLUE-STAR,475/3, 1750/13,
+                                                  put-image(BLUE-STAR,665/3, 1750/13,
+                                                    put-image(BLUE-STAR,285, 1750/13,
+                                                      put-image(BLUE-STAR,1045/3, 1750/13,
+                                                        put-image(BLUE-STAR,190/3, 2100/13,
+                                                          put-image(BLUE-STAR,380/3, 2100/13,
+                                                            put-image(BLUE-STAR,190, 2100/13,
+                                                              put-image(BLUE-STAR,760/3, 2100/13,
+                                                                put-image(BLUE-STAR,950/3, 2100/13,
+                                                                  put-image(BLUE-STAR,95/3, 2450/13,
+                                                                    put-image(BLUE-STAR,95, 2450/13,
+                                                                      put-image(BLUE-STAR,475/3, 2450/13,
+                                                                        put-image(BLUE-STAR,665/3, 2450/13,
+                                                                          put-image(BLUE-STAR,285, 2450/13,
+                                                                            put-image(BLUE-STAR,348.3, 2450/13,
+                                                                              put-image(BLUE-STAR,190/3, 2800/13,
+                                                                                put-image(BLUE-STAR,380/3, 2800/13,
+                                                                                  put-image(BLUE-STAR,190, 2800/13,
+                                                                                    put-image(BLUE-STAR,760/3, 2800/13,
+                                                                                      put-image(BLUE-STAR,950/3, 2800/13,
+                                                                                        put-image(BLUE-STAR,95/3, 3150/13,
+                                                                                          put-image(BLUE-STAR,95, 3150/13,
+                                                                                            put-image(BLUE-STAR,475/3, 3150/13,
+                                                                                              put-image(BLUE-STAR,665/3, 3150/13,
+                                                                                                put-image(BLUE-STAR,285, 3150/13,
+                                                                                                  put-image(BLUE-STAR,1045/3,3150/13,BLUE-RECT
+                                                                                                    ))))))))))))))))))))))))))))))))))))))))))))))))))
+   
+USFlag = put-image(union, UNON-WT / 2, (UNON-HT / 2) + ((FLAG-HT / 13) * 6),
+put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 1,
+  put-image(WHITE-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 3,
+    put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 5,
+      put-image(WHITE-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 7,
+        put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 9,
+          put-image(WHITE-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 11,
+            put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 13,
+              put-image(WHITE-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 15,
+                put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 17,
+                  put-image(WHITE-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 19,
+                    put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 21,
+                      put-image(WHITE-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 23,
+                        put-image(RED-STRIPE, FLAG-WT / 2, (FLAG-HT / 26) * 25,
+                            outline))))))))))))))
+
+USFlag

@@ -1,0 +1,82 @@
+use context essentials2021
+include color
+
+# we abstracted out the dimension constants, colors
+# and defined some intermediate values to organize the program better
+
+# for iteration 3, we also abstracted out the assemby process with the fold function
+
+# but we can abstract even more by creating a function that will handle the alternating
+# nature of the US Flag.
+
+# this requires more code, but the functions are now reusable
+
+####################################################
+
+## The official diminensions
+FLAG-HT      = 200
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) * 2
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+##  Colors
+RED          = color(187,19,62,1)
+WHITE        = color(255,255,250,1)
+SILVER       = color(255,255,250,1)
+BLUE         = color(0,33,71,1)
+
+##  Parts of the flag
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", BLUE)
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", RED)
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", WHITE)
+WHITE-STAR   = star(STAR-DI, "solid", SILVER)
+BUFFER       = rectangle(SPACE-X, SPACE-Y, "solid", BLUE)
+BLUE-STAR    = overlay( WHITE-STAR, BUFFER)
+
+######################################################
+
+# flatten :: List -> List
+# consumes a list of lists and produces a single list
+# whose elements are the elements of the sublists
+fun flatten(lst):
+  fold(append, empty, lst)
+end
+
+# alternate :: List, Number  -> List
+# consumes a List and produces a new List whose elements
+# are the element of the original List, repeated enough 
+# times so that the new list elements of the given Number
+fun alternate(elements, n):
+  len       = length(elements)
+  remainder = num-modulo(n,len)
+  base      = repeat(num-floor(n / len), elements)
+  
+  flatten(base.append([list:elements.take(remainder)]))
+end
+
+##   now, build the rows of stars
+star-5      = fold( beside, empty-image, repeat( 5,BLUE-STAR) )
+star-6      = fold( beside, empty-image, repeat( 6,BLUE-STAR) )
+
+# list of alternating stripes
+# list of alternating rows of 5 and 6 stars
+r-w = alternate([list:RED-STRIPE, WHITE-STRIPE], 13)
+b-w = alternate([list: star-6, star-5], 9)
+
+# here we folded them into single objects
+stripes     = fold(below, empty-image, r-w)
+union-stars = fold(below, empty-image, b-w)
+
+union       = overlay-align("center","center", union-stars, BLUE-RECT)
+
+USFlag      = overlay-align("left", "top", union, stripes)
+USFlag
+
+above(RED-STRIPE, WHITE-STRIPE)

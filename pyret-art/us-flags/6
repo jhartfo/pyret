@@ -1,0 +1,132 @@
+use context essentials2021
+include color
+
+# now, we build the US Flag using put-image. We will begin with
+# the dimensions, colors and shapes apbstracted out and just do 64 nested 
+# put-image expressions. This is "Function composition."
+
+# ...or...we can abstract this out using fold!
+
+####################################################
+
+## The official diminensions
+
+################################
+FLAG-HT      = 500 # in this iteration FLAG-HT MUST be set to 500!
+################################
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) 
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+##  Colors
+RED          = color(187,19,62,1)
+WHITE        = color(255,255,250,1)
+SILVER       = color(255,255,250,1)
+BLUE         = color(0,33,71,1)
+
+##  Parts of the flag
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", BLUE)
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", RED)
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", WHITE)
+WHITE-STAR   = star(STAR-DI, "solid", SILVER)
+OUTLINE      = rectangle(FLAG-WT, FLAG-HT, "outline", "black")
+######################################################
+
+# reverse-put-image :: Image, NUmber, Number, Image -> Image
+# just put-image, but inputs switched for use with fold
+fun reverse-put-image(base,x,y,im):
+  put-image(im,x,y,base)
+end
+
+# flatten :: List -> List
+# consumes a list of lists and produces a single list
+# whose elements are the elements of the sublists
+fun flatten(lst):
+  fold(append, empty, lst)
+end
+
+
+# find-x6 :: Number -> Number
+# linear function that takes in the a position 
+# finds the x coord for 6star row
+fun find-x6(n):
+  ((2 * n) - 1) * SPACE-X
+end
+
+# find-x5 :: Number -> Number
+# linear function that takes in the a position 
+# finds the x coord for 5star row
+fun find-x5(n):
+  (2 * SPACE-X) * n
+end
+
+# find-star-y :: Number -> Number
+# linear function that takes in the a position 
+# finds the y coord for a star
+fun find-star-y(n):
+  if num-modulo(n,2) == 0:
+    repeat(5,n * SPACE-Y)
+  else:
+    repeat(6,n * SPACE-Y)
+  end
+end
+
+# find-stripe-y :: Number -> Number
+# linear function that takes in the a position 
+# finds the y coord for a stripe
+fun find-stripe-y(n):
+  (FLAG-HT / 26) * ((2 * n) + 1)
+end
+  
+###############################################
+
+stripe-list = flatten(
+  repeat(6,[list: 
+      RED-STRIPE, 
+      WHITE-STRIPE])).append([list: RED-STRIPE])
+
+stripe-x    = repeat(13, FLAG-WT / 2)
+stripe-y    = map(find-stripe-y, range(0,13))
+
+stripes     = fold3(
+  reverse-put-image, 
+  OUTLINE, 
+  stripe-x, 
+  stripe-y, 
+  stripe-list)
+
+################################################
+
+stars-list   = repeat(50, WHITE-STAR)
+
+star-x-5     = map(find-x5, range(1,6))
+star-x-6     = map(find-x6, range(1,7))
+
+star-x       = flatten(
+  repeat(4, flatten([list: 
+        star-x-6, 
+        star-x-5]))).append(star-x-6)
+  
+star-y       = flatten(map(find-star-y, range(1,10)))
+
+union        = fold3(
+  reverse-put-image, 
+  BLUE-RECT, 
+  star-x,
+  star-y,
+  stars-list)
+
+USFlag = put-image(
+  union, UNON-WT / 2, 
+  (UNON-HT / 2) + ((FLAG-HT / 13) * 6),
+  stripes)
+
+USFlag
+

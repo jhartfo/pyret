@@ -1,0 +1,102 @@
+use context essentials2021
+include color
+
+# Let's define some constants 
+
+EVEN-COUNT   = 5
+ODD-COUNT    = 6
+NUM-ROWS     = 9 
+NUM-STRIPES  = 13
+
+FLAG-HT      = 500
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT / 13
+STRP-WT      = FLAG-HT * 1.9
+STAR-DI      = FLAG-HT * 0.03125
+SPACE-X      = FLAG-HT * (0.76 / 12)
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+F            = FLAG-HT * 0.04
+
+RED          = color(187,19,62,1)
+WHITE        = color(255,255,250,1)
+SILVER       = color(255,255,250,1)
+BLUE         = color(0,33,71,1)
+CANVAS       = color(250,250,240,1)
+
+####################################################
+# Let's define some functions
+
+fun even-x(x): (2 * SPACE-X) * x end
+fun odd-x(x) : ((2 * x) - 1) * SPACE-X end
+
+# build-ys :: Number -> List
+# Consumes a Number. If Number is even then returns a list 
+# of the number repeated EVEN-COUNT times, otherwise returns a list
+# of the number repeated ODD-COUNT  times.
+examples:
+  build-ys(3) is repeat(ODD-COUNT, 3 * SPACE-Y)
+  build-ys(4) is repeat(EVEN-COUNT,4 * SPACE-Y)
+end
+fun build-ys(n):
+  if num-modulo(n,2) == 0:
+    repeat(EVEN-COUNT,n * SPACE-Y)
+  else:
+    repeat(ODD-COUNT,n * SPACE-Y)
+  end
+end
+
+# just put-image with rearranged domain parameters
+fun reverse-putimage(base, x, y, im):
+  put-image(im, x, y, base)
+end
+
+
+####################################################
+# List of coordinates
+
+x-evens      = map(even-x, range(1,EVEN-COUNT + 1))
+x-odds       = map(odd-x , range(1, ODD-COUNT + 1))
+X-list       = fold(append, x-odds, repeat(4,append(x-evens,x-odds)))
+Y-list       = fold(append, [list:], map(build-ys,range(1,10)))
+
+####################################################
+# Flag components
+
+red-stripe   = rectangle(STRP-WT,STRP-HT,"solid",RED)
+white-stripe = rectangle(FLAG-WT,STRP-HT,"solid",WHITE)
+white-star   = star(STAR-DI, "solid", SILVER)
+blue-rect    = rectangle(UNON-WT, UNON-HT, "solid",BLUE)
+
+rd-wt-stripe = above(red-stripe, white-stripe)
+stripe-list  = repeat(6,rd-wt-stripe)
+stripes      = fold(below,red-stripe,stripe-list)
+
+stars50      = repeat(50, white-star)
+union        = fold3(reverse-putimage,blue-rect, X-list,Y-list, stars50)
+
+USFlag       = overlay-align("left","top", union, stripes)
+USFlag
+
+####################################################
+# fancy stuff...
+
+grommet      = overlay(
+  circle(F / 2.2,"solid","light gray"),
+  circle(F / 2,"solid","gold"))
+
+fringe       = rectangle(FLAG-WT + F , FLAG-HT + (2 * F), "solid","gold")
+strip        = rectangle(F * 2, FLAG-HT - (4 * F), "solid", CANVAS)
+block        = overlay(grommet,square(F * 2,"solid",CANVAS))
+binding      = above(block,above(strip,block))
+pt1          = overlay-align("left", "middle", USFlag, fringe)
+pt2          = beside(binding, pt1)
+fancyFlag    = pt2
+
+fancyFlag
+
+
+
+
+

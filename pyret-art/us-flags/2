@@ -1,0 +1,85 @@
+use context essentials2021
+include color
+
+# we abstracted out the dimension constants, colors
+# and defined some intermediate values to organize the program better
+
+####################################################
+
+## The official diminensions
+FLAG-HT      = 2048
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) * 2
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+##  Colors
+RED          = color(255 - 187,255 -  19,255 -  62,1)
+WHITE        = color(255 - 255,255 - 255,255 - 250,1)
+SILVER       = color(255 - 255,255 - 255,255 - 250,1)
+BLUE         = color(255 -   0,255 -  33,255 -  71,1)
+
+##  Parts of the flag
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", BLUE)
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", RED)
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", WHITE)
+WHITE-STAR   = star(STAR-DI, "solid", SILVER)
+BUFFER       = rectangle(SPACE-X, SPACE-Y, "solid", BLUE)
+BLUE-STAR    = overlay( WHITE-STAR, BUFFER)
+
+######################################################
+
+# let's define some values along the way so we understand what's
+# going on.
+
+# the stripes
+# there's function composition in here
+rw-stripe    = above(RED-STRIPE, WHITE-STRIPE)
+the-stripes  = below(
+  RED-STRIPE, below(
+    rw-stripe, below(
+      rw-stripe, below(
+        rw-stripe, below(
+          rw-stripe, below(
+            rw-stripe, rw-stripe))))))
+
+# and the union
+# there's function composition in here
+star-5 = beside(
+  BLUE-STAR, beside(
+    BLUE-STAR, beside(
+      BLUE-STAR, beside(
+        BLUE-STAR, BLUE-STAR))))
+
+# there's function composition in here
+star-6 = beside(
+  BLUE-STAR, beside(
+    BLUE-STAR, beside(
+      BLUE-STAR, beside(
+        BLUE-STAR, beside(
+          BLUE-STAR, BLUE-STAR)))))
+
+# there's function composition in here
+stars = below(
+  star-6, below(
+    star-5, below(
+      star-6, below(
+        star-5, below(
+          star-6, below(
+            star-5, below(
+              star-6, below(
+                star-5, star-6))))))))
+
+the-union = overlay-align("center", "center", stars, BLUE-RECT)
+
+# now we can easily assembe the flag
+# lots of abstraction no (visible) function composition
+USFlag = overlay-align("left", "top", the-union, the-stripes)
+USFlag
+

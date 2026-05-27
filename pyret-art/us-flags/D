@@ -1,0 +1,136 @@
+use context essentials2021
+include color
+
+# This program builds the US Flag without put-image.
+# Last section builds the US flag without put-image and w/o fold
+
+# we could further emphasize 'function composition' by
+# refraining from defining constants other than the 
+# dimensions
+
+######################################################
+
+# Let's define some constants 
+
+## The official diminensions
+FLAG-HT      = 500
+FLAG-WT      = FLAG-HT * 1.9
+UNON-HT      = FLAG-HT * (7 / 13)
+UNON-WT      = FLAG-HT * 0.76
+STRP-HT      = FLAG-HT * (1 / 13)
+STRP-WT      = FLAG-HT * 1.9
+
+## not official but derived for Pyret's implementation
+STAR-DI      = FLAG-HT * 0.03125 
+SPACE-X      = FLAG-HT * (0.76 / 12) * 2
+SPACE-Y      = FLAG-HT * (7 / 13 / 10)
+
+##  Colors
+RED          = color(187,19,62,1)
+WHITE        = color(255,255,250,1)
+SILVER       = color(255,255,250,1)
+BLUE         = color(0,33,71,1)
+
+##  Parts of the flag
+BLUE-RECT    = rectangle(UNON-WT, UNON-HT, "solid", BLUE)
+RED-STRIPE   = rectangle(STRP-WT, STRP-HT, "solid", RED)
+WHITE-STRIPE = rectangle(STRP-WT, STRP-HT, "solid", WHITE)
+WHITE-STAR   = star(STAR-DI, "solid", SILVER)
+
+######################################################
+
+# Let's build the union
+
+##   first create a buffer around the stars for spacing
+buffer       = rectangle(SPACE-X, SPACE-Y, "solid", BLUE)
+blue-star    = overlay( WHITE-STAR, buffer)
+
+##   then build the rows
+star5        = fold( beside, empty-image, repeat( 5,blue-star) )
+star6        = fold( beside, empty-image, repeat( 6,blue-star) )
+
+##   finally, stack the rows and place them onto the union 
+two-rows     = above(star6, star5)
+union-stars  = fold( below, star6, repeat(4, two-rows) ) 
+union        = overlay-align("center", "center", union-stars, BLUE-RECT)
+
+######################################################
+
+# Let's build the 13 stripes
+rw-stripe    = above(RED-STRIPE, WHITE-STRIPE)
+stripes      = fold( below, RED-STRIPE, repeat(6,rw-stripe) ) 
+
+######################################################
+
+# And putting it all together, we have
+USflag = overlay-align("left", "top", union, stripes)
+USflag
+
+########################################################
+
+# same thing but without fold function
+# without fold
+
+the-stripes = below(
+  RED-STRIPE, below(
+    rw-stripe, below(
+      rw-stripe, below(
+        rw-stripe, below(
+          rw-stripe, below(
+            rw-stripe, rw-stripe))))))
+
+star-5 = beside(
+  blue-star, beside(
+    blue-star, beside(
+      blue-star, beside(
+        blue-star, blue-star))))
+
+star-6 = beside(
+  blue-star, beside(
+    blue-star, beside(
+      blue-star, beside(
+        blue-star, beside(
+          blue-star, blue-star)))))
+
+stars = below(
+  star-6, below(
+    star-5, below(
+      star-6, below(
+        star-5, below(
+          star-6, below(
+            star-5, below(
+              star-6, below(
+                star-5, star-6))))))))
+
+the-union = overlay-align("center", "center", stars, BLUE-RECT)
+overlay-align("left", "top", the-union, the-stripes)
+
+
+##################
+
+# flatten :: List -> List
+# consumes a list of lists and produces a single list
+# whose elements are the elements of the sublists
+fun flatten(lst):
+  fold(append, empty, lst)
+end
+
+#alternate :: List, Number  -> List
+fun alternate(elements, n):
+  len       = length(elements)
+  remainder = num-modulo(n,len)
+  base      = repeat(num-floor(n / len), elements)
+  
+  flatten(base.append([list:elements.take(remainder)]))
+end
+  
+r-w = alternate([list:RED-STRIPE, WHITE-STRIPE], 13)
+b-w = alternate([list: star-6, star-5], 9)
+
+rw  = fold(below, empty-image, r-w)
+bw  = fold(below, empty-image, b-w)
+
+b   = overlay-align("center","center", bw, BLUE-RECT)
+
+overlay-align("left", "top", b,rw)
+
