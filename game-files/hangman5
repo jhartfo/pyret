@@ -1,0 +1,595 @@
+use context starter2024
+include reactors
+include gdrive-sheets
+import sets as S
+
+#|
+   There are 8 sections:
+   Constants,
+   Loading the word table from Google Sheets
+   Drawing Functions
+   Datatype: Hangman with Constants
+   Datatype: Letter
+   Datatype: Letter-List with Constants
+   Datatype: Game-Data
+   Building the Game
+   
+   I would recommend you first skim through the
+   sections. When you get to the final section,
+   carefully read through the that section, then
+   keep asking yourself "where'd that come from?"
+   Then go back through, find the appropriate 
+   section, and drill down on the details of how
+   that thing was implemented. 
+|#
+
+############################################
+# Let's define some Constants: 
+
+BG-CLR = "ivory"       # normal      background color
+KO-CLR = "red"         # end-of-game background color
+WN-CLR = "dark green"  # winning     background color
+
+
+############################################
+# Table of 3000 words and a list of letters
+# from https:
+
+word-to-list :: Row -> List
+# helper Function that consumes a Table Row
+# and looks up the "word" column and 
+# breaks the String into a List of 
+# chars.
+fun word-to-list(r): string-explode(string-toupper(r["word"])) end
+
+# load the spreadsheet from Google
+sheet = load-spreadsheet("1qn8OD6qr_DFva2sY3p03NI2l2ZjuzuiuUxBBedrMMns")
+
+# Now, convert the "Sheet1" tab into a Pyret Table
+table = (load-table: word
+    source: sheet.sheet-by-name("Sheet1", false)
+  end).build-column("characters", word-to-list)
+  
+############################################
+# these functions will draw our hangman 
+# and the gallows
+
+# the general philosophy is all elements 
+# are always present, they are just 'transparent'
+# until the they are needed
+
+gallows :: String -> Image
+fun gallows(clr):
+  put-image(
+    put-image(
+      overlay-align("left", "top",
+        rectangle(10,30, "solid", "black"), 
+        rectangle(50,10, "solid", "black")), 
+      80, 185,
+      overlay-align("center", "bottom",
+        rectangle(200, 10, "solid", "black"),
+        rectangle(10, 200, "solid", "black")
+        )), 140,100,
+    rectangle(600,200, "solid", clr)  
+  )
+end
+
+head :: String -> Image
+fun head(clr):
+  overlay-align("center", "bottom",
+    rectangle(10,3, "solid", clr),
+    ellipse(20,35, "solid", clr)
+    )
+end
+
+body :: String -> Image
+fun body(clr):
+  point-polygon(
+    [list: 
+      point( 10,  0), point(  0, 50),
+      point( 20, 50), point( 20, 52), 
+      point( 30, 52), point( 30, 50),
+      point( 50, 50), point( 40,  0), 
+      point( 40,-10), point(10,-10) 
+    ],
+    "solid", clr)
+end
+
+leg :: String -> Image
+fun leg(clr): 
+  rectangle(10, 60, "solid", clr) 
+end
+
+left-arm :: String -> Image
+fun left-arm(clr):
+  rotate(-10, rectangle(10, 50, "solid", clr))
+end
+
+right-arm :: String -> Image
+fun right-arm(clr):
+  rotate(10, rectangle(10, 50, "solid", clr))
+end
+
+fun man(clr): 
+  put-image(
+    leg(clr.l-leg), 40, 31, put-image(
+      leg(clr.r-leg), 60, 31, put-image(
+        right-arm(clr.r-arm), 75, 95, put-image(
+          left-arm(clr.l-arm), 25, 95, put-image(
+            above(head(clr.head), body(clr.body)), 50,110,
+            rectangle(100,160, "solid", "transparent"))))))
+end
+
+
+############################################
+# Hangman Data type
+#
+# This data type manages all things
+# hangman. A Hangman has 7 properties. 
+# First is a Number, this Number, 0-6,
+# tells us how far along we have advanced in
+# the game. Zero is the start of the game; 
+# six is game over (there maybe ways to manage
+# this without status by monitoring the other 
+# six properties...) The other 6 properties store 
+# Color Strings ("transparent" or "black"). This tells us 
+# what color to paint the cooresponding hangman 
+# parts. 
+#
+# A Hangman has 2 methods: .display() draws
+# the hangman using the above functions. 
+# .advance() will create a new Hangman 
+# with an additional "black" body part compared
+# to the current one.
+
+data Hangman:
+  | hangman(
+      status :: Number,
+      head   :: String,
+      body   :: String,
+      l-arm  :: String,
+      l-leg  :: String,
+      r-arm  :: String,
+      r-leg  :: String) with:
+    method display(self):
+      man(self) 
+    end,
+    
+    # This method make use of the functions below
+    # to make defining new Hangmans easier.
+    # the ask block simplifies repeated if-else-if
+    # blocks. In this case if the status is n
+    # we produce a Hangman of status n+1
+    method advance(self):
+      ask :
+        | self.status == 0 then: build-hangman(1)
+        | self.status == 1 then: build-hangman(2)
+        | self.status == 2 then: build-hangman(3)
+        | self.status == 3 then: build-hangman(4)
+        | self.status == 4 then: build-hangman(5)
+        | self.status == 5 then: build-hangman(6)
+        | otherwise: self
+      end
+    end
+end
+
+list-to-hangman :: List -> Hangman
+# this Function streamlines the Hangman
+# intializing process. Instead of 
+# manually entering the individual fields 
+# a the Hangman, we are just put into a 
+# List, and list-to-hangman places
+# elements in the appropriate field.
+fun list-to-hangman(lst):
+  if length(lst) == 7:
+    hangman(
+      lst.get(0), lst.get(1), lst.get(2), lst.get(3), 
+      lst.get(4), lst.get(5), lst.get(6))
+  else:
+    # error handling
+    raise("Hangman has 7 properties")
+  end
+end
+
+build-hangman :: Number -> Hangman
+# this Function also streamlines the 
+# Hangman initializing process. Here, we
+# consume a Number, n, and produce a 
+# Hangman with n "black" body parts.
+fun build-hangman(n):
+  list-to-hangman(
+    [list: n] + repeat(n, "black") + repeat(6 - n, "transparent"))
+end
+
+# Now, we can quickly define the different 
+# possible Hangmans.
+HANGMAN-0 = build-hangman(0)
+HANGMAN-1 = build-hangman(1)
+HANGMAN-2 = build-hangman(2)
+HANGMAN-3 = build-hangman(3)
+HANGMAN-4 = build-hangman(4)
+HANGMAN-5 = build-hangman(5)
+HANGMAN-6 = build-hangman(6)
+
+check:
+  HANGMAN-1 is HANGMAN-0.advance()
+  HANGMAN-2 is HANGMAN-0.advance().advance()
+  HANGMAN-3 is HANGMAN-0.advance().advance().advance()
+  HANGMAN-4 is HANGMAN-0.advance().advance().advance().advance()
+end
+
+
+############################################
+# Letter data type 
+
+# Throughout the game, we need more than 
+# just information about Strings that make up 
+# a word, we need to also know whether the
+# String has been used.
+#
+# the Letter datatype has to properties the 
+# character (a String) and used (a Boolean)
+# 
+# additionally, it has two similar methods
+# .display-secret() and .display-all()
+# The first is used to display letters 
+# in the secret word (as an Image). The other is for 
+# displaying the list of available letters 
+# (as an Image). There are many
+# different ways to implement the methods. I think
+# this is the most straightforward. For clarity,
+# how the methods work is defined below a separate 
+# Functions.
+# 
+# Finally, there is a third method for using
+# a Letter called .use-one-letter()
+data Letter:
+  | letter(char :: String, used :: Boolean) with:
+    
+    method display-secret(self): 
+      if self.used:
+        view-secret-letter(self.char, "black")
+      else:
+        view-secret-letter(self.char, "white")
+      end
+    end,
+    
+    method display-used(self): 
+      if self.used:
+        view-used-letter(self.char, "black") 
+      else:
+        view-used-letter(self.char, "white") 
+      end
+    end,
+    
+    method use-one-letter(self, A):
+      use-one-letter(self, A)
+    end
+end
+
+view-secret-letter :: String, String -> Image
+view-used-letter   :: String, String -> Image
+# The two functions consume a String containing
+# letter and a Color String and builds a box containing
+# the letter. If the letter should be visible then
+# the background with "white" otherwise the background 
+# is "black." view-secret-letter adds a line add the bottom
+# serve as a blank to help the player see how many letters
+# are in the secret-word. Both Images have a transparent 
+# rectangle tacked on beside the box to space out the letters
+fun view-secret-letter(ltr, clr):
+  beside(
+    overlay-align("center", "center",
+      text(ltr, 28, clr),
+      overlay-align("center", "bottom",
+        rectangle(30, 2, "solid", "black"),
+        rectangle(33,30, "solid", "white"))),
+    rectangle(2, 30, "solid", "transparent")
+    )
+end
+
+fun view-used-letter(ltr, clr):
+  beside(
+    overlay-align("center", "center",
+      text(ltr, 15, "black"),
+      rectangle(20,20, "solid", clr)
+      ),
+    rectangle(3, 20, "solid", "transparent")
+    )
+end
+
+use-one-letter :: Letter, String -> Letter
+# consumes a Letter and a String. If the 
+# Letter's char matches the String, we produce
+# a new Letter with the used updated to true
+# otherwise we return the original Letter
+fun use-one-letter(ltr,A):
+  if ltr.char == A:
+    letter(ltr.char, true)
+  else:
+    ltr
+  end
+end
+
+string-to-letter :: String -> Letter
+# creates a Letter from the String
+# defaults to not used
+fun string-to-letter(s):
+  letter(s, false)
+end
+
+string-to-used :: String -> Letter
+# creates a Letter from the String
+# defaults to  used
+fun string-to-used(s):
+  letter(s, true)
+end
+
+
+############################################
+# Letter-List datatype
+#
+# This datatype only has one property: THE LIST
+# we create it so we can create some methods
+# to help us manage the game cleanly without getting 
+# lost in the details. Like with Letter, there maybe 
+# other ways to implement this. 
+#
+# Here we have 3 methods: .display-secret() and 
+# .display-used() will use fold to stack together 
+# the displayed Letter-s. For display-used(), we 
+# break the Letters up into two rows.
+#
+# Finally, we have .update-letter-list()
+# that references the Letter method 
+# use-one-letter to update the Letters in 
+# the Letter-List accordingly
+data Letter-List:
+  | letters(chars:: List) with:
+    
+    method display-secret(self): 
+      view-secret-list(self.chars)
+    end,
+    method display-used(self): 
+      view-used-list(self.chars)
+    end,
+    method update-letter-list(self, A): 
+      # contract of update-list is
+      # update-list:: List -> List
+      # so, we need recast the list as a
+      # Letter-List. (I suppose we could create 
+      # a custom map Function that plays nicely 
+      # with Letter-Lists directly.)
+      letters(update-list(self.chars,A)) 
+    end
+end
+
+view-secret-list :: List -> Image
+# using beside we fold all of the displayed 
+# Letter into a single Image
+fun view-secret-list(lst):
+  fold(beside, empty-image,map(_.display-secret(), lst))
+end
+
+view-used-list :: List -> Image
+# similar to view-secret-list except
+# row-1 takes the first 13 elements 
+# in the list, row-2 drops the first 13 
+# elements. Then we use above to stack
+# together the rows
+fun view-used-list(lst):
+  row-1 = fold(beside, empty-image,
+    map(_.display-used(), lst.take(13)))
+  
+  row-2 = fold(beside, empty-image,
+    map(_.display-used(), lst.drop(13)))
+ 
+  above(
+    above(
+      row-1, 
+      rectangle(20, 3, "solid", "transparent")), 
+    row-2)
+end
+  
+update-list :: List, String -> List
+# Consumes the chars (a List) from a Letter-List
+# and uses to map and use-one-letter to 
+# create a new List of Letters.
+fun update-list(lst,A):
+  (map(use-one-letter(_,A), lst))
+end
+
+list-to-letter-list :: List -> Letter-List
+# consumes a list of Strings and produces
+# Letter-List containing Letters
+fun list-to-letter-list(lst):
+  letters(map(string-to-letter, lst))
+end
+
+list-to-used-list :: List -> Letter-List
+# consumes a list of Strings and produces
+# Letter-List containing used Letters
+fun list-to-used-list(lst):
+  letters(map(string-to-used, lst))
+end
+
+# Let's define some constants involving 
+# Letter-Lists
+#ALPHABET     = "abcdefghijklmnopqrstuvwxyz"
+ALPHABET     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ABC-exploded = string-explode(ALPHABET)
+ABC-LIST     = list-to-letter-list(ABC-exploded)
+ABC-USED     = list-to-used-list(ABC-exploded)
+
+
+############################################
+# Game-Data datatype
+# We are almost ready to start assembling 
+# our game. Here we have the data type 
+# that will store all the data we need 
+# throughout the game. We need a Hangman, called 'HM',
+# the orginal word called 'word-raw', the 'word' 
+# is a Letter-List of the secret word's characters,
+# and 'letters' is the Letter-List of the 
+# alphabet
+data Game-Data:
+    game-data(
+      HM       :: Hangman    ,
+      word-raw :: String     ,
+      word     :: Letter-List,
+      letters  :: Letter-List,
+      guess    :: String 
+      # I decided to add guess back for the fancy 
+      # stuff at the very bottom.
+      )
+end
+
+
+############################################
+# Game Operation Functions
+
+get-background :: Game-Data -> String
+# determines the background color by 
+# looking at the current state of the game. 
+# If the game.HM is 6, the color is KO-CLR
+# If the all the Letters in the word are used
+# the color is WN-CLR. Otherwise we use BG-CLR
+fun get-background(state):
+  if state.HM.status == 6: KO-CLR
+  else if all(_ == true, map(_.used, state.word.chars)): WN-CLR
+  else: BG-CLR
+  end
+end
+
+draw-game :: Game-Data -> Image
+# the main draw Function. We combine the 
+# HM.display(), the gallows, 
+# word.display-secret(), and 
+# letters. display-used()
+fun draw-game(state):
+  put-image(
+    state.HM.display(), 100, 99, 
+    put-image(
+      state.word.display-secret(), 372, 150, 
+      put-image(
+        state.letters.display-used(), 400, 50, 
+        gallows(
+          get-background(state))
+        )))
+end
+
+guess :: Game-Data, String -> Game-Data
+fun guess(state, key):
+  
+  # while we want to display uppercase letters,
+  # but our key presses will be lowercase. So, 
+  # create k to be the uppercase of the key pressed.
+  k = string-to-upper(key)
+  
+  # if k is a member of the ALPHABET,
+  if string-contains(ALPHABET, k):
+    # we check if k is a member of the word
+    # if so, we update appropriately
+    if string-contains(state.word-raw,key):
+      game-data(
+        state.HM,
+        state.word-raw,
+        state.word.update-letter-list(k),
+        state.letters.update-letter-list(k),
+        key
+        )
+    
+    # if not, we update appropriately
+    else:
+      game-data(
+        state.HM.advance(),
+        state.word-raw,
+        state.word,
+        state.letters.update-letter-list(k),
+        key
+        )
+    end
+    
+  # If k is not a memeber of the ALPHABET,
+  # noting happens (we return the current
+  # state)
+  else:
+    state
+  end
+end
+
+on-tick :: Game-Data -> Game-Data
+# This Function checks every tick
+# to see if we have reached HM.status 
+# level 6. If so, we switch everythng off
+# The Letter-List update-list() method 
+# cannot undo the used status, so the
+# unveiling cannot be undone.
+fun on-tick(state):
+  
+  if state.HM.status == 6:
+    game-data(
+      state.HM,
+      state.word-raw,
+      list-to-used-list(
+        string-explode(
+          string-to-upper(state.word-raw))),
+      ABC-USED,
+      ""
+      )
+  else:
+    state
+  end
+end
+
+idx           = num-random(table.length())
+word-raw      = table.row-n(idx)["word"]
+word          = table.row-n(idx)["characters"]
+word-list     = list-to-letter-list(word)
+
+start-game    = game-data(
+  HANGMAN-0,
+  word-raw ,
+  word-list,
+  ABC-LIST ,
+  ""       )
+
+hm = reactor:
+  init    : start-game,
+  to-draw : draw-game ,
+  on-key  : guess     ,
+  on-tick : on-tick
+end
+
+# we can play the game
+#a = interact(hm)
+
+# or we can be fancy and trace the game so we can 
+# look at a game summary
+
+get-guess :: Row -> String
+# helper Function for picking out the guess 
+# from a Game-Data
+fun get-guess(r):
+  r["state"].guess
+end
+
+trace = 
+  ([list: word-raw] +
+    interact-trace(hm)
+      .build-column("guess", get-guess)
+      .get-column("guess")
+      .filter(_ <> "")
+    )
+  .reverse()
+
+
+# trace now contains are the guesses from the 
+# game. But because of on-tick there
+# are A LOT of duplicates. recasting the
+# the list as a list-set then back to a list
+# will get rid of those duplicates
+guesses = S.list-to-list-set(trace).to-list()
+
+guesses
+
