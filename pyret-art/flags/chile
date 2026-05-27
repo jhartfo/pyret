@@ -1,0 +1,31 @@
+use context essentials2021
+
+# The Chile flag has 4 components.
+# To recreate the flag, we need to first 
+# define all of of these pieces for Pyret
+white-star = star(40, "solid", "white")
+white-rectangle = rectangle(280, 140, "solid", "white")
+red-rectangle = rectangle(420, 140, "solid", "red")
+blue-square = square(140, "solid", "blue")
+
+# We also need to define a box to place all of the 
+# pieces into.
+box = rectangle(420, 280, "outline","black")
+
+# Here, we will add one piece at a time. We begin 
+# with red-rectangle and add it to box using
+# the put-image function, and we name this new image 
+# chile1. 
+chile1 = put-image(red-rectangle, 210, 70, box)
+
+# Next, we add blue-square to chile1 to create a new
+# image called chile2. We continue adding pieces unitl
+# we have the completed flaf called chile.
+chile2 = put-image(blue-square, 70, 210, chile1)
+chile3 = put-image(white-star, 70, 210, chile2)
+chile = put-image(white-rectangle, 280, 210, chile3)
+
+# Click `run` and enter `chile` into the Interactions 
+# Area to see the Chile flag.
+
+chile
