@@ -1,0 +1,179 @@
+use context essentials2021
+include reactors
+
+# Content
+#####################################################
+### 0. Constants
+### 1. Import images
+### 2. Double the scene pieces
+### 3. Define oncoming cars
+### 4. A screenshot
+### 5. Scene Update functions
+### 6. Build Reactor    
+
+#####################################################
+
+### 0. Constants
+NUMCARS = 5 # There are 4 different oncoming cars plus so many blanks
+
+#####################################################
+
+### 1. Import images
+
+CAR1 = scale(0.10 ,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1Q4hT8yh6O42uVfQAD8gsYi7l_CzkPHyG"))
+
+REDCAR = scale(0.10,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1Q5NU_PCeovAVFJhT3cMsY-i1o9zrzRII"))
+
+BLUECAR = scale(0.10,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1QR0okAsExTqDTzUquWOIplrKpXeDdqB0"))
+
+YELLOWCAR = scale(0.10,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1QShTiyslRMwLIleC59kVdhL2GbNm44MS"))
+
+RAWROAD = scale(1.0503 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1QQgOl_N2Iv73vNTr2aRbq9k6MvgQKH6h"))
+
+SKY  = scale(0.9537 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1Q6tIQ1Hpesap-LvNY8u7c3YwbpoGeE5r"))
+
+RAWBUSH1 = scale(1.0504 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1QH5ZUbJNxNsk6TSAjA25V472HTL7f7q0"))
+
+RAWBUSH2 = scale(1.0504 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1QPtiimG05C6cYcuvsH3IIkHKuzA28Nn3"))
+
+GRASS = scale(1.0503 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1QQqBQx-wGmZCEi8nYAI2JQpdOtaoq1Ql"))
+
+RAWMTNS = scale(1.0503 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1Q7astoHi3EjQpqA9Csiwb0s4OI3wIxuJ"))
+
+RAWTREES = scale(1.0503 / 4,image-url(
+    "https://code.pyret.org/shared-image-contents?sharedImageId=1Q9s1Bvy7gPmyvXilEfSnnosEHi-XyxNR"))
+
+#####################################################
+
+### 2. Double the scene pieces
+
+ROAD  = beside(RAWROAD , RAWROAD )
+BUSH1 = beside(RAWBUSH1, RAWBUSH1)
+BUSH2 = beside(RAWBUSH2, RAWBUSH2)
+MTNS  = beside(RAWMTNS , RAWMTNS )
+TREES = beside(RAWTREES, RAWTREES)
+
+#####################################################
+
+### 3. Define oncoming cars
+
+# CAR2 :: Number -> Image
+# consumes a number and returns the corresponding car Image
+fun CAR2(n):
+  if      n == 0: flip-horizontal(CAR1)
+  else if n == 1: REDCAR
+  else if n == 2: BLUECAR
+  else if n == 3: YELLOWCAR  
+  else:           empty-image
+  end
+end
+
+#####################################################
+
+### 4. A screenshot
+
+SCREENSHOT = put-image(BUSH2 ,   0,  90,
+  put-image(GRASS            ,   0,  30,
+    put-image(CAR1           , 300, 130,
+      put-image(CAR2(1)      , 800, 170,
+        put-image(ROAD       ,   0, 100,
+          put-image(BUSH1    ,   0, 175,
+            put-image(TREES  ,   0, 225,
+              put-image(MTNS ,   0, 375, 
+                SKY))))))))
+
+#####################################################
+
+### 5. Scene Update functions
+fun update-left(x,dx):
+  if x >= -500: 
+    x - dx
+  else:
+    1500
+  end
+end
+
+fun update-right(x,dx):
+  if x > 0: 
+    x - dx
+  else:
+    2000
+  end
+end
+
+fun update-mtns-posn(x): update-right(x,1) end
+fun update-tree-posn(x): update-right(x,5) end
+fun update-road-posn(x): update-right(x,10) end
+fun update-cars-posn(x): update-left(x,20) end
+
+fun update-car(R,x):
+  if x == 1500:
+    num-random(NUMCARS)
+  else:
+    R
+  end
+end
+    
+#####################################################
+
+### 6. Build Reactor    
+data Elements:
+    elements(
+      mx,my,tx,ty,cx,cy,rx,ry,b1x,b1y,b2x,b2y,R
+      )
+end
+
+initial-posns = elements(
+  2000,375,
+  2000,275,
+  2500,170,
+  2000,100,
+  2000,175,
+  2000,90,
+  0
+  )
+
+fun draw-scene(current):
+  put-image(BUSH2                 , current.b2x, current.b2y,
+    put-image(GRASS               , 0          ,  30        ,
+      put-image(CAR1              , 500        , 130        ,
+        put-image(CAR2(current.R) , current.cx , current.cy ,
+          put-image(ROAD          , current.rx , current.ry ,
+            put-image(BUSH1       , current.b1x, current.b1y,
+              put-image(TREES     , current.tx , current.ty ,
+                put-image(MTNS    , current.mx , current.my , 
+                  SKY))))))))
+end  
+
+fun update-scene(current):
+  elements(
+    update-mtns-posn(current.mx) , current.my,
+    update-tree-posn(current.tx) , current.ty,
+    update-cars-posn(current.cx) , current.cy,
+    update-road-posn(current.rx) , current.ry,
+    update-road-posn(current.b1x), current.b1y,
+    update-road-posn(current.b2x), current.b2y,
+    update-car(current.R,current.cx)
+    )
+end
+
+  
+scene = reactor:
+  init: initial-posns,
+    to-draw: draw-scene,
+  on-tick: update-scene
+end
+
+interact(scene)
+
+
