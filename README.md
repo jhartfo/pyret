@@ -1,7 +1,7 @@
 # pyret
 This repository contains various Pyret programs. It includes new libraries, student facing starter files, and independent projects I ave completed.
 
-CHS-starter-files: 
+**CHS-starter-files**: 
 starter files that I have created for my classroom. These are not intended to be shared/used within the greater bootstrap community.
 
 CHS-working-file:
