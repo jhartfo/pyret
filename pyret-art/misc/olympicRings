@@ -1,0 +1,235 @@
+use context essentials2021
+include color
+
+# Let's define some constants
+
+BG-WT    = 1200                  # background width
+BG-HT    = BG-WT / 2             # background height
+RNG-WT   = BG-WT / 50            # ring width
+RNG-HT   = BG-WT / 160           # ht of the ring segment (a rectangle)
+SUPER-WT = RNG-WT * 1.7          # width of boundary around the ring
+RADIUS   = BG-WT / 8             # ring radius
+DELTA    = 1.5                   # how often (in degrees) the ring updates
+
+BLUE     = color(3,132,200,1)    
+YELLOW   = color(246,191,10,1)   
+BLACK    = color(0,0,0,1)        
+GREEN    = color(0,158,61,1)     
+RED      = color(224,0,36,1)     
+BG-CLR   = color(255,255,255,1)  
+GLOW-CLR = BG-CLR                 # rings' highlight color
+
+BG       = rectangle(BG-WT,BG-HT,"solid", BG-CLR) # background rectangle
+
+# just put-image with the arguments rearranged for
+# use within fold3
+fun reverse-put-image(base,x,y,im):
+  put-image(im, x,y,base)
+end
+
+# creates rotated rectangles that will be used as an arc within the ring
+# the colored backing is to simulate how a segment bases over another.
+# But can also be used to give the rings a border.
+#
+# We use RNG - 1 for the back to elliminate a one pixel line
+# that is an artifact of our pyret combines images.
+fun ring-segment(a,clr):
+  ring = rectangle(RNG-WT  ,RNG-HT    , "solid", clr)
+  back = rectangle(SUPER-WT,RNG-HT - 1, "solid", GLOW-CLR)
+  rotate(a,overlay(ring,back))
+end
+
+# Trigonmetry and Algebraic Functions need to find the 
+# coordinates of rings and ring segments
+
+# converts values in degres to radians
+fun to-rads(deg):
+  (deg / 360) * 2 * PI
+end
+
+# finds the x-coord for a ring-segment
+fun find-x(a, h):
+  (RADIUS * num-cos(to-rads(a))) + h
+end
+
+# finds the y-coord for a ring-segment
+fun find-y(a, k):
+  (RADIUS * num-sin(to-rads(a))) + k
+end
+
+# finds the x-coord for the center of a ring
+fun find-h(x):
+  (0.1875 * BG-WT) + (0.15 * BG-WT * x)
+end
+
+# finds the y-coord for the center of a ring
+fun find-k(y):
+  (0.1875 * BG-WT) + (0.125 * BG-WT * y)
+end
+
+# centers of the rings (B)lue, (Y)ellow, (N)Black, (G)reen, and (R)ed
+B-H      = find-h(0)
+B-K      = find-k(1)
+Y-H      = find-h(1)
+Y-K      = find-k(0)
+N-H      = find-h(2)
+N-K      = find-k(1)
+G-H      = find-h(3)
+G-K      = find-k(0)
+R-H      = find-h(4)
+R-K      = find-k(1)
+
+# Because the rings are built with tiny little rectangles,
+# leaving a gap in the rings to represent the intersections 
+# of the rings is not a clean look.
+#
+# Instead, we will divide each ring into quarter segments:
+segment1 = range-by(-45,  45, DELTA) # east
+segment2 = range-by( 45, 135, DELTA) # north
+segment3 = range-by(135, 225, DELTA) # west
+segment4 = range-by(225, 315, DELTA) # south
+
+# Now we can build and add the ring segments in a order that 
+# will properly show the linking of the rings:
+
+# here are all the segments and coordinates
+# defined a quarter at a time
+B-R1     = map( lam(a): ring-segment(a, BLUE)   end, segment1)
+B-X1     = map( lam(a): find-x(a, B-H)          end, segment1)
+B-Y1     = map( lam(a): find-y(a, B-K)          end, segment1)
+
+B-R2     = map( lam(a): ring-segment(a, BLUE)   end, segment2)
+B-X2     = map( lam(a): find-x(a, B-H)          end, segment2)
+B-Y2     = map( lam(a): find-y(a, B-K)          end, segment2)
+
+B-R3     = map( lam(a): ring-segment(a, BLUE)   end, segment3)
+B-X3     = map( lam(a): find-x(a, B-H)          end, segment3)
+B-Y3     = map( lam(a): find-y(a, B-K)          end, segment3)
+
+B-R4     = map( lam(a): ring-segment(a, BLUE)   end, segment4)
+B-X4     = map( lam(a): find-x(a, B-H)          end, segment4)
+B-Y4     = map( lam(a): find-y(a, B-K)          end, segment4)
+
+Y-R1     = map( lam(a): ring-segment(a, YELLOW) end, segment1)
+Y-X1     = map( lam(a): find-x(a, Y-H)          end, segment1)
+Y-Y1     = map( lam(a): find-y(a, Y-K)          end, segment1)
+
+Y-R2     = map( lam(a): ring-segment(a, YELLOW) end, segment2)
+Y-X2     = map( lam(a): find-x(a, Y-H)          end, segment2)
+Y-Y2     = map( lam(a): find-y(a, Y-K)          end, segment2)
+
+Y-R3     = map( lam(a): ring-segment(a, YELLOW) end, segment3)
+Y-X3     = map( lam(a): find-x(a, Y-H)          end, segment3)
+Y-Y3     = map( lam(a): find-y(a, Y-K)          end, segment3)
+
+Y-R4     = map( lam(a): ring-segment(a, YELLOW) end, segment4)
+Y-X4     = map( lam(a): find-x(a, Y-H)          end, segment4)
+Y-Y4     = map( lam(a): find-y(a, Y-K)          end, segment4)
+
+N-R1     = map( lam(a): ring-segment(a, BLACK)  end, segment1)
+N-X1     = map( lam(a): find-x(a, N-H)          end, segment1)
+N-Y1     = map( lam(a): find-y(a, N-K)          end, segment1)
+
+N-R2     = map( lam(a): ring-segment(a, BLACK)  end, segment2)
+N-X2     = map( lam(a): find-x(a, N-H)          end, segment2)
+N-Y2     = map( lam(a): find-y(a, N-K)          end, segment2)
+
+N-R3     = map( lam(a): ring-segment(a, BLACK)  end, segment3)
+N-X3     = map( lam(a): find-x(a, N-H)          end, segment3)
+N-Y3     = map( lam(a): find-y(a, N-K)          end, segment3)
+
+N-R4     = map( lam(a): ring-segment(a, BLACK)  end, segment4)
+N-X4     = map( lam(a): find-x(a, N-H)          end, segment4)
+N-Y4     = map( lam(a): find-y(a, N-K)          end, segment4)
+
+G-R1     = map( lam(a): ring-segment(a, GREEN)  end, segment1)
+G-X1     = map( lam(a): find-x(a, G-H)          end, segment1)
+G-Y1     = map( lam(a): find-y(a, G-K)          end, segment1)
+
+G-R2     = map( lam(a): ring-segment(a, GREEN)  end, segment2)
+G-X2     = map( lam(a): find-x(a, G-H)          end, segment2)
+G-Y2     = map( lam(a): find-y(a, G-K)          end, segment2)
+
+G-R3     = map( lam(a): ring-segment(a, GREEN)  end, segment3)
+G-X3     = map( lam(a): find-x(a, G-H)          end, segment3)
+G-Y3     = map( lam(a): find-y(a, G-K)          end, segment3)
+
+G-R4     = map( lam(a): ring-segment(a, GREEN)  end, segment4)
+G-X4     = map( lam(a): find-x(a, G-H)          end, segment4)
+G-Y4     = map( lam(a): find-y(a, G-K)          end, segment4)
+
+R-R1     = map( lam(a): ring-segment(a, RED)    end, segment1)
+R-X1     = map( lam(a): find-x(a, R-H)          end, segment1)
+R-Y1     = map( lam(a): find-y(a, R-K)          end, segment1)
+
+R-R2     = map( lam(a): ring-segment(a, RED)    end, segment2)
+R-X2     = map( lam(a): find-x(a, R-H)          end, segment2)
+R-Y2     = map( lam(a): find-y(a, R-K)          end, segment2)
+
+R-R3     = map( lam(a): ring-segment(a, RED)    end, segment3)
+R-X3     = map( lam(a): find-x(a, R-H)          end, segment3)
+R-Y3     = map( lam(a): find-y(a, R-K)          end, segment3)
+
+R-R4     = map( lam(a): ring-segment(a, RED)    end, segment4)
+R-X4     = map( lam(a): find-x(a, R-H)          end, segment4)
+R-Y4     = map( lam(a): find-y(a, R-K)          end, segment4)
+
+# In each of the following three list definitions, the first
+# five lines each represent quarters that need to be drawn in 
+# a certain order to afford the proper interlocking of rings
+# the final line represents quarters that could be added at anytime.
+# Example: line 1 states that Blue Q1 passes over yellow Q2
+# which passes over Black Q3.
+
+list-rings = [list:
+  N-R3,Y-R2,B-R1,
+  Y-R1,N-R4,G-R3,
+  B-R4,Y-R3,
+  R-R3,G-R2,N-R1,
+  G-R1,R-R4,
+  B-R2,B-R3,Y-R4,N-R2,G-R4,R-R2,R-R1
+]
+
+list-of-xs = [list:
+  N-X3,Y-X2,B-X1,
+  Y-X1,N-X4,G-X3,
+  B-X4,Y-X3,
+  R-X3,G-X2,N-X1,
+  G-X1,R-X4,
+  B-X2,B-X3,Y-X4,N-X2,G-X4,R-X2,R-X1
+  ]
+
+list-of-ys = [list:
+  N-Y3,Y-Y2,B-Y1,
+  Y-Y1,N-Y4,G-Y3,
+  B-Y4,Y-Y3,
+  R-Y3,G-Y2,N-Y1,
+  G-Y1,R-Y4,
+  B-Y2,B-Y3,Y-Y4,N-Y2,G-Y4,R-Y2,R-Y1
+]
+
+# flatten the lists into single lists
+RING     = fold(append, [list:], list-rings)
+XLIST    = fold(append, [list:], list-of-xs) 
+YLIST    = fold(append, [list:], list-of-ys) 
+
+# the following line creates the final Image by using 
+# ((5 * 360)) / DELTA) nested (reverse) put-image statements
+# combined into one line using fold3.
+olympicRings = fold3(reverse-put-image, BG, XLIST, YLIST, RING)
+
+scale-xy(1,1,olympicRings)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,72 @@
+include image
+include reactors
+include image-structs
+
+data SceneState:
+  | scene(
+      sun-x :: Number, 
+      sun-y :: Number,
+      sam-x :: Number,
+      sam-y :: Number
+      )
+end
+
+HORIZON-HEIGHT = 100
+HEIGHT         = 300
+WIDTH          = 400
+
+middle         = scene(-20, 0, 320, 240)
+bottom-left    = scene(0,0,0, 0)
+top-right      = scene(0,0,640, 480)
+
+ground         = rectangle(WIDTH, HORIZON-HEIGHT, "solid", "dark-green")
+sam            = image-url("http://www.wescheme.org/imageProxy?url=http%3A%2F%2Fwww.wescheme.org%2Fimages%2Fteachpacks2012%2Fbutterfly.png")
+
+fun draw-sun(a-scene):
+  circle( 25, "solid", color(250, a-scene.sun-y + -50 , 0 , 1))
+end
+
+fun draw-sky(a-scene):
+  rectangle(WIDTH, HEIGHT, "solid", color(a-scene.sun-y - 160 , a-scene.sun-y - 90, 255 , 1 ))
+end
+
+fun next-state-key(a-scene, key):
+  if      string-equal(key,"up"   ): scene(a-scene.sun-x,a-scene.sun-y,a-scene.sam-x + 0, a-scene.sam-y + 5)
+  else if string-equal(key,"down" ): scene(a-scene.sun-x,a-scene.sun-y,a-scene.sam-x + 0, a-scene.sam-y - 5) 
+  else if string-equal(key,"left" ): scene(a-scene.sun-x,a-scene.sun-y,a-scene.sam-x - 5, a-scene.sam-y + 0) 
+  else if string-equal(key,"right"): scene(a-scene.sun-x,a-scene.sun-y,a-scene.sam-x + 5, a-scene.sam-y + 0) 
+  else:                              scene(a-scene.sun-x,a-scene.sun-y,a-scene.sam-x + 0, a-scene.sam-y + 0)
+  end       
+end
+
+fun next-state-tick(a-scene):
+  if      a-scene.sun-x < 200 : 
+    scene(a-scene.sun-x + 4, a-scene.sun-y + 8, a-scene.sam-x,a-scene.sam-y)
+  else if a-scene.sun-x < 400 : 
+    scene(a-scene.sun-x + 4, a-scene.sun-y - 8, a-scene.sam-x,a-scene.sam-y)      
+  else: scene(-20, 0, a-scene.sam-x,a-scene.sam-y)
+end
+end
+
+
+fun draw-state(state) :
+  put-image(sam, state.sam-x,state.sam-y , (put-image(scale(2, ground), 0,0, put-image(draw-sun(state), state.sun-x, state.sun-y, draw-sky(state)))))
+end
+
+scene-react = reactor:
+  init: middle,
+  to-draw: draw-state,
+  on-tick: next-state-tick,
+  on-key: next-state-key
+end
+
+interact(scene-react)
+
+
+#sunset-react = reactor:
+# init: sunset(50, 270),
+# on-tick: next-state-tick,
+# to-draw: draw-state
+#end
+
+#interact(sunset-react)

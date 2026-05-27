@@ -1,0 +1,79 @@
+use context essentials2021
+
+fun ys(s):
+  star(s, "solid", "yellow")
+end
+fun gt(s, c):
+  triangle(s, "solid",c)
+end
+fun br(s):
+  rectangle(s, s  * 3, "solid", "brown")
+end
+fun c-tree(s,c):
+  above(ys(s / 2), 
+    above(gt(s / 2, c),
+        above(gt(s / 1.5,c),
+          above(gt(s,c), br(s / 4)))))
+end
+fun rand-color(n):
+  if n == 0 : "olive"
+  else if n == 1 : "darkgreen"
+  else if n == 2 : "forestgreen"
+  else: "green"
+  end
+end
+
+bg = above(
+  rectangle(700, 350, "solid", "lightblue"),
+  rectangle(700, 360, "solid", "white")
+  )
+
+randx   = lam(x): num-random(700) + 0 end
+randy1  = lam(y): num-random(90) + 300 end
+randy2  = lam(y): num-random(90) + 250 end
+randy3  = lam(y): num-random(90) + 150 end
+randy4  = lam(y): num-random(90) +  50 end
+rands1  = lam(s): num-random(70) +  20 end
+rands2  = lam(s): num-random(70) +  40 end
+rands3  = lam(s): num-random(70) +  60 end
+rands4  = lam(s): num-random(70) +  80 end
+randc   = lam(c): rand-color(num-random(4)) end
+  
+rnge = range(0,8)
+
+rand-x1 = map(randx , rnge)
+rand-y1 = map(randy1, rnge)
+rand-s1 = map(rands1, rnge)
+rand-c1 = map(randc , rnge)
+ctrees1 = map2(c-tree, rand-s1, rand-c1)
+
+rand-x2 = map(randx , rnge)
+rand-y2 = map(randy2, rnge)
+rand-s2 = map(rands2, rnge)
+rand-c2 = map(randc , rnge)
+ctrees2 = map2(c-tree, rand-s2, rand-c2)
+
+rand-x3 = map(randx , rnge)
+rand-y3 = map(randy3, rnge)
+rand-s3 = map(rands3, rnge)
+rand-c3 = map(randc , rnge)
+ctrees3 = map2(c-tree, rand-s3, rand-c3)
+
+rand-x4 = map(randx , rnge)
+rand-y4 = map(randy4, rnge)
+rand-s4 = map(rands4, rnge)
+rand-c4 = map(randc , rnge)
+ctrees4 = map2(c-tree, rand-s4, rand-c4)
+
+
+
+fun reverse-put-image(bs, x,y, im):
+  put-image(im, x,y,bs)
+end
+
+l1 = fold3(reverse-put-image, bg, rand-x1,rand-y1,ctrees1)
+l2 = fold3(reverse-put-image, l1, rand-x2,rand-y2,ctrees2)
+l3 = fold3(reverse-put-image, l2, rand-x3,rand-y3,ctrees4)
+l4 = fold3(reverse-put-image, l3, rand-x4,rand-y4,ctrees4)
+
+l4

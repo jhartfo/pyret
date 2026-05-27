@@ -1,0 +1,310 @@
+use context essentials2021
+include math
+include image
+
+# Let's make the Batman Logo using the
+# "Batman Equation"
+#################################################
+#
+# Contents:
+#
+# 1. Define some constants about the parameters of the Batman Logo
+# 2. Define the Batman Equation and list the domains
+# 3. Scale the Batman functions to an appropriate size
+# 4. Convert the domains into Lists of values at intervals of 'dx'
+# 5. Apply the Batman Functions to the Lists
+# 6. Define functions to create the trapezoids used to draw the image
+# 7. Define functions that we use to stack elements together
+# 8. Create the lists of trapezoids
+# 9. Assemble all the parts
+#
+# 1. ############################################
+
+SCALAR     =  50       # how much we are going to scale up the final picture
+dx         =  0.5      # how wide the slivers of the picture will be 
+bman-color = "black"   # of course batman's color is black
+back-color = "yellow"  # background color in the logo
+
+oval-wt    = SCALAR * 30
+oval-ht    = SCALAR * 14
+bkgr-wt    = SCALAR * 32
+bkgr-ht    = SCALAR * 20
+
+background = rectangle(bkgr-wt,bkgr-ht, "solid", bman-color)
+oval       = ellipse(  oval-wt,oval-ht, "solid", back-color)
+
+# 2. ############################################
+#
+# Collectively these functions are 
+# known as the batman equation (original scale)
+
+fun b1(x)   : -3 * num-sqrt(1 - ((x * x) / 49)) end
+fun b2(x)   :  3 * num-sqrt(1 - ((x * x) / 49)) end
+fun b3-1(x) : num-abs(x / 2) end
+fun b3-2(x) : (-1 * (((3 * num-sqrt(33)) - 7) / (112)) * (x * x)) end
+fun b3-3(x) : num-sqrt(1 - num-sqr(num-abs(num-abs(x) - 2) - 1)) end
+fun b3(x)   : b3-1(x) + b3-2(x) + -3 + b3-3(x) end
+fun b4(x)   : 9 - (8 * num-abs(x))end
+fun b5(x)   : (3 * num-abs(x)) + 0.75 end
+fun b6(x)   : 2.25 end
+fun b7-1(x) : ((6 * num-sqrt(10)) / 7) end
+fun b7-2(x) : ((-0.5 * num-abs(x)) + 1.5 ) end
+fun b7-3(x) : ((-6 * num-sqrt(10)) / 14) end
+fun b7-4(x) : num-sqrt(4 - num-sqr(num-abs(x) - 1)) end
+fun b7-5(x) : b7-3(x) * b7-4(x)  end
+fun b7(x)   : b7-1(x) + b7-2(x) + b7-5(x) end
+
+# Domains of the various pieces in the original batman 
+# equation as well as the direction they point in 
+# the final image
+#
+# b1: { 4 < x < 7 }U{-7 < x <-4 }              DOWN
+# b2: { 3 < x < 7 }U{-7 < x <-3 }              UP
+# b3: {-4 < x < 4 }                            DOWN
+# b4: {-1 < x < -0.75 }U{ 0.75 < x < 1 }       UP
+# b5: { 0.50 < x < 0.75 }U{-0.75 < x < -0.50 } UP
+# b6: {-0.5 < x < 0.5}                         UP
+# b7: { 1 < x < 3 }U{-3 < x <-1 }              UP
+
+# 3. ############################################
+#
+# But to make an image in Pyret, we need to scale
+# the whole thing up by the above SCALAR
+
+fn-scale :: Function, Number -> Function
+# fn-scale takes in a function over the real Numbers
+# and scale the function in the x and y directions
+# enlarging the function's curve without distortion
+
+# examples:
+#  fn-scale(num-sin, 2) is lam(x): 2 * num-sin(x / 2) end
+#  fn-scale(num-cos, 2) is lam(x): 2 * num-cos(x / 2) end
+# end
+fun fn-scale(f, k):
+  lam(x): k  * f(x / k) end
+end
+
+b01 = fn-scale(b1, SCALAR)
+b02 = fn-scale(b2, SCALAR)
+b03 = fn-scale(b3, SCALAR)
+b04 = fn-scale(b4, SCALAR)
+b05 = fn-scale(b5, SCALAR)
+b06 = fn-scale(b6, SCALAR)
+b07 = fn-scale(b7, SCALAR)
+
+# 4. ############################################
+#
+# Here, we add an extra point on the end of each list so 
+# we can later create a left list and right list
+
+X01 = range-by(( 4.00 * SCALAR) , ( 7.00 * SCALAR) + dx, dx) # b1 down
+X02 = range-by((-7.00 * SCALAR) , (-4.00 * SCALAR) + dx, dx) # b1 down
+X03 = range-by(( 3.00 * SCALAR) , ( 7.00 * SCALAR) + dx, dx) # b2 up
+X04 = range-by((-7.00 * SCALAR) , (-3.00 * SCALAR) + dx, dx) # b2 up
+X05 = range-by((-4.00 * SCALAR) , ( 4.00 * SCALAR) + dx, dx) # b3 down 
+X06 = range-by((-1.00 * SCALAR) , (-0.75 * SCALAR) + dx, dx) # b4 up
+X07 = range-by(( 0.75 * SCALAR) , ( 1.00 * SCALAR) + dx, dx) # b4 up
+X08 = range-by(( 0.50 * SCALAR) , ( 0.75 * SCALAR) + dx, dx) # b5 up
+X09 = range-by((-0.75 * SCALAR) , (-0.50 * SCALAR) + dx, dx) # b5 up
+X10 = range-by((-0.50 * SCALAR) , ( 0.50 * SCALAR) + dx, dx) # b6 up
+X11 = range-by((-3.00 * SCALAR) , (-1.00 * SCALAR) + dx, dx) # b7 up
+X12 = range-by(( 1.00 * SCALAR) , ( 3.00 * SCALAR) + dx, dx) # b7 up
+
+# 5. ############################################
+#
+# Here we apply the Batman Functions
+
+Y01 = map(b01,X01) # b1 d
+Y02 = map(b01,X02) # b1 d
+Y03 = map(b02,X03) # b2 u
+Y04 = map(b02,X04) # b2 u
+Y05 = map(b03,X05) # b3 d
+Y06 = map(b04,X06) # b4 u
+Y07 = map(b04,X07) # b4 u
+Y08 = map(b05,X08) # b5 u
+Y09 = map(b05,X09) # b5 u
+Y10 = map(b06,X10) # b6 u
+Y11 = map(b07,X11) # b7 u
+Y12 = map(b07,X12) # b7 u
+
+YY1 = map(num-abs,Y01) # need values to be positive 
+YY2 = map(num-abs,Y02) # so we can create trapezoids 
+YY5 = map(num-abs,Y05) # with positive side lengths
+
+# 6. ############################################
+#
+# To create our image, we borrow a notion from Calulus: 
+# The Trapezoid Rule. Although no actual Calculus is needed. 
+# The top edge of the Batman logo is defined by curves
+# in the Batman Equations. We will break the curve into 
+# small intervals and draw small right trapezoids on their 
+# end to represent each small interval in the picture. 
+# A similar procedure is used for the lower edge.
+
+# up-trapezoid() and down-trapezoid() take in 3 Numbers and a Color
+# the first two Numbers are the trapezoid bases (vertical sides here),
+# the third is the height (horizontal side here). In the up-trapezoid(),
+# the horizontal side is on the bottom; in the down-trapezoid(), the 
+# horizontal side is on top.
+
+# These two functions are for a general use.
+# "Outline" is not offered because the trapezoid would have
+# a line through it.
+
+up-trapezoid   :: Number, Number, Number, String -> Image
+down-trapezoid :: Number, Number, Number, String -> Image
+examples:
+  up-trapezoid(50,40,30,"blue")   is above(
+    (right-triangle(30,50 - 40, "solid", "blue")),
+    rectangle(30,40,"solid","blue"))
+  up-trapezoid(40,50,30,"blue")   is above(
+    flip-horizontal(right-triangle(30,50 - 40, "solid", "blue")),
+    rectangle(30,40,"solid","blue"))
+  
+  down-trapezoid(50,40,30,"blue") is above(
+    rectangle(30,40,"solid","blue"),
+    flip-vertical(right-triangle(30,50 - 40, "solid", "blue")))
+  down-trapezoid(40,50,30,"blue") is above(
+    rectangle(30,40,"solid","blue"),
+    flip-vertical(
+      flip-horizontal(right-triangle(30,50 - 40, "solid", "blue"))))  
+end
+fun up-trapezoid(base1, base2, height, clr):
+  if base1 > base2:
+   above(
+      (right-triangle(height, (base1 - base2), "solid", clr)),
+      rectangle(height, base2, "solid", clr))
+  else:
+   above(
+      flip-horizontal(right-triangle(height,(base2 - base1), "solid", clr)),
+      rectangle(height, base1, "solid", clr))
+  end
+end
+fun down-trapezoid(base1, base2, height, clr):
+  if base1 > base2:
+   above(
+      rectangle(height, base2, "solid", clr),
+      flip-vertical(right-triangle(height, (base1 - base2), "solid", clr)))
+  else:
+   above(
+      rectangle(height, base1, "solid", clr),
+      flip-vertical(
+        flip-horizontal(right-triangle(height,(base2 - base1), "solid", clr))))
+  end
+end
+
+# These two functions are like the above functions
+# but are for our specific use-case
+bat-trap-up :: Number, Number -> Image
+bat-trap-dn :: Number, Number -> Image
+fun bat-trap-up(base1, base2):
+  up-trapezoid(base1, base2, dx, bman-color)
+end
+
+fun bat-trap-dn(base1, base2):
+  down-trapezoid(base1, base2, dx, bman-color)
+end
+
+# 7. ############################################
+
+# These functions allow us to stack together various 
+# elements in a few steps.
+
+stack-lists :: List -> List
+# stack-lists consumes a List containing other lists and
+# returns a new List whose elements come from the elements
+# of the component Lists which are appended to the elements 
+# of the previous component List. (did you follow that?)
+# (it just smashes Lists together.)
+examples:
+  stack-lists([list: [list:1],[list: 2],[list: 3]]) is [list: 1,2,3]
+  stack-lists([list: [list: ],[list:  ],[list:  ]]) is [list: ]
+end
+fun stack-lists(lists):
+  fold(lam(x,y): append(x,y) end, [list:], lists)
+end
+
+# elements for the below examples:
+rd      = circle(80, "solid", "red")
+wt      = circle(40, "outline", "black")
+bl      = circle(20, "solid", "blue")
+ex-list = [list: wt, bl]
+
+stack-beside-align :: Image, List, String -> Image
+# stack-beside-align consumes a base image, a List
+# containings images, and String representing a alignment position. 
+# The function will then use beside-align() to place each 
+# element in the list to the right of the previous image one, 
+# beginning with the base image.
+examples:
+  stack-beside-align(rd, ex-list, "top") is 
+  beside-align("top"   , rd, (beside-align("top"   , wt, bl)))
+  
+  stack-beside-align(rd, ex-list, "center") is
+  beside-align("center", rd, (beside-align("center", wt, bl)))
+  
+  stack-beside-align(rd, ex-list, "bottom") is
+  beside-align("bottom", rd, (beside-align("bottom", wt, bl)))
+end
+fun stack-beside-align(start, images, posn):
+  fold(lam(x,y): beside-align(posn, x,y) end, start, images)
+end
+
+# 8. ############################################
+#
+# These are lists of trapezoids generated from the 
+# Batman function
+
+T01 = map2(bat-trap-dn, YY1.take(length(YY1)), YY1.drop(1))
+T02 = map2(bat-trap-dn, YY2.take(length(YY2)), YY2.drop(1))
+T03 = map2(bat-trap-up, Y03.take(length(Y03)), Y03.drop(1))
+T04 = map2(bat-trap-up, Y04.take(length(Y04)), Y04.drop(1))
+T05 = map2(bat-trap-dn, YY5.take(length(YY5)), YY5.drop(1))
+T06 = map2(bat-trap-up, Y06.take(length(Y06)), Y06.drop(1))
+T07 = map2(bat-trap-up, Y07.take(length(Y07)), Y07.drop(1))
+T08 = map2(bat-trap-up, Y08.take(length(Y08)), Y08.drop(1))
+T09 = map2(bat-trap-up, Y09.take(length(Y09)), Y09.drop(1))
+T10 = map2(bat-trap-up, Y10.take(length(Y10)), Y10.drop(1))
+T11 = map2(bat-trap-up, Y11.take(length(Y11)), Y11.drop(1))
+T12 = map2(bat-trap-up, Y12.take(length(Y12)), Y12.drop(1))
+
+# List of the Lists containing the up-trapezoids in order
+L01 = [list: T04, T11, T06, T09, T10, T08, T07, T12, T03]
+
+# List of the List containing the down-trapezoids in order 
+L02 = [list: T02, T05, T01]
+
+# stack together all the lists of trapezoids
+top-list = stack-lists(L01)
+bot-list = stack-lists(L02)
+
+# 9. ############################################
+#
+# stack together all the trapezoids
+top      = stack-beside-align(empty-image, top-list,"bottom") 
+bot      = stack-beside-align(empty-image, bot-list,"top")
+
+# I'm Batman!
+crest    = above(top,bot)
+
+# Let's put it all together!
+
+logo     = overlay-align("center", "center", scale(2,crest), oval)
+BATMAN   = overlay-align("center", "center", logo, background)
+
+# Not recommended to scale small than 0.5
+scale(1, BATMAN)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

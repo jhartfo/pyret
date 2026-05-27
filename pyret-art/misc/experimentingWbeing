@@ -1,0 +1,204 @@
+#include shared-gdrive("being.arr", "124XBkYK4VLORa9v98QW_z39NumY1fnM4")
+
+include image
+include reactors
+include image-structs
+
+data Posn:
+  | posn(x :: Number, y :: Number) 
+end
+
+data Being:
+  | being(
+      posn    :: Posn, 
+      costume :: Image,
+      special 
+      ) 
+end
+
+data BeingDelta:
+  | delta(dx, t)
+end
+
+# Define the data need for scene
+data SceneState:
+  | scene(
+      score, #:: Number,
+      PLAYER,   #:: Being,
+      BACKGD,   #:: Being, 
+      DANGER    #:: Being
+      )
+end
+
+# Define constants
+HORIZON-HEIGHT =  100
+HEIGHT         =  300
+WIDTH          =  400
+SAM-HT         =  150
+SAM-X          =  150
+DOG-HT         =  120
+DOG-X          =  660
+SAM-S-T        =  20
+DOG-SPEED      = -5
+SAM-SPEED      =  5
+SUN-DX         =  4/2
+EQUINOX        = -20
+SUNRISE        =  0
+
+SAMsURL        = "http://www.wescheme.org/imageProxy?url=http%3A%2F%2Fwww.wescheme.org%2Fimages%2Fteachpacks2012%2Fbutterfly.png"
+DOGsURL        = "http://www.bootstrapworld.org/clipart/Curriculum/dog.png"
+GRD-IMG        = rectangle(WIDTH, HORIZON-HEIGHT, "solid", "dark-green")
+SAM-IMG        = flip-horizontal(image-url(SAMsURL))
+DOG-IMG        = scale(0.75, image-url(DOGsURL))
+SUN-IMG        = circle( 25, "solid", color(250, 0 , 0 , 1))
+SKY-IMG        = rectangle(WIDTH, HEIGHT, "solid", color(0, 0, 255 , 1 ))
+
+# Define elements
+SAM            = being(posn(  SAM-X,   SAM-HT), SAM-IMG, delta(0, SAM-S-T))
+DOG            = being(posn(  DOG-X,   DOG-HT), DOG-IMG, delta(0,       0))
+SUN            = being(posn(EQUINOX,  SUNRISE), SKY-IMG, delta(0,       0))
+SKY            = being(posn(      0,        0), SKY-IMG, delta(0,       0))
+GRD            = being(posn(      0,        0), GRD-IMG, delta(0,       0))
+
+# Define initial states
+START          = scene(0, SAM, SUN, DOG)
+
+# Define how to draw Sun and Sky
+fun draw-sun(sun-being):
+  circle( 25, "solid", color(250, sun-being.posn.y - 50 , 0 , 1))
+end
+
+fun draw-sky(sun-being):
+  rectangle(WIDTH, HEIGHT, "solid", color(sun-being.posn.y - 160 , sun-being.posn.y - 90, 255 , 1 ))
+end
+
+fun jump(x):
+  (-3 * x * (x - 19)) + SAM-HT
+end
+
+fun update-sam(PLAYER):
+  if PLAYER.special.t == SAM-S-T:  
+    being(
+      posn(PLAYER.posn.x + PLAYER.special.dx, jump(PLAYER.special.t)),
+      PLAYER.costume, 
+      delta(0, SAM-S-T))
+  else:
+    being(
+      posn(PLAYER.posn.x + PLAYER.special.dx, jump(PLAYER.special.t)),
+      PLAYER.costume, 
+      delta(0, PLAYER.special.t + 1))
+  end
+end
+
+fun delta-sam(PLAYER, d,t):
+  being(
+    posn(PLAYER.posn.x, PLAYER.posn.y), 
+    PLAYER.costume,
+    delta(d,t))
+end
+  
+fun update-danger(DANGER, dx):
+  if DANGER.posn.x > -60:
+    being(
+      posn(DANGER.posn.x + dx, DANGER.posn.y), 
+      DANGER.costume, 
+      delta(0,0))
+  else:
+    DOG # resets to original dog
+  end
+end
+
+fun update-sun(BACKGD, dx):
+  if BACKGD.posn.x < 640:
+    being(
+      posn(BACKGD.posn.x + dx, (-0.04 * (BACKGD.posn.x + dx + 20) * ((BACKGD.posn.x + dx) - 400)) / 3), 
+      BACKGD.costume, 
+      delta(0,0))
+  else:
+    SUN # resets to original sun
+  end
+end
+
+  
+
+fun next-state-key(STATE, key):  
+  if      string-equal(key,"left" ): 
+    scene(STATE.score, delta-sam(STATE.PLAYER, -1 * SAM-SPEED, STATE.PLAYER.special.t    ), STATE.BACKGD, STATE.DANGER)
+  else if string-equal(key,"right"):
+    scene(STATE.score, delta-sam(STATE.PLAYER,  1 * SAM-SPEED, STATE.PLAYER.special.t    ), STATE.BACKGD, STATE.DANGER)
+  else if string-equal(key," "    ):
+    scene(STATE.score, delta-sam(STATE.PLAYER,  STATE.PLAYER.special.dx, 0), STATE.BACKGD, STATE.DANGER)
+  else:
+    scene(STATE.score, STATE.PLAYER, STATE.BACKGD, STATE.DANGER)
+  end
+end
+
+
+fun next-state-tick(STATE):
+  scene(STATE.score, update-sam(STATE.PLAYER), update-sun(STATE.BACKGD, SUN-DX), update-danger(STATE.DANGER, DOG-SPEED))
+end
+
+fun draw-state(STATE) :
+  put-image( 
+    STATE.PLAYER.costume, STATE.PLAYER.posn.x, STATE.PLAYER.posn.y, put-image(
+      STATE.DANGER.costume, STATE.DANGER.posn.x, STATE.DANGER.posn.y, put-image(
+        scale(2, GRD.costume), GRD.posn.x, GRD.posn.y, put-image(
+          draw-sun(STATE.BACKGD), STATE.BACKGD.posn.x, STATE.BACKGD.posn.y, draw-sky(STATE.BACKGD)
+          ))))
+end
+
+scene-react = reactor:
+  init: START,
+  to-draw: draw-state,
+  on-tick: next-state-tick,#next-state-tick,
+  on-key : next-state-key
+end
+
+interact(scene-react)
+
+fun sim-sam(x,y,d,t):
+  being(posn(  x,   y), text("SAM",10, "black"), delta(d, t))
+end
+
+fun sim-left(a-sim-sam):
+  sim-delta(a-sim-sam,  SAM-SPEED, a-sim-sam.special.t)
+end
+
+fun sim-space(a-sim-sam):
+  sim-delta(a-sim-sam,  a-sim-sam.special.dx, 0)
+end
+
+fun sim-delta(a-sim-sam, d,t):
+  sim-sam(a-sim-sam.posn.x,a-sim-sam.posn.y,d,t)
+end
+
+fun sim-update(a-sim-sam):
+  if a-sim-sam.special.t == SAM-S-T:
+    sim-sam(
+      a-sim-sam.posn.x + a-sim-sam.special.dx,
+      jump(a-sim-sam.special.t),
+      0,
+      SAM-S-T)
+  else: sim-sam(
+      a-sim-sam.posn.x + a-sim-sam.special.dx,
+      jump(a-sim-sam.special.t),
+      0,
+      a-sim-sam.special.t + 1)
+  end
+end
+
+
+sim-sam(150,150,0, 10)
+sim-space(sim-sam(150,150,0, 10))
+sim-update(sim-sam(150,150,0,0))
+sim-update(sim-sam(150,150,0,1))
+sim-update(sim-sam(150,174,0,2))
+sim-update(sim-sam(150,192,0,3))
+sim-left(sim-sam(150,204,0,4))
+sim-update(sim-sam(150,204,5,4))
+sim-update(sim-sam(155,210,0,5))
+
+
+
+
+

@@ -1,0 +1,63 @@
+use context essentials2021
+
+include reactors
+include color
+
+SPEED   = 20
+mod-256 = lam(x): num-modulo(x,256) end
+
+fun rb-color(n):
+  x = num-modulo(num-round(n), 1536)
+  if x < 256:
+    color(255, mod-256(x), 0, 1)
+  else if x < (256 * 2):
+    color(256 - mod-256(x), 255, 0, 1)
+  else if x < (256 * 3):
+    color(0, 255, mod-256(x), 1)
+  else if x < (256 * 4):
+    color(0, 256 - mod-256(x), 255, 1)
+  else if x < (256 * 5):
+    color(mod-256(x), 0, 255, 1)
+  else if x < (256 * 6):
+    color(255, 0, 256 - mod-256(x), 1)
+  end
+end
+
+fun draw-rect(x):
+  rectangle(1000,100,"solid", rb-color(x)) 
+end
+
+fun update(x):
+  x + SPEED
+end 
+
+
+
+rb = overlay(
+  circle(95,"solid", "light-blue"),
+  fold(
+    overlay,empty-image,
+    map(lam(x): circle((0.25 * x) + 100,"solid",rb-color(x)) end,
+      range-by(0,1530,5)
+      )))
+
+rb-scene = put-image(
+  rectangle(2000,240,"solid","dark-green"),
+  1000,120,
+  put-image(
+    rb, 1000, 240,
+    rectangle(2000,1000, "solid","light-blue")
+    ))
+    
+
+rainbow = reactor:
+  init    : 0,
+  on-tick : update,
+  to-draw : draw-rect,
+  title   : "COLORS!" 
+end
+
+interact(rainbow)
+
+scale(0.5, rb-scene)
+

@@ -1,0 +1,172 @@
+include shared-gdrive("being.arr", "124XBkYK4VLORa9v98QW_z39NumY1fnM4")
+
+include image
+include reactors
+include image-structs
+
+# Define the data need for scene
+data SceneState:
+  | scene(
+      score,
+      ax,    # sun-x :: Being
+      ay,    # sun-y :: Number
+      cx,    # sam-x :: Number
+      cy,    # sam-y :: Number
+      cj,    # sam moving? :: Number
+      dx,    # dog-x :: Number
+      dy     # dog-y :: Number    
+      )
+end
+
+# Define constants
+HORIZON-HEIGHT =  100
+HEIGHT         =  300
+WIDTH          =  400
+SAM-HT         =  150
+DOG-HT         =  100
+CJ-INIT        =  10
+DOG-SPEED      = -5
+SUN-DX         =  4/2
+EQUINOX        = -20
+SUNRISE        =  0
+
+START          = scene(0, EQUINOX, SUNRISE, 120, SAM-HT, CJ-INIT, 640, DOG-HT)
+
+SAMsURL        = "http://www.wescheme.org/imageProxy?url=http%3A%2F%2Fwww.wescheme.org%2Fimages%2Fteachpacks2012%2Fbutterfly.png"
+DOGsURL        = "http://www.bootstrapworld.org/clipart/Curriculum/dog.png"
+GROUND         = rectangle(WIDTH, HORIZON-HEIGHT, "solid", "dark-green")
+SAM            = flip-horizontal(image-url(SAMsURL))
+DOG            = scale(0.75, image-url(DOGsURL))
+SUN-INIT       = circle( 25, "solid", color(250, 0 , 0 , 1))
+SKY-INIT       = rectangle(WIDTH, HEIGHT, "solid", color(0, 0, 255 , 1 ))
+
+sam = being(posn(0,0), SAM, 10)
+dog = being(posn(0,0), DOG,  0)
+sun = being(posn(0,0), SUN-INIT, 0)
+sky = being(posn(0,0), SKY-INIT, 0)
+ground = being(posn(0,0), GROUND, 0)
+
+
+
+
+
+
+
+fun make-score(score):
+  0
+end
+
+fun jump(x):
+  (-3 * x * (x - 9)) + SAM-HT
+  #(-2 * x)
+end
+
+fun draw-sun(s):
+  circle( 25, "solid", color(250, s.ay + -50 , 0 , 1))
+end
+
+fun draw-sky(s):
+  rectangle(WIDTH, HEIGHT, "solid", color(s.ay - 160 , s.ay - 90, 255 , 1 ))
+end
+
+# SAM's movement
+fun next-state-key(s, key):  
+  if      string-equal(key,"left" ): scene(0, s.ax, s.ay, s.cx - 5, SAM-HT + 0,10, s.dx + 0, DOG-HT) 
+  else if string-equal(key,"right"): scene(0, s.ax, s.ay, s.cx + 5, SAM-HT + 0,10, s.dx + 0, DOG-HT) 
+  else if string-equal(key," "    ): scene(0, s.ax, s.ay, s.cx + 0, SAM-HT + 0,0, s.dx + 0, DOG-HT) 
+    #else if string-equal(key,"up"   ): scene(0, s.ax, s.ay, s.cx + 0, s.cy + 5,0, s.dx + 0, DOG-HT) 
+    #else if string-equal(key,"down" ): scene(0, s.ax, s.ay, s.cx + 0, s.cy - 5,0, s.dx + 0, DOG-HT)  
+  else:                              scene(0, s.ax, s.ay, s.cx + 0, SAM-HT + 0,10, s.dx + 0, DOG-HT) 
+  end       
+end
+
+fun dog-update(x):
+  if x > -40:
+    x + DOG-SPEED
+  else: 640
+  end
+end
+
+#need to create a data type for each character
+
+
+fun update-sun-y(x):
+  (-0.04 * (x + 20) * (x - 400)) / 3
+end
+
+fun update-sun-x(x):
+  if x < 640:
+    x + SUN-DX
+  else:
+    0
+  end
+end
+
+
+
+fun nst(s):
+  sc = block: s.score end
+  ax = block: update-sun-x(s.ax) end  # sun-x :: Number 
+  ay = block: update-sun-y(  ax) end  # sun-y :: Number
+  #SAM
+  cx = block: s.cx end  # sam-x :: Number
+  cy = block: s.cy end  # sam-y :: Number
+  cj = block: s.cj end  # sam moving? :: Number
+  dx = block: dog-update(s.dx) end  # dog-x :: Number
+  dy = block: s.dy end
+  scene(sc,ax,ay,cx,cy,cj,dx,dy)
+end
+
+# Sun's movement
+fun next-state-tick(s):
+  if s.cj == 10:
+    if      s.ax < 200 : 
+      scene(0, s.ax + SUN-DX, s.ay + 8/3, s.cx + 0, SAM-HT,    10,       s.dx + DOG-SPEED, DOG-HT) 
+    
+    else if s.ax < 400 : 
+      scene(0, s.ax + SUN-DX, s.ay - 8/3, s.cx + 0, SAM-HT,    10,       s.dx + DOG-SPEED, DOG-HT)       
+    
+    else: # reset sun 
+      scene(0, EQUINOX ,      SUNRISE ,      s.cx + 0, s.cy + 0,  10,       s.dx + DOG-SPEED, DOG-HT) 
+    end
+  
+  else:
+    if      s.ax < 200 : 
+      scene(0, s.ax + SUN-DX, s.ay + 8/3, s.cx + 0,jump(s.cj), s.cj + 1, s.dx + DOG-SPEED, DOG-HT) 
+    
+    else if s.ax < 400 : 
+      scene(0, s.ax + SUN-DX, s.ay - 8/3, s.cx + 0,jump(s.cj), s.cj + 1, s.dx + DOG-SPEED, DOG-HT)       
+    
+    else: # reset sun
+      scene(0, EQUINOX ,      SUNRISE ,      s.cx + 0, s.cy + 0,  10,       s.dx + DOG-SPEED, DOG-HT) 
+    end
+
+  end
+end
+
+fun draw-state(state) :
+  put-image( 
+    SAM, state.cx,state.cy , put-image(
+      DOG, state.dx, state.dy, put-image(  
+      scale(2, GROUND), 0,0, put-image(
+        draw-sun(state), state.ax, state.ay, draw-sky(state)
+        ))))
+end
+
+scene-react = reactor:
+  init: START,
+  to-draw: draw-state,
+  on-tick: next-state-tick,
+  on-key : next-state-key
+end
+
+interact(scene-react)
+
+
+#sunset-react = reactor:
+# init: sunset(50, 270),
+# on-tick: next-state-tick,
+# to-draw: draw-state
+#end
+
+#interact(sunset-react)

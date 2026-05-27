@@ -1,0 +1,374 @@
+include image
+include image-structs
+
+# NOTE: the placement of the stars is random so each time the 
+# prgram is run, a different image is created!
+
+########################################
+# new data type. Here,
+# Posn is an ordered triple which provides
+# (x, y, scale) for some element in the 
+# final picture.
+
+data Posn:
+  | posn(x :: Number, y :: Number, scale :: Number) 
+end
+
+#########################################
+# 
+# Often it is a good practice to define 
+# certain values early in process so 
+# that if you need to change something you do not have go throu 
+#
+# some constants:
+
+W-WIDTH       = 640
+W-HEIGHT      = 480
+S-HEIGHT      = 1
+flag-text-1   = "Resolved that the Flag of the united states"
+flag-text-2   = "be 13 stripes alternate red and white, that the union"
+flag-text-3   = "be 13 stars white in a blue field representing"
+flag-text-4   = "a new constellation."
+
+#PI            = num-acos(-1)        # Defining PI's true value without rounding
+num-sect      = 9                   # Number spokes on the burst
+sector        = (2 * PI) / num-sect # Angle representing each spoke
+
+############################################
+# These values provide the location of the fireworks
+#
+# Red burst is at   (Hr, Kr)
+# Green burst is at (Hg, Kg)
+#
+
+Hr            = 1020
+Kr            = 260
+Hg            = 1080
+Kg            = 200
+
+################################
+# Define some functions that will help us build
+# Parts of our picture
+
+# We want the stars to be out in random places
+# the following function will create random numbers
+# for us.
+
+# rand-range :: Number, Number -> random number
+# produces a random number between a and b
+fun rand-range(a,b):
+  num-random(b - a) + a
+end
+
+# shade-rectangle :: Number -> Image
+# takes in a number(ht) and creates a 
+# rectangle colored in an rgb blue and sized with preset ht and wt
+check:
+  shade-rectangle( 0) is rectangle(W-WIDTH,S-HEIGHT, "solid", color(0,0, 0,1))
+  shade-rectangle(10) is rectangle(W-WIDTH,S-HEIGHT, "solid", color(0,0,10,1))
+end
+fun shade-rectangle(ht):
+  rectangle(W-WIDTH, S-HEIGHT, "solid", color(0, 0, ht , 1 ))
+end
+
+###################################
+# The following functions will create objects 
+# will simulate stars in the picture
+
+# following functions are all of similar form
+# ***-star :: Number -> Image
+# takes in a number(scale) and creates the 
+# image of a star scaled by scale()
+check:
+  white-star(1) is 
+  scale(1, circle(2,"solid",lemon-chiffon))
+  white-star(1.5) is 
+  scale(1.5, circle(2,"solid",lemon-chiffon))
+end
+fun white-star(s):
+  scale(s, circle(2,"solid",lemon-chiffon))
+  end
+fun blue-star(s): 
+  scale(s, circle(2,"solid",cornflower-blue))
+end
+fun red-star(s):
+  scale(s, circle(2,"solid",orange))
+end
+fun white-star-big(s): 
+  scale(s,
+    overlay(
+      rhombus(50, 1.0, "solid","light-yellow"),
+      circle(0.8,"solid","white")
+      ))
+end
+
+# red-text :: String -> Image
+# takes in a String and displays it red
+check:
+  red-text("s") is text-font("s", 20, "red","normal",
+    "decorative","normal","bold", false)
+  red-text("") is text-font("", 20, "red","normal",
+    "decorative","normal","bold", false)
+end
+fun red-text(my-text):
+  text-font(my-text, 20, "red","normal",
+    "decorative","normal","bold", false)
+end
+
+
+##############################################################
+# We will need to use another new datatype: List, to create our 
+# image. Lists are just like it sounds, a list of things.
+# Ex: fibb10 = [list: 0,1,1,2,3,5,8,13,21,34] 
+#
+# You can create a List without actually typing the list by hand.
+# One method is to use range(start, stop). The list will begin 
+# at start and end at stop - 1
+# Ex: range(0,10) = [list: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+#
+# Another method would be to use the map() which maps one
+# list to a new list using a user defined function.
+# In the sections below, we first create lists using range()
+# Then we map those to a list of random x and random y values.
+# Next, we use map2() to combine the x's and y's into a list of 
+# Posn()s that we then use to create list of images (stars)
+#
+######################################################
+
+# The following section creates the sky background
+
+# this creates a list from 1 to 480
+List1 = range(1, W-HEIGHT)
+
+# this maps list1 to x / 9.6
+# We need this so that the values in the list will
+# provide appropriate levels of 'blue' for the shade-rectangle()
+# function.
+#
+List2 = map(lam(x): x / 9.6 end, List1)
+
+# this maps list2 to a list of different
+# colored rectangles using shade-rectangle()
+# This are slices of the sky. Each one slightly 
+# darker than the previous.
+List3 = map(shade-rectangle, List2)
+
+# alternatively we could do this at once 
+# the resulting myList is equvialent to List3
+# List3 = map(shade-rectangle, map(lam(x): x / 9.6 end, range(1,W-HEIGHT)))
+
+# The bottom slice of the sky
+STARTER = shade-rectangle(100)
+
+# This takes all the slices from List3 and
+# stacks them together
+sky = rotate(180,
+  for fold(stacked from STARTER, slice from List3):
+  above(slice,stacked)
+  end)
+
+############################################################
+
+# This section adds the stars and text
+
+# These are just lists of of random numbers for use as x and y for below 
+# range(0,10) and range(0,3) tells us there will be 10 and 3 numbers in lists
+randlistx1 = map(lam(x): rand-range(000,640)end,range(0,10))
+randlisty1 = map(lam(x): rand-range(000,480)end,range(0,10))
+randlistx2 = map(lam(x): rand-range(000,640)end,range(0,10))
+randlisty2 = map(lam(x): rand-range(000,480)end,range(0,10))
+randlistx3 = map(lam(x): rand-range(000,640)end,range(0,10))
+randlisty3 = map(lam(x): rand-range(200,480)end,range(0,10))
+randlistx4 = map(lam(x): rand-range(000,640)end,range(0,10))
+randlisty4 = map(lam(x): rand-range(200,480)end,range(0,10))
+randlistx5 = map(lam(x): rand-range(000,640)end,range(0,10))
+randlisty5 = map(lam(x): rand-range(300,480)end,range(0,10))
+randlistx6 = map(lam(x): rand-range(000,640)end,range(0, 3))
+randlisty6 = map(lam(x): rand-range(250,480)end,range(0, 3))
+
+
+# These are lists of ordered triples using the lists above 
+# These let the below instructions know where to place the stars
+# posn(x,y,scale)
+List4 = map2(lam(x,y):posn(x,y,0.25)end, randlistx1,randlisty1)
+List5 = map2(lam(x,y):posn(x,y,0.80)end, randlistx2,randlisty2)
+List6 = map2(lam(x,y):posn(x,y,0.25)end, randlistx3,randlisty3)
+List7 = map2(lam(x,y):posn(x,y,0.75)end, randlistx4,randlisty4)
+List8 = map2(lam(x,y):posn(x,y,0.40)end, randlistx5,randlisty5)
+List9 = map2(lam(x,y):posn(x,y,0.80)end, randlistx6,randlisty6)
+
+# each image created below adds an additional layer of random stars
+image1 = 
+  for fold(stacked from sky, elem from List4):
+    put-image(blue-star(elem.scale), elem.x,elem.y, stacked)
+  end
+image2 =
+  for fold(stacked from image1, elem from List5):
+    put-image(blue-star(elem.scale), elem.x,elem.y, stacked)
+  end  
+image3 =
+  for fold(stacked from image2, elem from List6):
+    put-image(red-star(elem.scale), elem.x,elem.y, stacked)
+  end  
+image4 =
+  for fold(stacked from image3, elem from List7):
+    put-image(red-star(elem.scale), elem.x,elem.y, stacked)
+  end  
+image5 =
+  for fold(stacked from image4, elem from List8):
+    put-image(white-star(elem.scale), elem.x,elem.y, stacked)
+  end  
+image6 =
+  for fold(stacked from image5, elem from List9):
+    put-image(white-star-big(elem.scale), elem.x,elem.y, stacked)
+  end  
+
+# image6 is the picture with all the stars in place
+# type 'image6' into the interactions side to see the blank sky
+
+
+# Text from the original law defining the design of the US flag
+# It is broken into 4 pieces below
+cons1 = red-text(flag-text-1)
+cons2 = red-text(flag-text-2)
+cons3 = red-text(flag-text-3)
+cons4 = red-text(flag-text-4)
+
+# putting it all together
+image7 = put-image(
+  cons4,100,20,put-image(
+    cons3,205,40,put-image(
+      cons2,237,63,put-image(
+        cons1, 194, 86, image6))))
+
+# image7 is the picture with all the stars in place blus the text
+# describing the rules for the design of the US flag
+# type 'image7' into the interactions side to see the blank sky
+
+####################################################
+
+# Hey, lets add some fireworks
+
+# Fair warning there is a lot of computations here
+# with a lot of Trigonometry. This might be a lot 
+# to take in and you might want to stop here
+# if you are looking for a challenge this might 
+# be up your alley
+
+# This is a list of angles in degrees
+sector-list = map(lam(x): x * sector end, range(0, num-sect
+    ))
+
+# my-red :: Number -> color
+# takes in a number returns a shade of red
+check:
+  my-red( 0) is color(255, 160, 160, 1.00)
+  my-red(10) is color(255, 130, 130, 0.00)
+end
+fun my-red(x):
+  color(255, (160 - (3 * x)), (160 - (3 * x)), 1 - (x / 10))
+end
+
+# my-green :: Number -> color
+# takes in a number returns a shade of green
+check:
+  my-green( 0) is color(160, 255, 160, 1.00)
+  my-green(10) is color(130, 255, 130, 0.00)
+end
+fun my-green(x):
+  color( (160 - (3 * x)), 255, (160 - (3 * x)), 1 - (x / 10))
+end
+
+
+# This will produce the individual flashes
+# Rstreak :: Number -> Image
+# takes in a number returns a Red streak
+check:
+  Rstreak(10) is overlay(
+    ellipse((13), 5,"solid",my-red( 0)),
+    ellipse((13),12,"solid",my-red(10)))
+end
+fun Rstreak(x):
+  overlay(
+    ellipse((x + 3), 5,"solid",my-red(0)),
+    ellipse((x + 3),12,"solid",my-red(x)))
+end
+
+# This will produce the individual flashes
+# Gstreak :: Number -> Image
+# takes in a number returns a Green streak
+check:
+  Gstreak(10) is overlay(
+    ellipse((13), 5,"solid",my-green( 0)),
+    ellipse((13),12,"solid",my-green(10)))
+end
+fun Gstreak(x):
+  overlay(
+    ellipse((x + 3), 5,"solid",my-green(0)),
+    ellipse((x + 3),12,"solid",my-green(x)))
+end
+
+
+# Creates a ring of red streaks at (h,k) of radius r
+# with off adjusting, or offseting, the angles used in the ring
+fun red-ring(r, h, k, off): 
+  for fold(stacked from empty-scene(2 * W-WIDTH, 2 * W-HEIGHT), elem from sector-list):
+    put-image(rotate(((elem + off) * 360) / (2 * PI), Rstreak(r / 3)), (r * num-cos(elem + off)) + h, (r * num-sin(elem + off)) + k, stacked)
+  end  
+end
+
+# Creates a ring of green streaks at (h,k) of radius r
+# with off adjusting, or offseting, the angles used in the ring
+fun green-ring(r, h, k, off):
+  for fold(stacked from empty-scene(2 * W-WIDTH, 2 * W-HEIGHT), elem from sector-list):
+    put-image(rotate(((elem + off) * 360) / (2 * PI), Gstreak(r / 3)), (r * num-cos(elem + off)) + h, (r * num-sin(elem + off)) + k, stacked)
+  end  
+end
+
+
+#Put the rings together into a firework
+red-works = 
+overlay(
+    red-ring(20,Hr,Kr, 1.0), overlay(
+      red-ring(30,Hr,Kr, 2.0), overlay(
+        red-ring(40,Hr,Kr, 3.0), overlay(
+          red-ring(50,Hr,Kr, 4.0), overlay(
+            red-ring(60,Hr,Kr, 5.0), overlay(
+              red-ring(70,Hr,Kr, 6.0), overlay(
+                red-ring(80,Hr,Kr, 7.0), overlay(
+                  red-ring(90,Hr,Kr, 8.0), 
+                  red-ring(100,Hr,Kr, 9.0)))))))))
+
+
+green-works = 
+overlay(
+    green-ring(20,Hg,Kg, 1.0), overlay(
+      green-ring(30,Hg,Kg, 2.0), overlay(
+        green-ring(40,Hg,Kg, 3.0), overlay(
+          green-ring(50,Hg,Kg, 4.0), overlay(
+            green-ring(60,Hg,Kg, 5.0), overlay(
+              green-ring(70,Hg,Kg, 6.0), overlay(
+                green-ring(80,Hg,Kg, 7.0), overlay(
+                  green-ring(90,Hg,Kg, 8.0), 
+                  green-ring(100,Hg,Kg, 9.0)))))))))
+
+
+
+# And here we go
+image8 = overlay(scale(0.5,red-works),overlay(scale(0.5,green-works), image7))
+
+scale(1,image8)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

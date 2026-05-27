@@ -1,0 +1,167 @@
+use context essentials2021
+include image-structs
+
+########################################
+# new data type. Here,
+# Posn is an ordered pair which provides
+# the (x, y) for some element 
+
+data Posn:
+  | posn(x :: Number, y :: Number) 
+end
+
+# Let's define some constants 
+#########################################
+MAXCOLOR     = 255
+START-RADIUS = 80
+END-RADIUS   = 250
+START-BLUE   = 220
+END-BLUE     = 125
+ROC          = (END-BLUE - START-BLUE) / (END-RADIUS - START-RADIUS)
+SCALE        = 0.02
+STEPSIZE     = 2
+SCENESIZE    = 1000
+NUMSTARS     = 15 # no. of each color
+MINSTAR      = 2
+MAXSTAR      = 4
+MERCURY-X    = 300
+MERCURY-Y    = 400
+ 
+# yellow-range consumes a number and returns a 
+# color with a hue from red to yellow  
+# as r increases and more transparent as 
+# r increases
+yellow-range :: Number -> Color
+
+fun yellow-range(r):
+  color(MAXCOLOR, (ROC * (r - START-RADIUS)) + START-BLUE, 0, 1 / (SCALE * r) )
+end
+
+# yellow-circle consumes a number and returns 
+# cicle of color yellow-range(r) and size r
+yellow-circle :: Number -> Image
+
+fun yellow-circle(r):
+  circle(r, "solid", yellow-range(r))
+end
+
+# black-range consumes a number and returns 
+# black at varying levels of transparency
+black-range :: Number -> Color
+
+fun black-range(r):
+  color(0,0,0, 0.8)
+end
+
+# black-circle consumes a Number and returns
+# a black circle of size r and transparency r
+black-circle :: Number -> Image
+
+fun black-circle(r):
+  scale-xy(0.80,0.9,circle(3 * r, "solid", black-range(r)))
+end
+
+
+# rand-range will return a random integer
+# between a and b
+rand-range :: Number, Number -> Number
+
+fun rand-range(a,b):
+  num-random(b - a) + a
+end
+
+# consumes a Number and returns a white circle 
+# of size r used to simulate stars
+white-star :: Number -> Image
+blue-star  :: Number -> Image
+red-star   :: Number -> Image
+fun white-star(r):
+  scale(r * 0.009,radial-star(220, 120, 0, "outline", "white"))
+end
+fun blue-star(r): 
+  scale(r * 0.009,radial-star(220, 120, 0, "outline", cornflower-blue))
+end
+fun red-star(r):
+  scale(r * 0.009,radial-star(220, 120, 0, "outline", orange))
+end
+############################################################
+
+# Our scene begins with a black field
+field  = rectangle(SCENESIZE,SCENESIZE,"solid","black")
+
+# Here we create lists of random numbers for x and y
+# that will provide the coordinates of stars 
+#
+# They then are packaged together into a list of Posns in
+# the list rand-p
+#
+# We also create lists of random numbers that will provide the 
+# radius of the stars
+#
+rand-xw    = map(lam(x): rand-range(0,SCENESIZE)end,range(0,NUMSTARS))
+rand-yw    = map(lam(x): rand-range(0,SCENESIZE)end,range(0,NUMSTARS))
+rand-xb    = map(lam(x): rand-range(0,SCENESIZE)end,range(0,NUMSTARS))
+rand-yb    = map(lam(x): rand-range(0,SCENESIZE)end,range(0,NUMSTARS))
+rand-xr    = map(lam(x): rand-range(0,SCENESIZE)end,range(0,NUMSTARS))
+rand-yr    = map(lam(x): rand-range(0,SCENESIZE)end,range(0,NUMSTARS))
+
+rand-pw    = map2(lam(x,y): posn(x,y) end, rand-xw, rand-yw) 
+rand-pb    = map2(lam(x,y): posn(x,y) end, rand-xb, rand-yb) 
+rand-pr    = map2(lam(x,y): posn(x,y) end, rand-xr, rand-yr) 
+
+rand-rw    = map(lam(x): rand-range(MINSTAR,MAXSTAR) end,range(0,NUMSTARS))
+rand-rb    = map(lam(x): rand-range(MINSTAR - 1,MAXSTAR - 1) end, range(0,NUMSTARS))
+rand-rr    = map(lam(x): rand-range(MINSTAR - 1,MAXSTAR - 1) end, range(0,NUMSTARS))
+
+# List of stars
+whitestars = map(white-star, rand-rw)
+bluestars  = map(blue-star,  rand-rb)
+redstars   = map(red-star,   rand-rr)
+
+# Next we place the stars
+star-field1 = fold2(
+  lam(base, s, p): put-image(s,p.x,p.y,base) end, 
+  field, redstars, rand-pr)
+
+star-field2 = fold2(
+  lam(base, s, p): put-image(s,p.x,p.y,base) end, 
+  star-field1, bluestars, rand-pb)
+
+star-field3 = fold2(
+  lam(base, s, p): put-image(s,p.x,p.y,base) end, 
+  star-field2, whitestars, rand-pw)
+
+# Next we make the list of the sun components
+radii = range-by(START-RADIUS,END-RADIUS,STEPSIZE)
+list1 = map(yellow-circle, radii)
+
+list3 = map(
+  lam(r): circle(r, "solid", color(255, 0,0, (1 - (r / (END-RADIUS * 1.10))))) end, 
+  range(END-RADIUS * 0.90, END-RADIUS * 1.02))
+list4 = list1 + list3
+
+# Here we build the sun and place it in the scene
+sun = 
+  for fold(stacked from star-field3, slice from list4.reverse()):
+    overlay(slice,stacked)
+  end 
+  
+
+sun
+
+# Lets add mercury
+m-radii = range(MINSTAR,MAXSTAR )
+list2   = map(black-circle, m-radii)
+
+glare = color(255,255,155, 0.35)
+with-shadow = 
+  put-image(circle( 2 * MAXSTAR,"solid",glare), MERCURY-X + 3, MERCURY-Y + 2, sun)
+
+with-mercury = 
+  for fold(stacked from with-shadow, slice from list2):
+    put-image(slice,MERCURY-X,MERCURY-Y,stacked)
+  end 
+
+with-mercury
+
+

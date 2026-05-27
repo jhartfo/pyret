@@ -1,0 +1,232 @@
+#include shared-gdrive("being.arr", "124XBkYK4VLORa9v98QW_z39NumY1fnM4")
+
+include math
+include image
+include reactors
+include image-structs
+
+data Posn:
+  | posn(x :: Number, y :: Number) 
+end
+
+data Being:
+  | being(
+      posn    :: Posn, 
+      costume :: Image,
+      special 
+      ) 
+end
+
+data BeingDelta:
+  | delta(dx, t)
+end
+
+# Define the data need for scene
+data SceneState:
+  | scene(
+      score, #:: Number,
+      PLAYER,   #:: Being,
+      BACKGD,   #:: Being, 
+      DANGER    #:: Being
+      )
+end
+
+# Define constants
+HORIZON-HEIGHT =  100
+HEIGHT         =  300
+WIDTH          =  400
+SAM-HT         =  150
+SAM-X          =  150
+DOG-HT         =  120
+DOG-X          =  660
+SAM-S-T        =  20
+DOG-S-T        =  5
+DOG-SPEED      = -5
+SAM-SPEED      =  5
+SUN-DX         =  4/2
+EQUINOX        = -20
+SUNRISE        =  0
+
+SAMsURL        = "http://www.wescheme.org/imageProxy?url=http%3A%2F%2Fwww.wescheme.org%2Fimages%2Fteachpacks2012%2Fbutterfly.png"
+DOGsURL        = "http://www.bootstrapworld.org/clipart/Curriculum/dog.png"
+#CLOUD-IMG      = "https://code.pyret.org/shared-image-contents?sharedImageId=1Afn_epTGVFJYlglNDnk202llbXgGmywc"
+#CLOUD-IMG      = "https://code.pyret.org/shared-image-contents?sharedImageId=1vl0Sh2TjRDmjFe2V9dx_YtO0PcphQcNu"
+CLOUD-IMG      = "https://code.pyret.org/shared-image-contents?sharedImageId=1S4MtevI3oQENifCSOEllFW2iIJZOq3rn"
+CLOUD          = scale(0.25,image-url(CLOUD-IMG))
+
+GRD-IMG        = rectangle(WIDTH, HORIZON-HEIGHT, "solid", "dark-green")
+SAM-IMG        = flip-horizontal(image-url(SAMsURL))
+DOG-IMG        = scale(0.75, image-url(DOGsURL))
+SUN-IMG        = circle( 25, "solid", color(250, 0 , 0 , 1))
+SKY-IMG        = rectangle(WIDTH, HEIGHT, "solid", color(0, 0, 255 , 1 ))
+
+EXPLOSION      = overlay(
+  radial-star(4,20,5, "solid", "white"), overlay(
+    radial-star(4,50,5, "solid", "yellow"), overlay(
+      radial-star(2,60,10, "solid", "orange"),radial-star(
+        2,10,40, "solid", "orange"))))
+
+
+# Define elements
+SAM            = being(posn(  SAM-X,   SAM-HT), SAM-IMG, delta(0, SAM-S-T))
+DOG            = being(posn(  DOG-X,   DOG-HT), DOG-IMG, delta(0, DOG-S-T))
+SUN            = being(posn(EQUINOX,  SUNRISE), SKY-IMG, delta(0,       0))
+SKY            = being(posn(      0,        0), SKY-IMG, delta(0,       0))
+GRD            = being(posn(      0,        0), GRD-IMG, delta(0,       0))
+
+# Define initial states
+START          = scene(0, SAM, SUN, DOG)
+
+# Define how to draw Sun and Sky
+fun draw-sun(sun-being):
+  circle( 25, "solid", color(250, sun-being.posn.y - 50 , 0 , 1))
+end
+
+fun draw-sky(sun-being):
+  rectangle(WIDTH, HEIGHT, "solid", color(sun-being.posn.y - 160 , sun-being.posn.y - 90, 255 , 1 ))
+end
+
+fun jump(x):
+  (-3/2 * x * (x - 19)) + SAM-HT
+end
+
+fun run(x, dx):
+  x + dx
+end
+
+fun distance(a,b):
+  num-sqrt(((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)))
+end
+
+fun display-number(ruff-num, digits):
+  num-round( ruff-num * num-expt(10, digits )) / num-expt(10, digits)
+end
+
+fun h-distance(a,b):
+  num-abs(a.x - b.x)
+end
+
+fun distance-above(a,b):
+  a.y - b.y 
+end
+
+fun player-gets-danger(STATE):
+  (distance-above(STATE.PLAYER.posn, STATE.DANGER.posn) > 30) and 
+  (distance-above(STATE.PLAYER.posn, STATE.DANGER.posn) < 80) and 
+  (h-distance(STATE.PLAYER.posn, STATE.DANGER.posn) < 50)
+end
+
+fun danger-gets-player(STATE):
+  (distance-above(STATE.PLAYER.posn, STATE.DANGER.posn) >= 30) and
+  (h-distance(STATE.PLAYER.posn, STATE.DANGER.posn) < 20)
+end
+
+
+fun update-sam(PLAYER):
+  if ((PLAYER.posn.x + PLAYER.special.dx) > -50) and ((PLAYER.posn.x + PLAYER.special.dx) < 450):
+    if PLAYER.special.t < SAM-S-T:
+      being(
+        posn(run(PLAYER.posn.x,PLAYER.special.dx), jump(PLAYER.special.t)), 
+        PLAYER.costume, 
+        delta(PLAYER.special.dx,PLAYER.special.t + 1))
+    else: 
+      being(
+        posn(run(PLAYER.posn.x,PLAYER.special.dx), SAM-HT), 
+        PLAYER.costume, 
+        delta(PLAYER.special.dx,PLAYER.special.t + 1))
+    end
+  else: 
+    being(
+      posn(PLAYER.posn.x,PLAYER.posn.y), 
+      PLAYER.costume, 
+      delta(PLAYER.special.dx,PLAYER.special.t + 1))
+  end
+end
+
+fun delta-sam(PLAYER, d,t):
+  being(
+    posn(PLAYER.posn.x, PLAYER.posn.y), 
+    PLAYER.costume,
+    delta(d,t))
+end
+  
+fun update-danger(DANGER, dx):
+  if dx < 5 :
+    if DANGER.posn.x > -60:
+      being(
+        posn(DANGER.posn.x + 0, DANGER.posn.y), 
+        EXPLOSION, 
+        delta(DANGER.special.dx,0))
+    else:
+      DOG # resets to original dog
+    end
+  else:
+    if DANGER.posn.x > -60:
+      being(
+        posn(DANGER.posn.x + DOG-SPEED, DANGER.posn.y), 
+        DANGER.costume, 
+        delta(0,0))
+    else:
+      DOG # resets to original dog
+    end
+  end
+end
+
+fun update-sun(BACKGD, dx):
+  if BACKGD.posn.x < 640:
+    being(
+      posn(BACKGD.posn.x + dx, (-0.04 * (BACKGD.posn.x + dx + 20) * ((BACKGD.posn.x + dx) - 400)) / 3), 
+      BACKGD.costume, 
+      delta(0,0))
+  else:
+    SUN # resets to original sun
+  end
+end 
+
+fun next-state-key(STATE, key):  
+  if string-equal(key,"right"    ):
+    scene(STATE.score, delta-sam(STATE.PLAYER,  SAM-SPEED *  1, STATE.PLAYER.special.t), STATE.BACKGD, STATE.DANGER)
+  else if string-equal(key,"left"    ):
+    scene(STATE.score, delta-sam(STATE.PLAYER,  SAM-SPEED * -1, STATE.PLAYER.special.t), STATE.BACKGD, STATE.DANGER)
+  else if string-equal(key,"down"    ):
+    scene(STATE.score, delta-sam(STATE.PLAYER,  SAM-SPEED *  0, STATE.PLAYER.special.t), STATE.BACKGD, STATE.DANGER)
+  else if string-equal(key,"up"    ):
+    scene(STATE.score, delta-sam(STATE.PLAYER,  STATE.PLAYER.special.dx, 0), STATE.BACKGD, STATE.DANGER)
+  else:
+    scene(STATE.score, STATE.PLAYER, STATE.BACKGD, STATE.DANGER)
+  end
+end
+
+
+fun next-state-tick(STATE):
+  #if danger-get-play(STATE):
+  #scene(STATE.score, update-sam(STATE.PLAYER), update-sun(STATE.BACKGD, SUN-DX), update-danger(STATE.DANGER, 0))
+  if player-gets-danger(STATE):  
+    scene(STATE.score, update-sam(STATE.PLAYER), update-sun(STATE.BACKGD, SUN-DX), update-danger(STATE.DANGER, 0))
+  else:
+    scene(STATE.score, update-sam(STATE.PLAYER), update-sun(STATE.BACKGD, SUN-DX), update-danger(STATE.DANGER, DOG-S-T))
+  end
+end
+
+fun draw-state(STATE) :
+  put-image( 
+    STATE.PLAYER.costume, STATE.PLAYER.posn.x, STATE.PLAYER.posn.y, put-image(
+      STATE.DANGER.costume, STATE.DANGER.posn.x, STATE.DANGER.posn.y, put-image(
+        scale(2, GRD.costume), GRD.posn.x, GRD.posn.y, put-image(
+          CLOUD, 600 - STATE.BACKGD.posn.x - 10, 200, put-image( 
+          draw-sun(STATE.BACKGD), STATE.BACKGD.posn.x, STATE.BACKGD.posn.y, draw-sky(STATE.BACKGD)
+            )))))
+end
+
+scene-react = reactor:
+  init: START,
+  to-draw: draw-state,
+  on-tick: next-state-tick,#next-state-tick,
+  on-key : next-state-key
+end
+
+interact(scene-react)
+
+
+
+
