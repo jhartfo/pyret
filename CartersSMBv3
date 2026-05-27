@@ -1,0 +1,451 @@
+use context essentials2021
+include reactors
+include image
+
+#data Point: # 2D point
+#    point(
+#      x     :: Number,
+#      y     :: Number)
+#end
+
+data Platform:
+    platform(
+      P1 :: Point,
+      P2 :: Point,
+      P3 :: Point,
+      P4 :: Point,
+      P5 :: Point)
+end
+
+
+data Fl:
+    flr(
+      r :: Number,       #
+      d :: Number        #
+      )
+end
+
+data PlayerCoords:
+    plr(
+      pos    :: Point,   # player position
+      v      :: Number,  # player velocity
+      onf    :: Number,  # 
+      scp    :: Number,  # 
+      pll    :: Number,  # 
+      plr    :: Number,  # 
+      plu    :: Number,  # 
+      pld    :: Number,  # 
+      stp    :: Number,  # 
+      t      :: Number,  # 
+      levels :: Platform,# platform coordinates
+      fl     :: Fl)      # 
+end
+
+url-prefix = "https://code.pyret.org/shared-image-contents?sharedImageId="
+plright    = image-url(url-prefix + "1-amK4sekZRDifV_YztwWGPafkfukzazZ")
+plleft     = image-url(url-prefix + "1-iRj0Qo7POSgapdMfU9DgP8n26PU5AUP")
+plupr      = image-url(url-prefix + "1-jFH4u0WF1moHk6B47UuzTXHUaz7ifNj")
+plupl      = image-url(url-prefix + "1-krbF4hQqJVy13Bxv95PG4io-7opf1pj")
+bkr        = rectangle(700, 484, "solid", "light blue")
+floor      = rectangle(700, 450, "solid", "forest green")
+plt        = rectangle(60, 20, "solid", "forest green")
+
+fun scroll-helper-1(s):
+  platform(      
+    point(s.levels.P1.x,s.levels.P1.y - 1),
+    point(s.levels.P2.x,s.levels.P2.y - 1),
+    point(s.levels.P3.x,s.levels.P3.y - 1),
+    point(s.levels.P4.x,s.levels.P4.y - 1),
+    point(s.levels.P5.x,s.levels.P5.y - 1))
+end
+
+fun scroll-helper-2(s):
+  p1 = if (s.levels.P1.y < -9):
+    point(ran(1) ,s.levels.P1.y + 500)
+  else: s.levels.P1
+  end
+  p2 = if (s.levels.P2.y < -9):
+    point(ran(1) ,s.levels.P2.y + 500)
+  else: s.levels.P2
+  end
+  p3 = if (s.levels.P3.y < -9):
+    point(ran(1) ,s.levels.P3.y + 500)
+  else: s.levels.P3
+  end
+  p4 = if (s.levels.P4.y < -9):
+    point(ran(1) ,s.levels.P4.y + 500)
+  else: s.levels.P4
+  end
+  p5 = if (s.levels.P5.y < -9):
+    point(ran(1) ,s.levels.P5.y + 500)
+  else: s.levels.P5
+  end
+  platform(p1,p2,p3,p4,p5)
+end
+  
+fun scroll-helper-3(s):
+  p1 = point(s.levels.P1.x,s.levels.P1.y - s.v)
+  p2 = point(s.levels.P2.x,s.levels.P2.y - s.v)
+  p3 = point(s.levels.P3.x,s.levels.P3.y - s.v)
+  p4 = point(s.levels.P4.x,s.levels.P4.y - s.v)
+  p5 = point(s.levels.P5.x,s.levels.P5.y - s.v)
+  platform(p1,p2,p3,p4,p5)
+end
+
+fun left(s):
+  plr(
+    point(s.pos.x - 10, s.pos.y), 
+    s.v, s.onf, s.scp, (s.pll - s.pll) + 1, s.plr - 1, 
+    s.plu, s.pld, s.stp, s.t, 
+    s.levels,
+    s.fl)
+end
+
+fun right(s):
+  plr(
+    point(s.pos.x + 10, s.pos.y), 
+    s.v, s.onf, s.scp, s.pll - 1, (s.plr - s.plr) + 1, 
+    s.plu, s.pld, s.stp, s.t, 
+    s.levels,
+    s.fl)
+end
+
+fun scroll(s, x, y, p):
+  if (s.pos.y > 350):
+    plr(
+      point(s.pos.x, s.pos.y - 1), 
+      s.v, s.onf, s.scp, s.pll, s.plr, 
+      s.plu, s.pld, s.stp, s.t, 
+      scroll-helper-1(s),
+      flr(s.fl.r - 1, s.fl.d))
+  else:
+    s
+  end
+end
+
+fun ends(s):
+  plr(
+    s.pos, 
+    s.v, s.onf, s.scp, s.pll, s.plr, 
+    s.plu, s.pld, s.stp - 1, s.t, 
+    s.levels,
+    s.fl)
+end
+
+fun stop(s):
+  if (s.stp == 0):
+    true
+  else:
+    false
+  end
+end
+
+fun ran(x):
+  num-random(700)
+end
+
+fun grav(s):
+  if (num-modulo(s.t, 2) == 0):
+    
+    #Reappear on the other side
+        if (s.pos.x > 720):
+      plr(
+        point(s.pos.x - 740, s.pos.y), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        s.levels,  
+        s.fl)
+    else if (s.pos.x < -20):
+      plr(
+        point(s.pos.x + 740, s.pos.y), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        s.levels, 
+        s.fl)
+      
+    #Reset lowest platform
+    else if (s.levels.P1.y < -9):
+      plr(
+        point(s.pos.x, s.pos.y - s.v), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        scroll-helper-2(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    else if (s.levels.P2.y < -9):
+      plr(
+        point(s.pos.x, s.pos.y - s.v), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        scroll-helper-2(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    else if (s.levels.P3.y < -9):
+      plr(
+        point(s.pos.x, s.pos.y - s.v), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        scroll-helper-2(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    else if (s.levels.P4.y < -9):
+      plr(
+        point(s.pos.x, s.pos.y - s.v), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t,
+        scroll-helper-2(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    else if (s.levels.P5.y < -9):
+      plr(
+        point(s.pos.x, s.pos.y - s.v), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        scroll-helper-2(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    
+      #Scroll
+    else if (s.pos.y > 350) and (num-is-positive(s.v)):
+      plr(
+        point(s.pos.x, s.pos.y - s.v), 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        scroll-helper-3(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    else if (s.pos.y < 100) and (num-is-negative(s.v)):
+      plr(
+        point(s.pos.x, s.pos.y - s.v),
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        scroll-helper-3(s),
+        flr(s.fl.r - s.v, s.fl.d))
+    else if (num-abs(s.fl.r / 10) > 30) and (s.fl.d == 0):
+      plr(
+        s.pos, 
+        s.v, s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t, 
+        s.levels, 
+        flr(s.fl.r, s.fl.d + 1))
+    
+      #Floor
+    else if ((s.pos.y + s.v) < (s.fl.r + 245)) and (num-is-negative(s.v)):
+      if (s.fl.d == 0):
+        plr(
+          point(s.pos.x, ((s.pos.y - s.pos.y) + (s.fl.r + 245))), 
+          s.v - s.v, s.onf + 1, s.scp, s.pll, s.plr, 
+          s.plu, s.pld, s.stp, s.t + 1, 
+          s.levels,
+          s.fl)
+      else:
+        ends(s)
+      end
+    
+      #plat 1
+    else if 
+      (((s.pos.y + s.v) < (s.levels.P1.y + 30)) and 
+        (s.pos.y > (s.levels.P1.y + 28))) and 
+      (s.pos.x > (s.levels.P1.x - 41)) and 
+      (s.pos.x < (s.levels.P1.x + 41)) and 
+      (num-is-negative(s.v)):
+      plr(
+        point(s.pos.x, ((s.pos.y - s.pos.y) + (s.levels.P1.y + 30))),
+        s.v - s.v, s.onf + 1, (s.scp - s.scp) + 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels,
+        s.fl)
+      
+      #falls off
+    else if 
+      (s.scp == 1) and ((s.pos.x < (s.levels.P1.x - 41)) or 
+        (s.pos.x > (s.levels.P1.x + 41))) and (s.pos.y == (s.levels.P1.y + 30)):
+      plr(
+        s.pos, 
+        s.v, s.onf - s.onf, s.scp - 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels, 
+        s.fl)
+    
+      #plat 2
+    else if 
+      (((s.pos.y + s.v) < (s.levels.P2.y + 30)) and 
+        (s.pos.y > (s.levels.P2.y + 28))) and 
+      (s.pos.x > (s.levels.P2.x - 41)) and 
+      (s.pos.x < (s.levels.P2.x + 41)) and 
+      (num-is-negative(s.v)):
+      plr(
+        point(s.pos.x, ((s.pos.y - s.pos.y) + (s.levels.P2.y + 30))), 
+        s.v - s.v, s.onf + 1, (s.scp - s.scp) + 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels,
+        s.fl)
+      #falls off
+    else if 
+      (s.scp == 1) and ((s.pos.x < (s.levels.P2.x - 41)) or 
+        (s.pos.x > (s.levels.P2.x + 41))) and (s.pos.y == (s.levels.P2.y + 30)):
+      plr(
+        s.pos, 
+        s.v, s.onf - s.onf, s.scp - 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels, 
+        s.fl)
+    
+      #plat 3
+    else if 
+      (((s.pos.y + s.v) < (s.levels.P3.y + 30)) and 
+        (s.pos.y > (s.levels.P3.y + 28))) and 
+      (s.pos.x > (s.levels.P3.x - 41)) and 
+      (s.pos.x < (s.levels.P3.x + 41)) and 
+      (num-is-negative(s.v)):
+      plr(
+        point(s.pos.x, ((s.pos.y - s.pos.y) + (s.levels.P3.y + 30))), 
+        s.v - s.v, s.onf + 1, (s.scp - s.scp) + 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels, 
+        s.fl)
+      #falls off
+    else if 
+      (s.scp == 1) and ((s.pos.x < (s.levels.P3.x - 41)) 
+        or (s.pos.x > (s.levels.P3.x + 41))) and (s.pos.y == (s.levels.P3.y + 30)):
+      plr(
+        s.pos, 
+        s.v, s.onf - s.onf, s.scp - 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels, 
+        s.fl)
+    
+      #plat 4
+    else if 
+      (((s.pos.y + s.v) < (s.levels.P4.y + 30)) and (s.pos.y > (s.levels.P4.y + 28))) and 
+      (s.pos.x > (s.levels.P4.x - 41)) and (s.pos.x < (s.levels.P4.x + 41)) and (num-is-negative(s.v)):
+      plr(
+        point(s.pos.x, ((s.pos.y - s.pos.y) + (s.levels.P4.y + 30))), 
+        s.v - s.v, s.onf + 1, (s.scp - s.scp) + 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels,
+        s.fl)
+      #falls off
+    else if 
+      (s.scp == 1) and ((s.pos.x < (s.levels.P4.x - 41)) or 
+        (s.pos.x > (s.levels.P4.x + 41))) and (s.pos.y == (s.levels.P4.y + 30)):
+      plr(
+        s.pos, 
+        s.v, s.onf - s.onf, s.scp - 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels,
+        s.fl)
+    
+      #plat 5
+    else if 
+      (((s.pos.y + s.v) < (s.levels.P5.y + 30)) and (s.pos.y > (s.levels.P5.y + 28))) and 
+      (s.pos.x > (s.levels.P5.x - 41)) and (s.pos.x < (s.levels.P5.x + 41)) and (num-is-negative(s.v)):
+      plr(
+        point(s.pos.x, ((s.pos.y - s.pos.y) + (s.levels.P5.y + 30))), 
+        s.v - s.v, s.onf + 1, (s.scp - s.scp) + 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels, 
+        s.fl)
+      #falls off
+    else if (s.scp == 1) and ((s.pos.x < (s.levels.P5.x - 41)) or 
+        (s.pos.x > (s.levels.P5.x + 41))) and (s.pos.y == (s.levels.P5.y + 30)):
+      plr(
+        s.pos, 
+        s.v, s.onf - s.onf, s.scp - 1, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels,
+        s.fl)
+    
+      #jump fun
+    else if (s.onf == 0):
+      plr(
+        point(s.pos.x, s.pos.y + s.v), 
+        s.v - 1, s.onf - s.onf, s.scp, s.pll, s.plr, 
+        s.plu, s.pld, s.stp, s.t + 1, 
+        s.levels,
+        s.fl)
+    else:
+      s
+    end
+  
+  else: 
+    plr(
+      s.pos, 
+      s.v, s.onf, s.scp, s.pll, s.plr, 
+      s.plu, s.pld, s.stp, s.t + 1, 
+      s.levels,
+      s.fl)
+  end
+end
+
+fun progress(s):
+  text(([list: num-to-string(num-abs(num-round(s.fl.r / 10))), "ft"].join-str(" ")), 24, "olive")
+end
+
+fun room1(s):
+  scr = put-image(floor, 350, s.fl.r, bkr)
+  b   = put-image(plt, s.levels.P1.x, s.levels.P1.y, scr)
+  c   = put-image(plt, s.levels.P2.x, s.levels.P2.y, b)
+  d   = put-image(plt, s.levels.P3.x, s.levels.P3.y, c)
+  e   = put-image(plt, s.levels.P4.x, s.levels.P4.y, d)
+  f   = put-image(plt, s.levels.P5.x, s.levels.P5.y, e)
+  g   = put-image(progress(s), 40, 470, f)
+  
+  if (s.plr == 1):
+    if (s.onf == 0):
+      put-image(plupr, s.pos.x, s.pos.y, g)
+    else:
+      put-image(plright, s.pos.x, s.pos.y, g)
+    end
+  else if (s.pll == 1):
+    if (s.onf == 0):
+      put-image(plupl, s.pos.x, s.pos.y, g)
+    else:
+      put-image(plleft, s.pos.x, s.pos.y, g)
+    end
+  else:
+    put-image(plright, s.pos.x, s.pos.y, g)
+  end
+end
+
+fun onclick(s, x, y, click):  
+  if (click == "button-down") and (s.onf == 1):
+    plr(
+      s.pos, 
+      (s.v - s.v) + 16, s.onf - 1, s.scp, s.pll, s.plr, 
+      s.plu, s.pld, s.stp, s.t, 
+      s.levels,
+      s.fl)
+  else:
+    s
+  end
+end
+
+fun onkey(s, key):
+  if (key == "d"):
+    right(s)
+  else if (key == "a"):
+    left(s)
+  else:
+    s
+  end
+end
+
+r1 = reactor:
+  init: plr(
+      point(300, 145), 
+      0, 1, 0, 0, 1, 0, 1, 1, 0, 
+      platform(
+        point(ran(1), 200),
+        point(ran(1), 300),
+        point(ran(1), 400),
+        point(ran(1), 500), 
+        point(ran(1), 600)), 
+      flr(
+        -100, 0)),
+  on-key: onkey,
+  on-mouse: onclick,
+  seconds-per-tick: 1/56,
+  on-tick: grav,
+  to-draw: room1,
+  stop-when: stop,
+  close-when-stop: true
+end
+
+interact(r1)
+
+

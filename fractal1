@@ -1,0 +1,96 @@
+use context starter2024
+import color as C
+
+size   = 1000
+box    = 2500
+bk-clr = C.color(0,0,40,1)
+clr    = "blue"
+style  = "solid"  
+
+# draw
+fun to-draw(state):
+  put-image(
+    point-polygon(state, style, clr),
+    box / 2,box / 2,
+      square(box, "solid", bk-clr)
+    )
+end
+
+# update --- iterate
+
+# subdivide segment into quaters with positions 
+# (X0,Y0), (X1,Y1), (X2,Y2), (X3,Y3), (X4,Y4)
+# replace X2 with XN = (Y1 - Y2) + X2
+# replace Y2 with YN = (X2 - X1) + Y2
+
+fun subdivide(pt0, pt4):
+  pt2 = point((pt0.x + pt4.x) / 2, (pt0.y + pt4.y) / 2)
+  pt1 = point((pt0.x + pt2.x) / 2, (pt0.y + pt2.y) / 2)
+  pt3 = point((pt2.x + pt4.x) / 2, (pt2.y + pt4.y) / 2)
+  
+  ptN = point((pt2.y - pt1.y) + pt2.x, (pt1.x - pt2.x) + pt2.y)
+  [list: pt0, pt1, ptN, pt3]
+end
+ 
+fun update(pt-list):
+  list-l     = pt-list.take(length(pt-list) - 1)
+  list-r     = pt-list.drop(1)
+  last-elem  = pt-list.drop(length(pt-list) - 1)
+    
+  collection = map2(subdivide, list-l, list-r)
+  flattened  = fold(append, empty, collection)
+  
+  append(flattened, last-elem)
+end
+
+# update --- undi iterations
+
+# convert list to list with dumby data
+# filter out dumby data
+
+############################
+
+# initial polygon shapes to apply fractal to
+reg-hex = [list:
+  point( size *  1.0, 0),
+  point( size *  0.5, ( size * num-sqrt(3)) / 2),
+  point( size * -0.5, ( size * num-sqrt(3)) / 2),
+  point( size * -1.0, (0)),
+  point( size * -0.5, ( size * num-sqrt(3)) / -2),
+  point( size *  0.5, ( size * num-sqrt(3)) / -2),
+  point( size *  1.0, 0) # repeated start position
+]
+
+reg-quad = [list:
+  point( size * 1,         0),
+  point(        0, size *  1),
+  point(size * -1,         0),
+  point(        0, size * -1),
+  point(size *  1,         0) # repeated started position
+]
+
+############################################
+
+state01 = reg-quad
+state02 = update(state01)
+state03 = update(state02)
+state04 = update(state03)
+state05 = update(state04)
+state06 = update(state05)
+#state07 = update(state06) #we are up to 16385 vertices here and Pyret bogs down....
+#state08 = update(state07)
+#state09 = update(state08)
+#state10 = update(state09)
+
+to-draw(state01)
+to-draw(state02)
+to-draw(state03)
+to-draw(state04)
+to-draw(state05)
+to-draw(state06)
+#to-draw(state07)
+#to-draw(state08)
+#to-draw(state09)
+#to-draw(state10)
+
+

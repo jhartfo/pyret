@@ -1,0 +1,76 @@
+use context shared-gdrive("Random Rectangles Starter File.arr", "1FPXrKdpOPfVRhBd3bP9GcIDXBQhaNdPo")
+
+# try typing the following into the interactions side:
+# random-rectangles, clustered-rectangles, stratified-rectangles, 
+#
+# rectangles-table, width-height-table
+# 
+# list-sum, list-product, list-mean, 
+# list-sqr-sum, stdDev, variance, deviations, deviations-sqr
+# z-score, z-scores
+
+# define a few useful column lists
+A  = get-column(width-height-table,"area")
+p  = get-column(width-height-table,"perimeter")
+wt = get-column(width-height-table,"width")
+ht = get-column(width-height-table,"height")
+
+fun list-mult(a-list, b-list):
+  map2(_ * _, a-list, b-list)
+end
+
+fun r(x-list, y-list):
+  list-sum(
+    list-mult(
+      z-scores(x-list), z-scores(y-list)
+      )) / 
+  (length(x-list) - 1)
+end
+
+fun slope(x-list, y-list):
+  (stdDev(y-list) / stdDev(x-list)) * r(x-list, y-list)
+end
+
+fun y-int(x-list, y-list):
+  list-mean(y-list) - (slope(x-list, y-list) * list-mean(x-list))
+end
+
+M          = slope(A,p)
+B          = y-int(A,p)
+Ybar       = list-mean(p)
+
+fun f(x): Ybar end
+fun g(x): (M * x) + B end
+
+Y          = p
+Ymean      = map(f(_), A)
+Yhat       = map(g(_), A)
+
+error-mean = map2(_ - _, Y, Ymean)
+error-hat  = map2(_ - _, Y, Yhat)
+
+fun percent-change(a,b):
+  (b - a) / a
+end
+
+r-sqr = percent-change(list-sqr-sum(error-mean), list-sqr-sum(error-hat))
+r(A,p)
+r-sqr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

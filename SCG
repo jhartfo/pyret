@@ -1,0 +1,104 @@
+use context starter2024
+
+num-random-seed(6)
+
+
+data Columns:
+  |columns(A:: String, B:: String, C:: String)
+end
+
+words = 
+  string-split-all("airy all-hollown aglet-baby amorous alms-deed argosy balmy burly-boned bawcock bespiced cheek-roses bona-roba beteeming crow-flowered bully-rook blazoning choice-drawn chuck bonny deed-achieving coach-fellow brisky eagle-sighted crystal-button candied ear-kissing cuckoo-bud celestial ear-bussing dewberry chafeless even-preached eglantine choicely eye-beaming esquire courtly face-royal flax-wench dainty fairy-gold fondling daisied fertile-fresh gamester damasked full-acorned handy-dandy enchanting gallant-springing heartling engilded heaven-hued homager fettled honey-bagged juvenal honeysuckle leaping-time kicksy-wicksy jovial love-springing kid-fox leavened life-rendering lambskin lusty marble-constant lodestar mannerly May-morn madonna marbled nimble-pinioned minstrel meek nose-herb nicety nonpareil parti-coloured nymph orbed proud-pied pew-fellowed palmy right-drawn pittikins posied silver-shredding prizer replenished smoothy-pated primrose sightly softly-sprighted rarity silken sweet-seasoned ringlet sovereign tender-smelling shoulder-clapper sphery trice-crowned sweet-meat sterling tiger-footed thunder-maker sturdy top-gallant time-pleaser taffeta truest-mannered turtle-dove tenderful weeping-ripe wafer-cake virginal well-breathed whiffler virtuous well-favoured wit-snapper worthy young-eyed velvet-guard"
+    , " ")
+ 
+A = map(lam(x): words.get((3 * x) + 0) end, range(0,42))
+B = map(lam(x): words.get((3 * x) + 1) end, range(0,42))
+C = map(lam(x): words.get((3 * x) + 2) end, range(0,42))
+
+#A = [list: "a0", "a1", "a2", "a3", "a4", "a5", "a6"]
+#B = [list: "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"]
+#C = [list: "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"]
+
+
+get-from :: List -> String
+examples:
+  get-from(A) is "posied"#"a4" 
+  get-from(B) is "eagle-sighted"#"b1"
+  get-from(C) is "sweet-meat"#"c5"
+end
+fun get-from(col):
+  col.get(num-random(length(A)))
+end
+
+
+update-complement :: Columns -> Columns
+examples:
+  update-complement(columns("A","B","C")) is 
+  columns("bonny", "even-preached", "nymph") #columns("a1","b1","c4")
+  update-complement(columns("a","b","c")) is 
+  columns("orbed", "tender-smelling", "coach-fellow") 
+  #columns("a4","b5","c1")
+end
+fun update-complement(state):
+  columns(get-from(A),get-from(B),get-from(C))
+end
+
+
+combine-complement :: Columns -> String
+examples:
+  combine-complement(columns("A","B","C")) is "A B C"
+  combine-complement(columns("a","b","c")) is "a b c"
+end
+fun combine-complement(state):
+  state.A + " " + state.B + " " + state.C
+end
+
+
+display-complement :: Columns -> Image
+examples:
+  display-complement(columns("A","B","C")) is text("A B C", 20, "black")
+  display-complement(columns("a","b","c")) is text("a b c", 20, "black")
+end
+fun display-complement(state):
+  text(combine-complement(state), 20, "black")
+end
+
+
+draw :: Columns -> Image
+examples:
+  draw(columns("A","B","C")) is 
+  overlay(display-complement(columns("A","B","C")),
+    rectangle(400,300,"solid","white"))
+  draw(columns("a","b","c")) is 
+  overlay(display-complement(columns("a","b","c")),
+    rectangle(400,300,"solid","white"))  
+end
+fun draw(state):
+  overlay(display-complement(state),
+    rectangle(400,300,"solid","white"))
+end
+
+keyboard :: Columns, String -> Columns
+examples:
+  keyboard(columns("A","B","C"), "space") is 
+  columns("nonpareil", "fairy-gold", "pittikins") #columns("a4","b2","c4")
+  keyboard(columns("A","B","C"), "up")    is 
+  columns("worthy", "gallant-springing", "heartling") 
+  #columns("a6","b2","c2")
+end
+fun keyboard(state, key):
+  update-complement(state)
+end
+
+
+SCG = reactor:
+  init: columns("","",""),
+  to-draw: draw,
+  on-key: keyboard,
+  title: "Shakespearean Complement Generator"
+end
+    
+a = SCG.interact-trace()
+  .build-column("complement", lam(r): combine-complement(r["state"]) end)
+  .drop("state")
+

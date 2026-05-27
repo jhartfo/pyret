@@ -1,0 +1,151 @@
+use context shared-gdrive("Bootstrap-DataScience-v2.2.arr", "1cuqucVgUe7_HmtVWez1qkkdPH16mgy7P")
+
+#########################################################
+
+import lists as L
+import chart as C
+
+
+fun count-if(a-list, value):
+  length(L.filter(lam(x): x == value end, a-list))
+end
+  
+fun frequency-table(a-list):
+  categories  = 
+    if length(L.filter(is-boolean, a-list)) > 0:
+      distinct(a-list)
+    else:
+      L.sort(distinct(a-list))
+    end
+  frequencies = map(lam(x): count-if(a-list, x ) end, categories)
+  relative = map(lam(x): x / length(a-list) end,frequencies)
+  [table-from-columns:
+    {"Values"     ; categories},
+    {"Freq."      ; frequencies},
+    {"Rel. Freq." ; relative},
+  ]
+end
+
+fun table-frequency-table(tbl, col):
+  variable = tbl.get-column(col)
+  frequency-table(variable)
+end
+
+#########################################################
+
+URL-prefix = "https://docs.google.com/spreadsheets/d/"
+
+SPA-01-01-sheet  = load-spreadsheet(URL-prefix + "1E2E8huSdwhAlLrNh1C9xdoxKZ_YpoXVtm5NnXRF8KAA")
+
+box-office-table = 
+  load-table: 
+    Movie, Year, Rating,TIme, Genre, BoxOffice
+    source: SPA-01-01-sheet.sheet-by-name("Box Office", true)
+  end
+
+hotels-table = 
+  load-table: 
+    Hotel,Pool, ExerciseRoom, InternetCost,Restaurant, 
+    DistanceToSite, RoomService, RoomRate
+    source: SPA-01-01-sheet.sheet-by-name("Lacrosse", true)
+  end
+
+household-table = 
+  load-table: 
+    Household, Region, Number, Time, ResponseMode, Income, Internet
+    source: SPA-01-01-sheet.sheet-by-name("Household", true)
+  end
+
+cars-table = 
+  load-table: 
+    Name, Zipcode, Sex, DistanceFromDealer, Model, Cylinders, Price
+    source: SPA-01-01-sheet.sheet-by-name("Cars", true)
+  end
+
+single-variable-40 = 
+  load-table: 
+    Powers, BirthMonths, Sleep, Household, Future,	Age
+    source: SPA-01-01-sheet.sheet-by-name("SingleVariable40", true)
+  end
+
+single-variable-30 = 
+  load-table: 
+    Party
+    source: SPA-01-01-sheet.sheet-by-name("SingleVariable30", true)
+  end
+
+education-rel-freq-table = 
+  load-table: 
+    Level, Percent
+    source: SPA-01-01-sheet.sheet-by-name("EducationRelFreq", true)
+  end
+
+gender-and-superpower = 
+  load-table:
+    Gender, Superpower 
+    source: SPA-01-01-sheet.sheet-by-name("GenderAndSuperpowers", true)
+  end
+
+
+CAS = 
+  load-table: 
+    Country, Region, DataYear, ClassGrade, Gender, Age, 
+    Handed, Height,	Footlength,	Armspan, Languages, 
+    TravelMethod,	TravelTime, ReactionTime, MemoryScore, 
+    PhysicalActivity, Pollution, Recycling, ConservingWater, 
+    SavingEnergy, OwningComputer, InternetAccess, LeftFootlength, 
+    LongerFoot, IndexFinger, RingFinger, LongerFinger, 
+    BirthMonth, Season, Allergies, Vegetarian, Food, 
+    Beverge, Subject, SleepSchoolnight, SleepNonSchoolnight, 
+    Occupants, Internet_Access, Communication, TMSentYesterday,
+    TMReceivedYesterday, HangingOut, PhoneHours, Homework, 
+    FamilyTime, OutdoorActivities, VideoGames, SocialMedia, 
+    TMHours, ComputerHours, TVHours, WorkHours, WorkAtHomeHours,
+    SchoolworkPressure, Planned_EducationLevel, MusicGenre,
+    Superpower,Preferred_Future, RoleModel, Charity_Donation
+    source: SPA-01-01-sheet.sheet-by-name("CAS-250", true)
+   end
+
+
+powers         = single-variable-40.get-column("Powers")
+birth-months   = single-variable-40.get-column("BirthMonths")
+sleep          = single-variable-40.get-column("Sleep")
+household-size = single-variable-40.get-column("Household")
+happy-sad      = single-variable-40.get-column("Future")
+age            = single-variable-40.get-column("Age")
+
+party          = single-variable-30.get-column("Party")
+
+
+#########################################################
+
+frequency-table(powers)
+frequency-table(birth-months)
+frequency-table(sleep)
+frequency-table(household-size)
+frequency-table(party)
+frequency-table(happy-sad)
+frequency-table(age)
+
+#pie-chart(happy-sad-table,"Future")
+#bar-chart(happy-sad-table,"Future")
+
+#pie-chart(party-table,"Party")
+#bar-chart(party-table,"Party")
+
+#multi-bar-chart(CAS, "Gender", "Superpower")
+#multi-bar-chart(CAS, "Superpower", "Gender")
+
+#gender-and-superpower
+#multi-bar-chart(gender-and-superpower, "Gender", "Superpower")
+
+pie-chart-summarized(education-rel-freq-table,"Level","Percent")
+bar-chart-summarized(education-rel-freq-table,"Level","Percent")
+
+
+
+
+
+
+
+

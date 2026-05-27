@@ -1,0 +1,75 @@
+use context starter2024
+
+import color as clr
+
+color      = clr.color
+
+fun reverse-put-image(bot, x,y,top):
+  put-image(top, x,y, bot)
+end
+
+ln-clr     = color(210,210,220,1)
+ln-width   = 2
+wn-size    = 500
+dim        = 20
+size       = (wn-size / dim)
+dot-size   = (wn-size / dim) - ln-width
+
+one-square = overlay-align("right", "bottom",
+  square(size, "outline", ln-clr),
+  square(size, "solid", "white")
+  )
+   
+one-row    = fold(
+  beside, 
+  empty-image,
+  repeat(dim, one-square)
+  )
+  
+gb         = fold(
+  above,
+  empty-image,
+  repeat(dim, one-row)
+  )
+
+dot        = square(dot-size, "solid", "black")
+
+fun pos-to-xy(n):
+  (size * n) - (size / 2)
+end
+
+X          = pos-to-xy(1)
+Y          = pos-to-xy(7)
+
+xs         = [list:
+  1 , 2, 3, 4, 5, 6, 7, 8, 9,10,   # row 1
+  10,10,10,10,10,10,10,10,
+  10, 9, 8, 7, 6, 5, 4, 3, 2, 1,   # row 10
+  1,1,1,1,1,1,
+  1,2,3,4,5,6,7,8,                 # row 3
+  8,8,8,8,
+  8,7,6,5,4,3,                     # row 8
+  3,3,
+  3,4,5,6,
+  6
+]
+ys          = [list:
+  1,1,1,1,1,1,1,1,1,1,
+  2,3,4,5,6,7,8,9,                 # col 10
+  10,10,10,10,10,10,10,10,10,10,
+  9,8,7,6,5,4,                     # col 1
+  3,3,3,3,3,3,3,3,
+  4,5,6,7,                         # col 8
+  8,8,8,8,8,8,
+  7,6,                             # col 3
+  5,5,5,5,
+  6
+]
+
+Xs = map(pos-to-xy,xs)
+Ys = map(pos-to-xy,ys)
+
+#put-image(dot, pos-to-xy(4), pos-to-xy(4), gb)
+fold3(reverse-put-image, gb, Xs,Ys, repeat(59, dot) )
+
+

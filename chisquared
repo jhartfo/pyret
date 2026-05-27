@@ -1,0 +1,102 @@
+use context starter2024
+
+include math 
+
+fun mu(x,y,n):
+  (x * y) / n
+end
+
+fun error(x,y):
+  num-sqr(x - y) / y
+end
+
+
+fun g(x,y):
+  x * num-log(x / y)
+end
+
+fun df(x,y): (x - 1) * (y - 1) end
+
+fun std-res(x,y,a,b,n):
+  (x - y) / num-sqrt(y * (1 - (a / n)) * (1 - (b / n)))
+end
+
+#|
+mu11 = mu(1557,1246,2757)
+mu12 = mu(1557, 566,2757)
+mu13 = mu(1557, 945,2757)
+mu21 = mu(1200,1246,2757)
+mu22 = mu(1200, 566,2757)
+mu23 = mu(1200, 945,2757)
+|#
+
+mu11 = mu(2188,1173,2613)
+mu12 = mu(2188, 524,2613)
+mu13 = mu(2188, 916,2613)
+mu21 = mu( 425,1173,2613)
+mu22 = mu( 425, 524,2613)
+mu23 = mu( 425, 916,2613)
+
+mus = [list:
+  mu11,mu12,mu13,
+  mu21,mu22,mu23]
+
+#|
+ns = [list:
+  762, 327, 468,
+  484, 239, 477]
+|#
+
+ns = [list:
+  871, 444, 873,
+  302,  80,  43]
+
+chi2 = sum(map2(error, ns, mus ))
+G2   = 2 * sum(map2(g, ns, mus))
+SD   = num-sqrt(2 * df(2,3)) 
+
+
+chi2
+G2
+SD
+
+mu11
+mu12
+mu13
+mu21
+mu22
+mu23
+
+print("")
+
+std-res(871, mu11, 2188,1173,2613)
+std-res(444, mu12, 2188, 524,2613)
+std-res(873, mu13, 2188, 916,2613)
+std-res(302, mu21,  425,1173,2613)
+std-res( 80, mu22,  425, 524,2613)
+std-res( 43, mu23,  425, 916,2613)
+
+
+a = 2188
+b = 425
+c = 1697
+d = 916
+N = 2613
+
+
+A  = [list: a,a,b,b]
+B  = [list: c,d,c,d]
+Ns = [list: 1315,873,382,43]
+
+the-mus = map2(lam(x,y): mu(x,y,N) end, A,B)
+chis    = sum(map2(error, Ns, the-mus ))
+g2      = 2 * sum(map2(g, Ns, the-mus))
+g2
+
+"d, i: ~24.045903949948"
+"d+i,r: ~163.53078582798463"
+
+
+
+
+

@@ -1,0 +1,41 @@
+use context starter2024
+rs=square(50, "solid","red")
+rt=triangle(50, "solid","red")
+bs=square(50, "solid","blue")
+
+ol1 = overlay(bs,rt)
+ol2 = overlay(rt,bs)
+ol3 = overlay(rs,bs)
+ol4 = overlay(bs,rs)
+ol5 = overlay(rs,rt)
+ol6 = overlay(rt,rs)
+
+rs
+rt
+bs
+
+rectangle(100,1, "solid","black")
+
+ol1
+ol2
+
+rectangle(100,1, "solid","black")
+
+ol3
+ol4
+
+rectangle(100,1, "solid","black")
+
+ol5
+ol6
+
+images-equal(ol1,ol2)
+images-equal(ol3,ol4)
+images-equal(ol5,ol6)
+
+rectangle(100,1, "solid","black")
+
+#"dog" + "cat" == "cat" + "dog"
+("dog" + "cat") == ("cat" + "dog")
+
+

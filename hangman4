@@ -1,0 +1,136 @@
+use context shared-gdrive("hangman-teacher-pack.arr", "1wNhaTrMgjteAq_MYHYgbtoCZvW1dXqfQ")
+include reactors
+
+EMPTY-HM = hangman(0,"white", "white", "white", "white", "white", "white")
+FULL-HM  = hangman(6,"black", "black", "black", "black", "black", "black")
+
+########################################################
+
+data Letter:
+    letter(
+      char    :: String,
+      is-used :: Boolean
+      ) with:
+    method display-secret(self):
+      if self.is-used:
+        draw-secret-letter(self.char,"white")
+      else:
+        draw-secret-letter(self.char,"black")
+      end
+    end,
+    method display-used(self):
+      clr = if self.is-used == true: "white" else: "black" end
+      beside(
+        overlay-align("center", "center",
+          text(self.char, 20, "black"),
+          square(20, "solid", clr)
+          ),
+        rectangle(3,20,"solid","white"))
+    end,
+    method used(self):
+      letter(self.char, true)
+    end
+end
+
+fun draw-secret-letter(char, clr):
+      beside(
+        overlay-align("center", "center",
+          text(char, 20, "black"),
+          square(20, "solid", clr)
+          ),
+    rectangle(3,20,"solid",clr))
+end
+
+fun object-to-letter(char):
+  letter(string-to-lower(to-string(char)), false)
+end
+
+########################################################
+
+ABCs     = "abcdefghijklmnopqrstuvwxyz"
+
+data Letter-List:
+  |letter-list(chars:: List)
+  |abc-list with:
+    chars : map(object-to-letter, string-explode(ABCs))
+sharing:
+  method display-secret(self):
+    fold(beside, empty-image, map(_.display-secret(), self.chars))
+  end,
+  method display-used(self):
+    fold(beside, empty-image, map(_.display-secret(), self.chars))
+  end,
+  method update(self,key):
+    new-list = map(update-one-letter(_,key), self.chars)
+    letter-list(new-list)
+  end
+end
+
+update-one-letter :: Letter, String -> Letter 
+fun update-one-letter(ltr, str):
+  if ltr.char == str:
+    letter(ltr.char, true)
+  else:
+    ltr
+  end
+end
+  
+fun list-to-letter-list(lst):
+  letter-list(map(object-to-letter, lst))
+end
+
+fun string-to-letter-list(str):
+  list-to-letter-list(string-explode(str))
+end
+
+########################################################
+
+data Game:
+    game(
+      HM       :: Hangman,
+      word     :: String,
+      letters  :: Letter-List,
+      used     :: Letter-List)
+end
+
+fun draw-game(state):
+  beside(
+    state.HM.display(),
+    state.letters.display-secret()
+    )
+end
+
+fun update-key(state, key):
+  if string-contains(ABCs, key):
+    if not(string-contains(state.word, key)):
+      game(
+        state.HM.advance(),
+        state.word,
+        state.letters,
+        state.used)
+    else: 
+      game(
+        state.HM,
+        state.word,
+        state.letters.update(key),
+        state.used)
+    end
+  else:
+    state
+  end
+end
+
+secret-word   = "ability"
+start-letters = string-to-letter-list(secret-word)
+start-game    = game(EMPTY-HM, secret-word, start-letters, abc-list)
+
+
+r = reactor:
+  init: start-game,
+  on-key: update-key,
+  to-draw: draw-game
+end
+    
+a = r.interact()
+
+

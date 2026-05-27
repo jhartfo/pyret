@@ -1,0 +1,92 @@
+use context shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8")
+
+provide *
+import shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8") as BSDS
+provide from BSDS: * ,
+  type *,
+  data *
+end
+
+# Load your spreadsheet
+results-id    = "1tXaGUJ-M6wh8db8Uk2JNWu8zv_w3uSohgXawg9xHS0c/"
+results-sheet = load-spreadsheet("https://docs.google.com/spreadsheets/d/" + results-id)
+
+# for consistency, all column names are spear-case (lower case with dashes for spaces)
+# sports are named "s-...", school activities are names "a-...", and non-school activities
+# are named "n-..."
+
+# load the 'survey' sheet as a table
+results-table = load-table: 
+  grade, gender, gpa, pets, 
+  banjo, bass, cello, clarinet, drums, tuba, fiddle, flute, french-horn, guitar,	harmonica, 
+  harp, piano, saxophone, trombone, trumpet, violin, 
+  perry-hall, bullying, 
+  s-basketball, s-baseball,	s-bowling,	s-boxing, s-xc, s-football,	
+  s-golf,	s-judo, s-powerlifting, s-soccer, s-softball,	s-track,	s-wrestling,
+  a-academic-team,	a-art,	a-aviation,	a-band,	a-bpa,	a-central-tech,	a-cheer, 
+  a-chess,	a-choir, a-color-Guard, a-dance, a-drama,	a-fca, a-fccla, a-ffa, 
+  a-hope-squad, a-leadership, a-nhs, a-spanish,	a-stuco, 
+  a-tsa, a-tomorrows-leaders, a-yearbook, 
+  n-art, n-babysitting,	n-basketball,	n-church, n-cosmetology,	n-dance,	
+  n-hunting,	n-gaming,	n-girls-scouts,	n-gym,	n-powerlifting,	n-skating,	
+  n-softball, n-voice-lessons,	n-volletball,	n-work,	
+  finance,	architechure,	astronomy,	business-management,	cinemotography,	
+  drivers-ed,	e-sports,	firearms,	forensic-science,	foreign-language,	programming,	
+  graphic-design,	geology,	life-skills,	miltary,	orchestra,	photography,	
+  shop,	soccer-mens,	sociology,	volley-ball
+  source: results-sheet.sheet-by-name("cleaned", true)
+end
+
+column-names = results-table.column-names()
+instruments  = column-names.drop(4).take(17)
+new-classes  = column-names.drop(75)
+sports       = column-names.drop(23).take(13)
+in-school    = column-names.drop(36).take(23)
+nonschool    = column-names.drop(59).take(16)
+
+instruments-table = select 
+  banjo, bass, cello, clarinet, drums, tuba, fiddle, flute, french-horn, guitar,	harmonica, 
+  harp, piano, saxophone, trombone, trumpet, violin
+from results-table end  
+
+sports-table = select
+  s-basketball, s-baseball,	s-bowling,	s-boxing, s-xc, s-football,	
+  s-golf,	s-judo, s-powerlifting, s-soccer, s-softball,	s-track,	s-wrestling
+from results-table end  
+
+inschool-table = select 
+  a-academic-team,	a-art,	a-aviation,	a-band,	a-bpa,	a-central-tech,	a-cheer, 
+  a-chess,	a-choir, a-color-Guard, a-dance, a-drama,	a-fca, a-fccla, a-ffa, 
+  a-hope-squad, a-leadership, a-nhs,a-spanish, a-stuco, 
+  a-tsa, a-tomorrows-leaders, a-yearbook 
+from results-table end
+
+nonschool-table = select
+  n-art, n-babysitting,	n-basketball,	n-church, n-cosmetology,	n-dance,	
+  n-hunting,	n-gaming,	n-girls-scouts,	n-gym,	n-powerlifting,	n-skating,	
+  n-softball, n-voice-lessons,	n-volletball,	n-work 
+from results-table end  
+
+classes-table = select
+  finance,	architechure,	astronomy,	business-management,	cinemotography,	
+  drivers-ed,	e-sports,	firearms,	forensic-science,	foreign-language,	programming,	
+  graphic-design,	geology,	life-skills,	miltary,	orchestra,	photography,	
+  shop,	soccer-mens,	sociology, volley-ball  
+from results-table end  
+
+misc-table = select
+    grade, gender, gpa, pets, perry-hall, bullying
+from results-table end  
+
+instruments-freq-table = build-freq-table(results-table, instruments, "Yes")
+new-classes-freq-table = build-freq-table(results-table, new-classes, "Yes")
+sports-freq-table      = build-freq-table(results-table, sports, "Yes")
+in-school-freq-table   = build-freq-table(results-table, in-school, "Yes")
+nonschool-freq-table   = build-freq-table(results-table, nonschool, "Yes")
+
+
+
+
+
+
+

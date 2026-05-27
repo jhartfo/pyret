@@ -1,0 +1,130 @@
+use context starter2024
+
+num-random-seed(6)
+
+fun spin-cylinder(dumby):
+  num-random(6) + 1
+end
+
+data HitPoints:
+    hp(
+      me       :: Number    , 
+      boss     :: Number    )
+end
+
+data GameData:
+    game-data(
+      chamber  :: Number    ,
+      cylinder :: Number    ,
+      boom     :: Boolean   , 
+      my-turn  :: Boolean   ,
+      HP       :: HitPoints )
+end
+
+toggle :: Boolean -> Boolean
+examples:
+  toggle(false) is true
+  toggle(true) is false
+end
+fun toggle(bool):
+  not(bool)
+end
+
+hit-boss :: HitPoints -> HitPoints
+examples: 
+  hit-boss(hp(2,3)) is hp(2,2)
+  hit-boss(hp(0,0)) is hp(0,-1)
+end
+fun hit-boss(h):
+  hp(h.me, h.boss - 1)
+end
+
+hit-me :: (HitPoints -> HitPoints)
+examples: 
+  hit-me(hp(2,3)) is hp(1,3)
+  hit-me(hp(0,0)) is hp(-1,0)
+end
+fun hit-me(h):
+  hp(h.me - 1, h.boss)
+end
+
+get 
+
+smiley :: String, String, String -> Image
+# Consumes two Colors (background and accent color), along
+# with a label String and produces a Smiley face of the given
+# colors with the label underneath in black
+fun smiley(clr1, clr2, lbl):
+  label = text(lbl, 20, "black")
+  put-image(
+    circle(100, "outline", clr2), 100, 150, put-image(
+      ellipse(10, 60, "solid", clr2), 70, 170, put-image(
+        ellipse(10, 60, "solid", clr2), 130, 170, put-image(
+          circle(80, "solid", clr1), 100, 170, put-image(
+            circle(70, "solid", clr2), 100, 150, put-image( 
+              circle(100, "solid", clr1), 100,150, put-image(
+                label, 100, 25, 
+                rectangle(200,250, "solid","transparent")
+                )))))))
+end
+
+frowny :: String, String, String -> Image
+# Consumes two Colors (background and accent color), along
+# with a label String and produces a Frowny face of the given
+# colors with the label underneath in black
+fun frowny(clr1, clr2, lbl):
+  eye = rotate(45, overlay(
+      rectangle(40, 10, "solid", clr2),
+      rectangle(10, 40, "solid", clr2)
+      ))
+  label = text(lbl, 20, "black")
+  put-image(
+    circle(100, "outline", clr2), 100, 150, put-image(
+      eye, 70, 170, put-image(
+        eye, 130, 170, put-image(
+          rectangle(100,10, "solid", clr2), 100, 100, put-image(
+            circle(100, "solid", clr1), 100,150, put-image(
+              label, 100, 25, 
+              rectangle(200,250, "solid","transparent")
+              ))))))
+end
+
+draw-state :: GameData -> Image
+fun draw-state(state):
+  my-face = if state.HP.me > 0:
+    smiley("green", "black", "ME: " + num-to-string(state.HP.me))
+  else:
+    frowny("black", "green", "ME: " + num-to-string(state.HP.me))
+  end
+  boss-face = if state.HP.boss > 0:
+    smiley("blue", "black", "BOSS: " + num-to-string(state.HP.boss))
+  else:
+    frowny("black", "blue", "BOSS: " + num-to-string(state.HP.boss))
+  end
+  label = if state.my-turn:
+    text(
+      "My turn, spin the cylinder. Aim. Pull the trigger.", 
+      15, 
+      "dark green")
+  else:
+    text(
+      "It's the Bosses turn!",
+      15,
+      "blue")
+  end  
+  above(beside(my-face, boss-face), label)
+end  
+
+update-state :: GameData -> GameData
+fun update-state(state):
+  if (state.HP.me > 0) and (state.HP.noss > 0):
+    state
+  else:
+    state
+  end
+end
+
+
+
+
+

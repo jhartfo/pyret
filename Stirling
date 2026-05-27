@@ -1,0 +1,85 @@
+use context starter2024
+
+include math
+
+fun factorial(n):
+  if (n == 0) or (n == 1): 1
+  else:
+    n * factorial(n - 1)
+  end
+end
+
+fun permutation(n,k):
+  factorial(n) / factorial(n - k)
+end
+
+fun combination(n,k):
+  permutation(n,k) / factorial(k)
+end
+
+fun pascal-row(n):
+  map(lam(x): combination(n,x) end, range(0,n + 1))
+end
+
+fun term(n,k, i):
+  num-expt(-1,k - i) * 
+  combination(k,i) * 
+  num-expt(i, n)
+end
+
+fun S2(n,k):
+  c =(1 / factorial(k)) 
+  terms = map(lam(x): term(n,k,x) end, range(0, k + 1))
+  sum(terms) * c
+end
+
+  
+fun coeff(m,n,k):
+  factorial(m) * S2(n - k, m)
+end
+  
+# n = polynomial degree
+# m = number of times the difference operator has been applied
+fun delta-coeffs(n,m):
+  map(lam(k): coeff(m,n,k) end, range(0,(n) + 1))
+end
+
+degree = 4
+map(lam(x): delta-coeffs(degree, x) end, range(0, degree + 1))
+
+
+fun monomial(c,power):
+  lam(x): num-expt(x,power) * c
+  end
+end
+
+fun evaluate(fn, x): fn(x) end
+
+fun polynomial(coeffs):
+  powers = reverse(range(0, length(coeffs)))
+  terms = map2(monomial, coeffs, powers)
+  lam(x): sum(map(lam(fn): evaluate(fn,x) end, terms))
+  end
+end 
+
+fun addn(n):
+  lam(x): x + n end
+end
+
+
+fun diff-coeffs(coeffs):
+  powers = reverse(range(0, length(coeffs)))
+  map2(_ * _, powers, coeffs).take(length(coeffs) - 1)
+end
+
+f-list     = [list:2,3,4,5,6]
+fd-list    = diff-coeffs(f-list)
+fdd-list   = diff-coeffs(fd-list)
+fddd-list  = diff-coeffs(fdd-list)
+fdddd-list = diff-coeffs(fddd-list)
+
+f          = polynomial(f-list)
+fd         = polynomial(fd-list)
+fdd        = polynomial(fdd-list)
+fddd       = polynomial(fddd-list)
+fdddd      = polynomial(fdddd-list)

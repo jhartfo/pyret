@@ -1,0 +1,88 @@
+use context shared-gdrive("Bootstrap-DataScience-v2.2.arr", "1cuqucVgUe7_HmtVWez1qkkdPH16mgy7P")
+
+# Load your spreadsheet and define your table
+songs-id      = "1bdrBeqPdTE9rKMMpDhczGW368P3Tni3TvZNaxX-wvx8"
+google-url    = "https://docs.google.com/spreadsheets/d/"
+google-suffix = "/edit?resourcekey=&gid=2049156290#gid=2049156290" 
+songs-sheet   = load-spreadsheet(google-url + songs-id + google-suffix)
+
+snap = "🫰"
+clap = "👏"
+
+# list-8-words :: Row -> List
+# consumes the a row and places the fixed 8 columns in a list
+fun list-8-words(r):
+  [list: r["q1"], r["q2"], r["q3"], r["q4"], r["q5"], r["q6"], r["q7"], r["q8"]]
+end
+
+# list-open-word :: Row -> List
+# consumes a string and splits into a List of words
+fun list-open-words(r):
+  string-split-all(r["words"], " ")
+end
+
+##########################
+
+# b-o-w-8claps(r) :: Row -> Number
+# consumes a row and counts the Number of claps in the 8 columns
+fun b-o-w-8claps(r):
+  list-8-words(r).filter(_ == "clap").length()
+end
+  
+# b-o-w-8snaps(r) :: Row -> Number
+# consumes a row and counts the Number of snape in the 8 columns
+fun b-o-w-8snaps(r):
+  list-8-words(r).filter(_ == "snap").length()
+end
+
+################################
+
+# b-o-w-all-claps(r) :: Row -> Number
+# consumes a row and counts the Number of claps in the 8 columns
+fun b-o-w-all-claps(r):
+  r["words-list"]
+    .filter(lam(x):string-contains(string-to-lower(x), "clap") end)
+    .length()
+end
+  
+# b-o-w-all-snaps(r) :: Row -> Number
+# consumes a row and counts the Number of snape in the 8 columns
+fun b-o-w-all-snaps(r):
+  r["words-list"]
+    .filter(lam(x):string-contains(string-to-lower(x), "snap") end)
+    .length()
+end
+
+# first survey results with a fixed number of 8 words
+words-8-table = 
+  load-table: timestamp, name, q1,q2,q3,q4,q5,q6,q7,q8
+    source: songs-sheet.sheet-by-name("Form Responses 1", true)
+  end
+  .build-column(snap, b-o-w-8snaps)
+  .build-column(clap, b-o-w-8claps)
+  .drop("timestamp")
+  .drop("q1")
+  .drop("q2")
+  .drop("q3")
+  .drop("q4")
+  .drop("q5")
+  .drop("q6")
+  .drop("q7")
+  .drop("q8")
+
+# second survey with open number of words
+words-open-table = 
+  load-table: timestamp, name, words
+    source: songs-sheet.sheet-by-name("Form Responses 2", true)
+  end
+  .build-column("words-list", list-open-words)
+  .build-column(snap, b-o-w-all-snaps)
+  .build-column(clap, b-o-w-all-claps)
+  .drop("timestamp")
+  .drop("words-list")
+  .drop("words")
+
+
+#################################################
+scatter-plot(words-8-table,    "name", snap, clap)
+scatter-plot(words-open-table, "name", snap, clap)

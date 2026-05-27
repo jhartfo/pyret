@@ -1,0 +1,13 @@
+use context shared-gdrive("Plagiarism Library ", "1WrRMSqAjXA_Eln1jAKlriUkMjdBrLldi")
+
+
+#|
+WORDS-ALL  = get-words-from-sheet("All-Words")
+WORDS-1000 = get-words-from-sheet("Words-1000")
+WORDS-100  = get-words-from-sheet("Words-100")
+
+
+#shared-gdrive("Spell Checker Library", "1L1-iTERr_gS1Js_Htwa8KjlxhgUXRV8e")
+|#
+
+

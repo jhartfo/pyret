@@ -1,0 +1,562 @@
+use context starter2024
+include math
+include reactors
+include timing
+include tables
+include lists
+
+import sets as S
+list-to-set = S.list-to-list-set
+
+run = interact(_) 
+
+
+# PLTW restaurant game
+# guessing game
+#
+
+####################################################################
+
+is-palindrome :: String -> Boolean
+# consumes a string and recursively compares the 
+# first and last character. If all pairs are the same,
+# we have a palindrome. Single characters and no characters
+# default to true
+examples:
+  is-palindrome("") is true
+  is-palindrome("a") is true
+  is-palindrome("abcdcba") is is-palindrome("bcdcb")
+end
+
+fun is-palindrome(word):
+  
+  # first we create a list containing are the characters 
+  # so we can compare the characters. For convenience, we 
+  # also defined the len as the length of the list
+  char-list = string-explode(word)
+  len       = length(char-list)
+  
+  # base case:
+  if len < 2 : 
+    true
+    
+  # if the first and last elements are not equal, 
+  # we are done. return false
+  else if char-list.get(0) <> char-list.get(len - 1):
+    false
+  
+  # otherwise, we remove the first and last elements,
+  # rejoin the string, and continue checking pairs of characters
+  else:
+    is-palindrome(char-list.take(len - 1).drop(1).join-str(""))
+  end
+end
+
+
+####################################################################
+
+# list-count :: List, Any, -> Number
+# consumes a List and a Value and produces the
+# Number of occurences of the given value in the List
+examples:
+  list-count([list:], 1)                  is 0
+  list-count([list:2], 1)                 is 0
+  list-count([list:1], 1)                 is 1
+  list-count([list:1,2,1], 1)             is 2
+  list-count([list:1,2,3], "a")           is 0
+  list-count([list:"ab", "a", "b"], "ab") is 1
+end
+fun list-count(lst, v):
+  length(filter(_ == v, lst))
+end
+
+is-anagram:: String, String -> Boolean
+# consumes two Strings. To speed up the process,
+# we provide several off ramps. First, is there
+# is normal String equality then they are 
+# obviously anaframs. Second, if they are not
+# composed of the same letters, then they 
+# obviously not anagrams.
+#
+# Once we have matching Lists of characters
+# get the counts of those character from each
+# List. If the counts match then return true
+# otherwise, false
+examples:
+  is-anagram("", "")        is true
+  is-anagram("cat", "cat")  is true
+  is-anagram("act", "cat")  is true
+  is-anagram("cat", "act")  is true
+  is-anagram("cat", "cta")  is true
+  is-anagram("cat", "act")  is true
+  is-anagram("cat", "atc")  is true
+  is-anagram("cat", "tac")  is true
+  is-anagram("cat", "tca")  is true
+  is-anagram("cat", "at" )  is false
+  is-anagram("cat", "cats") is false
+end
+fun is-anagram(A,B):
+  
+  # if they are straight up the same
+  # thing, take the win and move on.
+  if A == B: 
+    true # and we are done
+    
+  # otherwise, we need to
+  else:
+    # make a list of unique characters 
+    # in the string
+    A-chars = list-to-set(string-explode(A)).to-list().sort()
+    B-chars = list-to-set(string-explode(B)).to-list().sort()
+    
+    # if they are straight up different
+    # things, take the win and move on.
+    if A-chars <> B-chars: 
+      false # and we are done
+    
+    # otherwise, A-chars and B-chars are the same,
+    # so we'll just use at A-chars going forward.
+    else:
+      # we need to make a list of character frequencies,
+      A-counts = map(list-count(string-explode(A),_), A-chars)
+      B-counts = map(list-count(string-explode(B),_), B-chars)
+      
+      # and see if those frequencies are the same.
+      A-counts == B-counts
+    end
+  end
+end
+
+fun is-a-2(A,B):
+  string-explode(A).sort() == string-explode(B).sort()
+end
+
+
+fun chars-list(word):
+  list-to-set(string-explode(word)).to-list().sort()
+end
+
+fun char-counts(word):
+  key   = chars-list(word)
+  value = map(list-count(string-explode(word),_), key)
+  [table-from-columns:
+    {"key"; key},
+    {"value"; value}]
+end
+
+####################################################################
+
+digits = map(num-to-string, range(0,10))
+
+data Label: 
+    lbl(
+      guess     :: String,
+      response  :: String,
+      remaining :: String
+      ) with:
+  method display-guess(self)    : text(self.guess    , 50, "black") end,
+  method display-response(self) : text(self.response , 50, "black") end,
+  method display-remaining(self): text(self.remaining, 50, "black") end,
+end
+    
+data GuessingData:
+    g-data(
+      display-level :: Number,
+      secret        :: Number,
+      my-guess      :: Number,
+      guesses-left  :: Number,
+      labels :: Label
+      )
+end
+
+data GuessData:
+  |guess-pair(secret:: Number, guess:: Number) with:
+    method is-correct(self)  : self.guess == self.secret end,
+    method is-too-big(self)  : self.guess >  self.secret end,
+    method is-too-small(self): self.guess <  self.secret end
+    
+  |guess-data(secret:: Number, guess-list:: List, level:: Number) with:
+    method guess(self): 
+    string-to-number(self.guess-list.join-str("")).value end,
+    method is-correct(self)  : self.guess() == self.secret end,
+    method is-too-big(self)  : self.guess() >  self.secret end,
+    method is-too-small(self): self.guess() <  self.secret end
+    
+end 
+
+    
+is-correct:: GuessingData -> Boolean
+fun is-correct(state):
+  if state.secret == state.my-guess: true
+  else: false
+  end
+end
+
+is-too-big:: GuessingData -> Boolean
+fun is-too-big(state):
+  if state.secret < state.my-guess: true
+  else: false
+  end
+end
+
+is-too-small:: GuessingData -> Boolean
+fun is-too-small(state):
+  if state.secret > state.my-guess: true
+  else: false
+  end
+end
+
+#|
+fun status-message(state):
+  if is-correct(state) and (state.my-guess >= 0):
+      text("correct", 50, "black")
+  else if is-too-big(state) and (state.my-guess >= 0):
+    text("guess-again, smaller", 50, "black")
+  else if is-too-small(state) and (state.my-guess >= 0): 
+    text("guess-again, larger", 50, "black")
+  else:
+    text("", 50, "black")
+  end
+end
+
+fun guesses-left-message(state):
+  if state.guesses-left <= 0:
+    text("correct number was: " + num-to-string(state.secret), 50, "black")    
+  else:
+    text("guesses remaining: " + num-to-string(state.guesses-left), 50, "black")
+  end
+end
+
+fun your-guess-message(state):
+  if state.my-guess < 0:
+    text("your guess: ", 50, "black")
+  else:
+    text("your guess: " + num-to-string(state.my-guess), 50, "black")
+  end
+end
+|#
+  
+fun update-your-guess(state):
+  "your guess: " + num-to-string(state.my-guess)
+end
+
+fun update-status(state):
+  if is-correct(state) and (state.my-guess >= 0):
+    "correct"
+  else if is-too-big(state) and (state.my-guess >= 0):
+    "guess-again, smaller"
+  else:
+    "guess-again, larger"
+  end
+end
+
+fun update-guesses-left(state):
+  if state.guesses-left <= 0:
+    "correct number was: " + num-to-string(state.secret)    
+  else:
+    "guesses remaining: " + num-to-string(state.guesses-left)
+  end
+end
+   
+fun update-guess(state):
+  state.your-guess
+end
+
+fun draw-simple(state):
+  put-image(
+    state.labels.display-guess(), 400, 500, put-image(
+      state.labels.display-response(), 400, 400, put-image(
+        state.labels.display-remaining(), 400, 300, 
+        rectangle(800,600, "solid", "white")
+        )))
+end
+
+fun update-simple(state,key):
+  if member(digits, key) and (state.guesses-left > 0):
+    g-data(
+      state.display-level, 
+      state.secret,
+      string-to-number(key).value,
+      state.guesses-left - 1,
+      lbl(
+        update-your-guess(state),
+        update-status(state),
+        update-guesses-left(state)
+        )
+      )
+  else:
+    state
+  end
+end
+
+
+####################################################################
+
+menu-0 = 
+  put-image(       
+    text("options:",40, "black"), 150,300, put-image(
+      text("1) you pick a number", 40, "black"), 300,250, put-image(
+        text("2) I pick a number", 40, "black"), 275,200,
+        rectangle(600,400, "solid", "ivory"))))
+
+menu-1 = 
+  put-image(       
+    text("options:",40, "black"), 150,300, put-image(
+      text("1) you pick a number", 40, "black"), 300,250, put-image(
+        text("2) I pick a number", 40, "black"), 275,200,
+        rectangle(600,400, "solid", "ivory"))))
+
+fun generate-secret(n):
+  num-random(num-expt(10,n))
+end
+
+fun draw-display(state):
+  if state.display-level == 0:
+    menu-0 
+  else:
+    rectangle(600,400, "solid", "ivory")
+  end        
+end
+
+fun update-state(state,key):
+  if (state.display-level == 0) and (key == "1"):
+    g-data(1, 0)
+  else if (state.display-level == 0) and (key == "1"):
+    g-data(1, generate-secret(2),0)
+  else:
+    state
+  end
+end
+
+####################################################################
+
+num-guesses = 10
+guessing-game = reactor:
+  init: g-data(
+      1, 
+      num-random(10), 
+      -1, 
+      num-guesses, 
+      lbl(
+        "Enter a Guess", 
+        "", 
+        "guesses remaining: " + num-to-string(num-guesses)
+        )),
+  to-draw: draw-simple,
+  on-key: update-simple
+end
+
+
+
+
+
+####################################################################
+
+fun build-multiples-n(n, start, finish):
+  if start >= finish : empty
+  else:
+    link(start, build-multiples-n(n,n + start, finish))
+  end
+end
+
+mult-3  = build-multiples-n( 3,0, 1000)
+mult-5  = build-multiples-n( 5,0, 1000)
+mult-15 = build-multiples-n(15,0, 1000)
+
+( sum(mult-3) + sum(mult-5) ) - sum(mult-15)
+
+
+fun fibb(a1,a2,n):
+  fun fibb-builder(s1,s2,s,e):
+    if s >= e: empty
+    else:
+      link(s1, fibb-builder(s2, s1 + s2, s + 1, e))
+    end 
+  end
+  fibb-builder(a1,a2,0,n)
+end
+  
+fun fibb-less-than(a1,a2,n):
+  if (a1 + a2) >= n : empty
+  else:
+    link(a1,even-fibb-less-than(a2, a1 + a2, n))
+  end
+end
+
+fun even-fibb-less-than(a1,a2,n):
+  if (a1 + a2) >= n : empty
+  else:
+    if num-modulo(a1,2) == 0:
+      link(a1,even-fibb-less-than(a2, a1 + a2, n))
+    else:
+      even-fibb-less-than(a2, a1 + a2, n)
+    end
+  end
+end
+
+sum(even-fibb-less-than(1,2,4000000))
+
+
+####################################################################
+
+data MenuItem:
+    item(
+      name :: String,
+      course :: String,
+      price :: Number
+      )
+end
+
+
+hamburger = item("hamburger"      , "entree", 8.00)
+hotdog    = item("hotdog      "   , "entree", 6.00)
+taco      = item("taco           ", "entree", 4.00)
+
+fun add-hamburger(tbl):
+  tbl.add-row([raw-row:
+      {"item"  ; hamburger       },
+      {"name"  ; hamburger.name  },
+      {"course"; hamburger.course},
+      {"price" ; hamburger.price }
+    ])
+end
+
+fun add-hotdog(tbl):
+  tbl.add-row([raw-row:
+      {"item"  ; hotdog          },
+      {"name"  ; hotdog.name     },
+      {"course"; hotdog.course   },
+      {"price" ; hotdog.price    }
+    ])
+end
+
+fun add-taco(tbl):
+  tbl.add-row([raw-row:
+      {"item"  ; taco            },
+      {"name"  ; taco.name       },
+      {"course"; taco.course     },
+      {"price" ; taco.price      }
+    ])
+end
+
+
+fun order-summary(tbl):
+  order-items  = list-to-set(tbl.get-column("item")).to-list()
+  order-names  = map(lam(x): x.name end, order-items)
+  order-counts = 
+    map(
+      lam(x): tbl.filter(lam(r): r["name"] == x end).length() end, 
+      order-names)
+  [table-from-columns:
+    {"item" ; order-items}, 
+    {"name" ; order-names},
+    {"count"; order-counts}]
+    .build-column("unit-price", lam(r): r["item"].price end)
+    .build-column("price", lam(r): r["item"].price * r["count"] end)
+end
+
+fun total-price(tbl):
+  sum(tbl.get-column("price"))
+end
+
+fun recipe-lines(tbl):
+  order-summary(tbl)
+    .build-column("line", lam(r): 
+      num-to-string(r["count"]) + " " + r["name"] + " @" + 
+      num-to-string(r["unit-price"]) + " . . . " +
+      num-to-string(r["price"])
+    end)
+    .build-column("line-image", lam(r): text(r["line"], 50, "black") end)
+    .get-column("line-image")
+end
+
+
+fun update-menu(state, key):
+  if      key == "h": add-hamburger(state)
+  else if key == "d": add-hotdog(state)
+  else if key == "t": add-taco(state)
+  else:
+    state
+  end
+end
+        
+fun draw-menu(state):
+  above(
+    text("my restaurant", 50, "black"), above(
+      rectangle(600,2,"solid", "black"), above(
+        fold(above, empty-image,recipe-lines(state)), above(
+            rectangle(600,2,"solid", "black"),
+              text(num-to-string(total-price(state)), 50, "black")
+          ))))
+end
+
+menu = reactor:
+  init: table: item, name, course, price end ,
+  to-draw: draw-menu,
+  on-key: update-menu
+  #on-key: 
+end
+
+
+
+
+####################################################################
+
+DO = 3
+RE = 5
+MI = 7
+
+do_ :: Number -> String
+fun do_(x):
+  if num-modulo(x,DO) == 0: "do "
+  else: ""
+  end
+end
+
+re_ :: Number -> String
+fun re_(x):
+  if num-modulo(x,RE) == 0: "re "
+  else: ""
+  end
+end
+
+mi_ :: Number -> String
+fun mi_(x):
+  if num-modulo(x,MI) == 0: "mi "
+  else: ""
+  end
+end
+
+do-re-mi-1 :: Number -> String
+fun do-re-mi-1(x):
+  do_(x) + re_(x) + mi_(x)
+end
+
+do-re-mi-2 :: Number -> String
+fun do-re-mi-2(x):
+  ask: 
+    | num-modulo(x,3) == 0 then: "do"
+    | num-modulo(x,5) == 0 then: "re"
+    | num-modulo(x,6) == 0 then: "mi"
+    | otherwise: num-to-string(x)
+  end
+end
+
+
+# this function is bad design. 
+# The range is not well-defined it will output
+# a Number of default to a String . . . .
+# (final-check :: Number -> Number) or
+# (final-check :: Number -> String) can't be both
+fun final-check(x):
+  if do-re-mi-1(x) == "": x
+  else: do-re-mi-1(x)
+  end
+end
+
+  
+
+  
+map(do-re-mi-2, range(0,110))
+
+

@@ -1,0 +1,371 @@
+use context starter2024
+include string-dict
+import color as C
+color = C.color
+
+shadow-clr = color(0,0,0,0.1)
+SIZE       = 100
+
+flavors    = [string-dict:
+  "strawberry", "pink",
+  "vanilla", "linen",
+  "chocolate", "saddle-brown",
+  "mint", "turquoise",
+  "sorbet", "gold",
+  "cake", "sky blue"
+]
+
+# find-flavor :: String -> Color
+# Cnsumes a flavor's String and looks up the flavor's Color
+fun find-color(flavor):
+  if flavors.has-key(flavor):
+    flavors.get(flavor).value
+  else:
+    raise("that is not a valid flavor.")
+  end
+end
+
+################################################################
+# Let's build an ice cream cone
+
+# shadow-points :: Number -> List
+# Produces the List of appropriate coordinates for 
+# the form shadow a scoop 
+fun shadow-points(size):
+  i         = 70
+  c         = -0.025
+  starting  = -4
+  ending    = 2 + (1 / i)
+  positions = range-by(starting,ending, (ending - starting - (1 / i)) / i)
+  T         = map(lam(x): (2 * PI * x) / 8 end , positions)
+  
+  x-coord   = lam(t): num-round(size * num-cos(t)) end
+  y-coord   = lam(t): num-round(size * num-sin(t)) end
+  
+  X1        = map(x-coord,T)
+  Y1        = map(y-coord,T)
+  R         = map(
+    lam(x): 1 - (c * (x - starting) * (x - ending)) end, 
+    positions)
+  
+  X2 = map2(lam(x,r): x * r end, X1,R).reverse()
+  Y2 = map2(lam(y,r): y * r end, Y1,R).reverse()
+  
+  X = X1 + X2
+  Y = Y1 + Y2
+  map2(point, X,Y)
+end
+
+# make-scoop :: Number, Color -> Image
+# Consumes a Number and a Color and draws a ball of the given Color
+fun make-scoop(size, clr):
+  overlay-align("center", "bottom",
+    point-polygon(shadow-points(size), "solid", shadow-clr),
+    circle(size, "solid",clr)
+    )
+end
+
+# make-cone :: Number -> Image
+# Consumes a Number and draws a waffle cone
+fun make-cone(size):
+    
+  cone-p1 = [list: 
+    point(3/4 * size, 5), 
+    point(4         , 3 * size), 
+    point(3/2 * size, 3 * size)]
+  
+  cone-p2 = [list: 
+    point(3/4 * size,0), 
+    point(8/8 * size, 3 * size), 
+    point(3/2 * size, 3 * size)]
+  
+  overlay-align("right","bottom",
+    point-polygon(cone-p2, "solid", shadow-clr),
+    point-polygon(cone-p1, "solid", "tan")
+    )
+end
+
+################################################################
+# Let's build a pint of ice cream
+
+# make-tub :: Nuber, String -> Image
+# consumes a Number and a flavor's String. Looks up the 
+# flavor's Color and draws a pint of ice cream 
+fun make-tub(size, flavor):
+    
+  tub-pts = [list: 
+    point( 0.0       , 0),
+    point(-0.25 * size, 2 * size),
+    point( 2.25 * size, 2 * size),
+    point( 2.0 * size, 0)]
+  
+  shadow-1 = [list:
+    point( 2.25 * size, 2 * size),
+    point( 2.0 * size, 0),
+    point( 1.25 * size, 0),
+    point( 2.0 * size, 2 * size)]
+  
+  overlay-align("right","bottom",
+    point-polygon(shadow-1,"solid", shadow-clr), overlay(
+      point-polygon(tub-pts,"outline", "black"),
+      point-polygon(tub-pts,"solid", find-color(flavor))))
+end
+
+# make-tub :: Nuber, -> Image
+# consumes a Number draws the lid for pint of ice cream 
+fun make-lid(size):
+  overlay-align("right", "center",
+    rectangle(0.6 * size, 0.5 * size, "solid", shadow-clr),
+    overlay(
+      rectangle(3.0 * size, 0.5 * size, "outline", "black"),
+      rectangle(3.0 * size, 0.5 * size, "solid", "white")
+    ))
+end
+
+# make-tub :: Nuber, String -> Image
+# consumes a Number and a flavor's String and draws
+# the label for the pint of ice cream
+fun make-label(size,flavor):
+  overlay-align(
+    "center", "center",text(string-to-upper(flavor), size * 0.2, "black"),
+    overlay(
+      ellipse(size * 2.2, size * 0.8, "outline", "gold"),
+      ellipse(size * 2.2, size * 0.8, "solid", "white")
+      ))
+end
+
+# make-tub :: Nuber, String -> Image
+# consumes a Number and a flavor's String. Looks up the 
+# flavor's Color and draws a complete pint of ice cream 
+fun make-a-pint(size,flavor):
+
+  label = make-label(size,flavor)
+  lid   = make-lid(size)
+  tub   = make-tub(size, flavor)
+
+  overlay-align("center", "top", lid,
+    overlay-align("center", "center",label, tub))
+end
+
+################################################################
+# mmm . . . ice cream
+
+# make-tub :: Nuber, String, String, String -> Image
+# consumes a Number and 3 flavors' Strings. Looks up the 
+# flavors' Colors and draws a triple scoop 
+fun triple-scoop(size, a,b,c):
+
+  BG      = rectangle((2 * size) + 10, 7 * size, "solid", "white")
+  scoop-1 = make-scoop(size, find-color(a))
+  scoop-2 = make-scoop(size, find-color(b))
+  scoop-3 = make-scoop(size, find-color(c))
+  cone    = make-cone(size)
+  
+  put-image(
+    scoop-3, size + 5, size + (4.6 * size), put-image(
+      scoop-2,size + 5 , size + (3.4 * size), put-image(
+        scoop-1,size + 5, size + (2.2 * size), put-image(
+          cone,  size + 5, size + ( 0.5 * size), BG))))
+end
+
+# make-tub :: Nuber, String, String -> Image
+# consumes a Number and 2 flavors' Strings. Looks up the 
+# flavors' Colors and draws a double scoop
+fun double-scoop(size, a,b):
+
+  BG      = rectangle((2 * size) + 10, 6 * size, "solid", "white")
+  scoop-1 = make-scoop(size, find-color(a))
+  scoop-2 = make-scoop(size, find-color(b))
+  cone    = make-cone(size)
+  
+  put-image(
+      scoop-2,size + 5 , size + (3.4 * size), put-image(
+        scoop-1,size + 5, size + (2.2 * size), put-image(
+          cone,  size + 5, size + ( 0.5 * size), BG)))
+end
+
+# make-tub :: Nuber, String, String, String  -> Image
+# and draws three pints of ice cream
+fun three-pints(size, a,b,c):
+  BG = rectangle(10 * size, 3.75 * size, "solid", "white")
+  P1 = make-a-pint(size, a)
+  P2 = make-a-pint(size, b)
+  P3 = make-a-pint(size, c)
+  
+  put-image(P1, 2.00 * size, 1.25 * size, 
+    put-image(P2, 5.00 * size,2.50 * size,
+      put-image(P3, 8.00 * size, 1.25 * size, BG)))
+end
+
+# make-tub :: Nuber, String, String -> Image 
+# and draws two pints of ice cream
+fun two-pints(size, a,b):
+  BG = rectangle(7.50 * size, 2.50 * size, "solid", "white")
+  P1 = make-a-pint(size, a)
+  P2 = make-a-pint(size, b)
+  
+  put-image(P1, 2.00 * size, 1.25 * size, 
+    put-image(P2, 5.50 * size,1.25 * size, BG))
+end
+
+################################################################
+# The following functions generate Functions that will consume  
+# scoop Numbers (1,2) or (1,2,3) and produces a flavor
+
+
+# build-tribe-function :: String, String, String -> Function
+# Takes in three flavors' Strings and generates a function that maps
+# cooresponding scoops (1,2,3) to flavors a,b,c
+fun build-triple-function(a,b,c):
+  lam(s):
+    if      s == 1: a
+    else if s == 2: b
+    else if s == 3: c
+    else:
+      raise("please select scoop number 1, 2, or 3.") 
+    end
+  end
+end
+
+# build-tribe-function :: String, String-> Function
+# Takes in two flavors' Strings and generates a function that maps
+# cooresponding scoops (1,2) to flavors a,b
+fun build-double-function(a,b):
+  lam(s):
+    if      s == 1: a
+    else if s == 2: b
+    else:
+      raise("please select scoop number 1 or 2.") 
+    end
+  end
+end
+
+################################################################
+# The following functions help visualize the above Fumctions 
+# by drawing ice cream cones and pints depicting how the given
+# Function maps the scoops onto the flavors.
+
+# fun-to-double :: Function<Number -> String>  -> Image
+# Consumes a double scoop Function and draws the cooresponding cone
+fun fun-to-double-cone(fn):
+  double-scoop(SIZE, fn(1),fn(2))
+end
+
+# fun-to-triple :: Function<Number -> String>  -> Image
+# Consumes a triple scoop Function and draws the cooresponding cone
+fun fun-to-triple-cone(fn):
+  triple-scoop(SIZE, fn(1),fn(2),fn(3))
+end
+
+# fun-to-2-pints :: Function<Number -> String>  -> Image
+# Consumes a double scoop Function and draws the 2 cooresponding pints
+fun fun-to-2-pints(fn):
+  two-pints(SIZE, fn(1),fn(2))
+end
+
+# fun-to-3-pints :: Function<Number -> String>  -> Image
+# Consumes a triple scoop Function and draws the 3 cooresponding pints
+fun fun-to-3-pints(fn):
+  three-pints(SIZE, fn(1),fn(2),fn(3))
+end
+
+
+# Example Ice Cream Functions
+################################################################
+# Number< 1,2 > -> Image
+
+br2-01 = build-double-function("chocolate" , "strawberry") #cs
+br2-02 = build-double-function("strawberry", "chocolate" ) #sc
+br2-03 = build-double-function("chocolate" , "chocolate" ) #cc
+br2-04 = build-double-function("strawberry", "strawberry") #ss
+
+################################################################
+# Number< 1,2,3 > -> Image
+
+br3-01 = build-triple-function("chocolate" , "chocolate" , "chocolate" ) #ccc
+br3-02 = build-triple-function("strawberry", "strawberry", "strawberry") #sss
+br3-03 = build-triple-function("chocolate" , "chocolate" , "strawberry") #ccs
+br3-04 = build-triple-function("chocolate" , "strawberry", "chocolate" ) #csc
+br3-05 = build-triple-function("strawberry", "chocolate" , "chocolate" ) #scc
+br3-06 = build-triple-function("strawberry", "strawberry", "chocolate" ) #ssc
+br3-07 = build-triple-function("strawberry", "chocolate" , "strawberry") #scs
+br3-08 = build-triple-function("chocolate" , "strawberry", "strawberry") #css
+
+################################################################
+# Number< 1,2 > -> Image
+
+nb2-01 = build-double-function("chocolate" , "vanilla"   ) #cv
+nb2-02 = build-double-function("chocolate" , "strawberry") #cs
+nb2-03 = build-double-function("vanilla"   , "chocolate" ) #vc
+nb2-04 = build-double-function("vanilla"   , "strawberry") #vs
+nb2-05 = build-double-function("strawberry", "chocolate" ) #sc
+nb2-06 = build-double-function("strawberry", "vanilla"   ) #sv
+
+nb2-07 = build-double-function("chocolate" , "chocolate" ) #cc
+nb2-08 = build-double-function("vanilla"   , "vanilla"   ) #vv
+nb2-09 = build-double-function("strawberry", "strawberry") #ss
+
+################################################################
+# Number< 1,2,3 > -> Image
+
+nb3-01 = build-triple-function("chocolate" , "vanilla"   , "strawberry") #cvs
+nb3-02 = build-triple-function("chocolate" , "strawberry", "vanilla"   ) #csv
+nb3-03 = build-triple-function("vanilla"   , "strawberry", "chocolate" ) #vsc
+nb3-04 = build-triple-function("vanilla"   , "chocolate" , "strawberry") #vcs
+nb3-05 = build-triple-function("chocolate" , "strawberry", "vanilla"   ) #csv
+nb3-06 = build-triple-function("chocolate" , "vanilla"   , "strawberry") #cvs
+
+nb3-07 = build-triple-function("chocolate" , "chocolate" , "strawberry") #ccs
+nb3-08 = build-triple-function("chocolate" , "strawberry", "chocolate" ) #csc
+nb3-09 = build-triple-function("strawberry", "chocolate" , "chocolate" ) #scc
+
+nb3-10 = build-triple-function("strawberry", "strawberry", "chocolate" ) #ssc
+nb3-11 = build-triple-function("strawberry", "chocolate" , "strawberry") #scs
+nb3-12 = build-triple-function("chocolate" , "strawberry", "strawberry") #css
+
+nb3-13 = build-triple-function("chocolate" , "chocolate" , "vanilla"   ) #ccv
+nb3-14 = build-triple-function("chocolate" , "vanilla"   , "chocolate" ) #cvc
+nb3-15 = build-triple-function("vanilla"   , "chocolate" , "chocolate" ) #vcc
+
+nb3-16 = build-triple-function("vanilla"   , "vanilla"   , "chocolate" ) #vvc
+nb3-17 = build-triple-function("vanilla"   , "chocolate" , "vanilla"   ) #vcv
+nb3-18 = build-triple-function("chocolate" , "vanilla"   , "vanilla"   ) #cvv
+
+nb3-19 = build-triple-function("strawberry", "strawberry", "vanilla"   ) #ssv
+nb3-20 = build-triple-function("strawberry", "vanilla"   , "strawberry") #svs
+nb3-21 = build-triple-function("vanilla"   , "strawberry", "strawberry") #vss
+
+nb3-22 = build-triple-function("vanilla"   , "vanilla"   , "strawberry") #vvs
+nb3-23 = build-triple-function("vanilla"   , "strawberry", "vanilla"   ) #vsv
+nb3-24 = build-triple-function("strawberry", "vanilla"   , "vanilla"   ) #svv
+
+nb3-25 = build-triple-function("chocolate" , "chocolate" , "chocolate" ) #ccc
+
+nb3-26 = build-triple-function("strawberry", "strawberry", "strawberry") #sss
+
+nb3-27 = build-triple-function("vanilla"   , "vanilla"   , "vanilla"   ) #vvv
+
+################################################################
+# lists  of Ice Cream Functions
+
+BR2 = [list: 
+  br2-01, br2-02, br2-03, br2-04]
+
+BR3 = [list: 
+  br3-01, br3-02, br3-03, br3-04, 
+  br3-05, br3-06, br3-07, br3-08]
+
+NB2 = [list:
+  nb2-01, nb2-02, nb2-03, 
+  nb2-04, nb2-05, nb2-06, 
+  nb2-07, nb2-08, nb2-09]
+
+NB3 = [list:
+  nb3-01, nb3-02, nb3-03, nb3-04, nb3-05,
+  nb3-06, nb3-07, nb3-08, nb3-09, nb3-10,
+  nb3-11, nb3-12, nb3-13, nb3-14, nb3-15,
+  nb3-16, nb3-17, nb3-18, nb3-19, nb3-20,
+  nb3-21, nb3-22, nb3-23, nb3-24, nb3-25,
+  nb3-26, nb3-27] 
+  
+  

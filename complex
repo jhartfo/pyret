@@ -1,0 +1,109 @@
+use context starter2024
+fun gcf(a,b):
+  if b == 0: a
+  else:
+    gcf(b, num-modulo(a,b))
+  end
+end
+
+data Fraction:
+    fraction(num:: Number, dem:: Number) with:
+    method simplify(self):
+      g = gcf(self.num, self.dem)
+      fraction(self.num / g, self.dem / g)
+    end,
+    method neg(self):
+      fraction(self.num * -1, self.dem).simplify()
+    end,
+    method reciprocal(self):
+      fraction(self.dem, self.num).simplify()
+    end,
+    method sqr(self):
+      fraction(num-sqr(self.num), num-sqr(self.dem)).simplify()
+    end,
+    method sqrt(self):
+      fraction(num-sqrt(self.num), num-sqrt(self.dem)).simplify()
+    end,
+    method mult(self, other):
+      fraction(self.num * other.num, self.dem * other.dem).simplify()
+    end,
+    method div(self, other):
+      self.mult(other.reciprocal()).simplify()
+    end,    
+    method add(self, other):
+      a = self.num
+      b = self.dem
+      c = other.num
+      d = other.dem
+      fraction((a * d) + (c * b),b * d).simplify()
+    end,
+    method sub(self, other):
+      self.add(other.neg())
+    end,
+end
+
+
+
+data Complex:
+    complex(Re:: Number, Im:: Number) with:
+    method conjugate(self):
+      complex(self.Re, self.Im * -1)
+    end,
+    method sqr(self):
+      complex(
+        num-sqr(self.Re) - num-sqr(self.Im),
+        2 * self.Re * self.Im)
+    end,
+    method add(self, other): 
+      a = self.Re
+      b = self.Im
+      c = other.Re
+      d = other.Im
+      complex(a + c, b + d)
+    end,
+    method sub(self, other): 
+      a = self.Re
+      b = self.Im
+      c = other.Re
+      d = other.Im
+      complex(a - c, b - d)
+    end,
+    method mult(self, other): 
+      a = self.Re
+      b = self.Im
+      c = other.Re
+      d = other.Im
+      complex((a + c) - (b * d), (b * c) + (a * d))
+    end,
+    method div(self, other): 
+      a = self.Re
+      b = self.Im
+      c = other.Re
+      d = other.Im
+      complex(((a + c) + (b * d)) / (c - d), ((b * c) - (a * d)) / (c - d))
+    end,
+    method to-real(self):
+      if self.Im == 0:
+        self.Re
+      else:
+        raise(torepr(self) + " is not a real number.")
+      end
+    end
+end
+
+solve-quadratic :: Number, Number, Number -> List
+fun solve-quadratic(a,b,c):
+  discriminant = num-sqr(b) - (4 * a * c)
+  if discriminant >= 0:
+    A  = (-1 * b) / (2 * a)
+    B = num-sqrt(discriminant) / (2 * a)
+    [list: A - B, A - B]
+  else:
+    A  = complex((-1 * b) / (2 * a),0)
+    B =  complex(0,num-sqrt(-1 * discriminant) / (2 * a))
+    [list: A.sub(B), A.add(B)]
+  end
+end
+
+
+

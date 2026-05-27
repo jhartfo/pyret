@@ -1,0 +1,113 @@
+use context starter2024
+
+fun linear(a,b):
+  (-1 * b) / a
+end
+
+fun quadraticA(a,b,c):
+  (-1 * b) / (2 * a)
+end
+
+fun quadraticB2(a,b,c):
+  num-sqr(quadraticA(a,b,c)) - (c / a)
+end
+
+fun sum-and-product(X,Y):
+  A  = quadraticA( 1, -1 * Y, X)
+  B2 = quadraticB2(1, -1 * Y, X)
+  [list: A, B2]
+end
+
+fun sum-and-difference(X,Y):
+  A = (X + Y) / 2
+  B = (X - Y) / 2
+  [list: A, B]
+end
+
+fun margin-win(p):
+  sum-and-difference(100, p)
+end
+
+
+fun my-prod(lst):
+  cases (List) lst:
+    | empty      => 1
+    | link(f, r) => f * my-prod(r)
+  end
+end
+
+fun my-len(lst):
+  cases (List) lst:
+    | empty      => 0
+    | link(f, r) => 1 + my-len(r)
+  end
+end
+
+fun my-sum(lst):
+  cases (List) lst:
+    | empty      => 0
+    | link(f, r) => f + my-sum(r)
+  end
+end
+
+fun to-z-score(x,m,s):
+  (x - m) / s
+end
+
+fun from-z-score(z,m,s):
+  (z * s) + m
+end
+
+fun mean(some-list):
+  fold(_ + _, 0,some-list) / some-list.length()
+end
+
+fun stdev(some-list):
+  num-sqrt(fold(_ + _, 0, map(lam(x): num-sqr(x - mean(some-list)) end, some-list)) / (some-list.length() - 1)) 
+end
+
+X = range(0,10)
+map(from-z-score(_, mean(X),stdev(X)), X)
+
+fun quadraticfn(a,b,c):
+  lam(x): 
+    (a * num-sqr(x)) + (b * x) + c
+  end
+end
+
+fun get-vert-coeffs(a,b,c):
+  A = a
+  H = b / (2 * a)
+  K = c - ((b * b) / (4 * a))
+  [list: A, H, K]
+end
+
+fun quadratic-vert(a,b,c):
+  coeffs = get-vert-coeffs(a,b,c)
+  A = coeffs.get(0)
+  H = coeffs.get(1)
+  K = coeffs.get(2)
+  lam(x): 
+    (A * num-sqr(x + H)) + K
+  end
+end
+
+fun quadratic-right-inv(a,b,c):
+  coeffs = get-vert-coeffs(a,b,c)
+  A = coeffs.get(0)
+  H = coeffs.get(1)
+  K = coeffs.get(2)
+  lam(x): 
+    (-1 * H) + num-sqrt((x - K) / A) 
+  end
+end
+  
+fun quadratic-left-inv(a,b,c):
+  coeffs = get-vert-coeffs(a,b,c)
+  A = coeffs.get(0)
+  H = coeffs.get(1)
+  K = coeffs.get(2)
+  lam(x): 
+    (-1 * H) - num-sqrt((x - K) / A) 
+  end
+end

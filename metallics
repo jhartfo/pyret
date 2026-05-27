@@ -1,0 +1,48 @@
+use context starter2024
+
+
+fun radical(n):
+  num-sqrt(num-sqr(n) + 4)
+end
+
+fun metallic(n):
+  (n + radical(n)) / 2
+end
+
+fun fib(x):
+  Phi = metallic(1)
+  phi = metallic(1 * -1) * -1
+  A = num-expt(Phi,x)
+  B = num-expt(phi,x)
+  num-round((A - B) / num-sqrt(5))
+end
+
+fun lucas(x):
+  Phi = metallic( 1)
+  phi = metallic(-1) * -1
+  A = num-expt(Phi,x)
+  B = num-expt(phi,x)
+  num-round((A + B) )
+end
+
+fun pell(x):
+  Phi = metallic(2)
+  phi = metallic(2 * -1) * -1
+  A = num-expt(Phi,x)
+  B = num-expt(phi,x)
+  num-round((A - B)  / (2 * num-sqrt(2)))
+end
+
+fun fib-sequence(n)  : map(fib  , range(0,n + 1)) end
+fun lucas-sequence(n): map(lucas, range(0,n + 1)) end
+fun pell-sequence(n) : map(pell , range(0,n + 1)) end
+
+
+fib-sequence(10)
+lucas-sequence(10)
+pell-sequence(10)
+
+
+
+
+

@@ -1,0 +1,105 @@
+use context starter2024
+include math
+
+fun S1(n,k):
+  if n == k: 1
+  else if (n == 0) or (k == 0): 0
+  else: S1(n - 1, k - 1) + ((n - 1) * S1(n - 1, k))
+  end
+end
+
+
+fun S2(n,k):
+  if n == k: 1
+  else if (n == 0) or (k == 0): 0
+  else: S2(n - 1, k - 1) + (k * S2(n - 1, k))
+  end
+end
+
+fun S1s(n,k):
+  value = 
+    if n == k: 1
+    else if (n == 0) or (k == 0): 0
+    else: S1(n - 1, k - 1) + ((n - 1) * S1(n - 1, k))
+  end
+  value * num-expt(-1, n - k)
+end
+
+
+fun S2M(n):
+  row = lam(x): map(lam(y): S2(y - 1, x) end, range(1,n + 1)) end
+  map(row, range(0,n))
+end
+  
+fun S1M(n):
+  row = lam(x): map(lam(y): S1s(y - 1, x) end, range(1,n + 1)) end
+  map(row, range(0,n))
+end
+
+fun SPM(n):
+  fun ele(i,j):
+  sum(
+    map(
+        lam(k): S2(i - 1, k - 1) * S1s(k - 1, j - 1)  end ,
+      range(1,n + 1)))
+  end
+  
+  row = lam(x): map(lam(y): ele(x,y) end, range(1,n + 1)) end
+  map(row, range(1,n + 1))
+  
+end
+
+fun SPM2(n):
+  fun ele(i,j):
+  sum(
+    map(
+        lam(k): S1s(i - 1, k - 1) * S2(k - 1, j - 1)  end ,
+      range(1,n + 1)))
+  end
+  
+  row = lam(x): map(lam(y): ele(x,y) end, range(1,n + 1)) end
+  map(row, range(1,n + 1))
+  
+end
+
+
+S2M(5)
+S1M(5)
+SPM(5)
+
+
+map(lam(x): S2( 0,x) * S1s(x,0) end, range(0,10))
+map(lam(x): S2( 1,x) * S1s(x,1) end, range(0,10))
+map(lam(x): S2( 2,x) * S1s(x,2) end, range(0,10))
+map(lam(x): S2( 3,x) * S1s(x,3) end, range(0,10))
+map(lam(x): S2( 4,x) * S1s(x,4) end, range(0,10))
+map(lam(x): S2( 5,x) * S1s(x,5) end, range(0,10))
+map(lam(x): S2( 6,x) * S1s(x,6) end, range(0,10))
+map(lam(x): S2( 7,x) * S1s(x,7) end, range(0,10))
+map(lam(x): S2( 8,x) * S1s(x,8) end, range(0,10))
+map(lam(x): S2( 9,x) * S1s(x,9) end, range(0,10))
+
+data Vector:
+    vector(elements:: List) with:
+    method dot(self, other): sum(map2(_ * _, self.elements, other.elements)) end,
+    method add(self, other): vector(map2(_ + _, self.elements, other.elements)) end,
+    method sub(self, other): vector(map2(_ - _, self.elements, other.elements)) end,
+    method magnitude(self): num-sqrt(self.dot(self)) end
+end
+
+data SquareMatrix:
+    matrix(rows:: List) with:
+    method dim(self): length(self.rows) end,
+    method get-col-n(self,n): vector(map(lam(x): x.get(n) end, self.rows)) end,
+    method get-row-n(self,n): vector(self.rows.get(n)) end,
+    method add(self, other): 
+      matrix(
+        map(lam(x): self.get-row-n(x).add(other.get-row-n(x)).elements end,
+        range(0,self.dim()))) end,
+    method sub(self, other): 
+      matrix(
+        map(lam(x): self.get-row-n(x).sub(other.get-row-n(x)).elements end,
+        range(0,self.dim()))) end,
+    method scale(self): 0 end,
+    method mult(self): 0 end,
+end

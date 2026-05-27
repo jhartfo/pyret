@@ -1,0 +1,156 @@
+use context shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8")
+
+# in Pyret, Lists are an ordered container that holds 
+# information from other data types
+[list: 1, true, "dog", circle(10, "solid", "red" ), -1, num-sqrt(2), 17/23]
+
+######################################
+# A few pre-define images
+rc = overlay(circle(50, "outline", "black"),circle(50, "solid", "red"))
+wc = overlay(circle(50, "outline", "black"),circle(50, "solid", "white"))
+bc = overlay(circle(50, "outline", "black"),circle(50, "solid", "blue"))
+rr = rectangle(300, 10, "solid", "red")
+wr = rectangle(300, 10, "solid", "white")
+br = rectangle(300, 10, "solid", "blue")
+
+######################################
+# These functions consume a Number in degrees 
+# Fahrenheit or Celsius and produces the Number converted to 
+# the other temperature scale
+
+# c-to-f :: Number -> Number 
+fun f-to-c(f): 5/9 * (f - 32) end
+# f-to-c :: Number -> Number
+fun c-to-f(c): (9/5 * c) + 32 end
+
+######################################
+# Below we have defined a few example lists defined
+
+list-1 = [list: 0, 1, 2, 3, 4, 5]
+list-2 = [list: 1, 2, 3, 4, 5, 6]
+list-3 = [list: 3, 1, 4, 1, 5, 9, 2]
+list-4 = [list: -0.2, 0.7, -0.1, 0.8, -0.2, 0.8, -0.1, 0.8]
+list-5 = [list: "black", "white", "red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+list-6 = [list: "'Strive ",  "not ", "to ", "be ", "a ", "success, ", "but ", "rather ", "to ", "be ", "of ", "value.' ", "-", "Albert ", "Einstein"]
+list-7 = [list: true, false, true, true, false, true, true]
+list-8 = [list: rc, wc, bc]
+list-9 = [list: rr, wr, rr, wr, rr, wr, rr, wr, rr, wr, rr, wr, rr]
+list-0 = empty
+
+
+##########################################################################################
+
+list-10 = map(_ + 12, list-1)
+list-11 = map(_ -  6, list-1)
+list-12 = map(_ *  7, list-1)
+list-13 = map(_ /  2, list-1)
+
+# mean
+
+m-1  = fold(_ + _ ,0,list-1 ) / length(list-1)
+m-10 = fold(_ + _ ,0,list-10) / length(list-10)
+m-11 = fold(_ + _ ,0,list-11) / length(list-11)
+m-12 = fold(_ + _ ,0,list-12) / length(list-12)
+m-13 = fold(_ + _ ,0,list-13) / length(list-13)
+
+# standard deviation
+#list-1
+deviations-1  = map(_ - m-1 , list-1 )
+devs-sqr-1    = map(num-sqr(_), deviations-1 )
+variations-1  = fold(_ + _,0, devs-sqr-1 ) / (length(list-1) - 1)
+s-1           = num-sqrt(variations-1 )
+
+#list-10
+deviations-10 = map(_ - m-10, list-10)
+devs-sqr-10   = map(num-sqr(_), deviations-10)
+variations-10 = fold(_ + _,0, devs-sqr-10) / (length(list-10) - 1)
+s-10          = num-sqrt(variations-10)
+
+#list-11
+deviations-11 = map(_ - m-11, list-11)
+devs-sqr-11   = map(num-sqr(_), deviations-11)
+variations-11 = fold(_ + _,0, devs-sqr-11) / (length(list-11) - 1)
+s-11          = num-sqrt(variations-11)
+
+#list-12
+deviations-12 = map(_ - m-12, list-12)
+devs-sqr-12   = map(num-sqr(_), deviations-12)
+variations-12 = fold(_ + _,0, devs-sqr-12) / (length(list-12) - 1)
+s-12          = num-sqrt(variations-12)
+
+#list-13
+deviations-13 = map(_ - m-13, list-13)
+devs-sqr-13   = map(num-sqr(_), deviations-13)
+variations-13 = fold(_ + _,0, devs-sqr-13) / (length(list-13) - 1)
+s-13          = num-sqrt(variations-13)
+
+
+#m-10 - m-1
+#m-11 - m-1
+#m-12 / m-1
+#m-13 / m-1
+
+#s-10 / s-1
+#s-11 / s-1
+#s-12 / s-1
+#s-13 / s-1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#|
+x        = list-4
+n        = length(x)
+x-sum    = fold(_ + _, 0, x)
+x-bar    = x-sum / n
+devs     = map(_ - x-bar, x)
+devs-sqr = map(num-sqr(_), devs)
+dev-sum  = fold(_ + _, 0, devs-sqr)
+variance = dev-sum / (n - 1)
+std-dev  = num-sqrt(variance)
+
+z-scores = map(_ / std-dev, devs) 
+
+x
+"mean  : " 
+x-bar
+"stdDev: "
+std-dev
+
+z-scores
+
+# median, odd n
+#median-x = element-n(list-sort(x, true), (n - 1) / 2)
+
+# median, even n
+median-a = element-n(list-sort(x, true), (n / 2) - 1)
+median-b = element-n(list-sort(x, true), (n / 2))
+median-x = (median-a + median-b) / 2
+
+fun percentile(lst, X):
+  l = list-sort(lst, true)
+  N = length(lst) - 1
+  pos = N * X
+  wt = pos - num-floor(pos)
+  a = element-n(l,num-floor(pos))
+  b = element-n(l,num-ceiling(pos))
+  a + ((b - a) * wt)
+end
+   
+|#

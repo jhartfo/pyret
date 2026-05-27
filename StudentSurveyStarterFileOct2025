@@ -1,0 +1,43 @@
+use context shared-gdrive("student-results-teach-pack-file-10-31-2025", "13W_8zC3U2MrwHOBHuf9j9NLnxPeWPRS4")
+
+# This starter file provides the student survey results found here:
+# "https://docs.google.com/spreadsheets/d/1tXaGUJ-M6wh8db8Uk2JNWu8zv_w3uSohgXawg9xHS0c/
+
+# for the full table try typing : 
+#        results-table
+
+# for several subtables try typing :
+#        instruments-table
+#        sports-table
+#        inschool-table
+#        nonschool-table
+#        classes-table
+#        misc-table
+
+# for consistency, all column names are spear-case (lower case with dashes for spaces)
+# sports are named "s-...", school activities are names "a-...", and non-school activities
+# are named "n-..."
+
+# for the full list of columns, type :
+#        column-names
+
+# I have consolidated the instrument and proposed new courses into the frequency tables:
+#        instruments-freq-table 
+#        new-classes-freq-table
+
+# Since these are frequency tables, not regular tables,
+# the normal bar-chart function will not work correctly.
+
+# Instead, use 
+# bar-chart-from-freq :: Table, String -> Image
+#
+# Example: 
+#        bar-chart-from-freq(new-classes-freq-table, "Proposed Courses")
+
+###########################################################################
+
+
+
+
+
+

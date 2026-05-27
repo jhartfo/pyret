@@ -1,0 +1,162 @@
+use context shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8")
+
+# in Pyret, Lists are an ordered container that holds 
+# information from other data types
+[list: 1, true, "dog", circle(10, "solid", "red" ), -1, num-sqrt(2), 17/23]
+
+######################################
+# A few pre-define images
+rc = overlay(circle(50, "outline", "black"),circle(50, "solid", "red"))
+wc = overlay(circle(50, "outline", "black"),circle(50, "solid", "white"))
+bc = overlay(circle(50, "outline", "black"),circle(50, "solid", "blue"))
+rr = rectangle(300, 10, "solid", "red")
+wr = rectangle(300, 10, "solid", "white")
+br = rectangle(300, 10, "solid", "blue")
+
+######################################
+# These functions consume a Number in degrees 
+# Fahrenheit or Celsius and produces the Number converted to 
+# the other temperature scale
+
+# c-to-f :: Number -> Number 
+fun f-to-c(f): 5/9 * (f - 32) end
+# f-to-c :: Number -> Number
+fun c-to-f(c): (9/5 * c) + 32 end
+
+######################################
+# Below we have defined a few example lists defined
+
+list-1 = [list: 0, 1, 2, 3, 4, 5]
+list-2 = [list: 1, 2, 3, 4, 5, 6]
+list-3 = [list: 3, 1, 4, 1, 5, 9, 2]
+list-4 = [list: -0.2, 0.7, -0.1, 0.8, -0.2, 0.8, -0.1, 0.8]
+list-5 = [list: "black", "white", "red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+list-6 = [list: "'Strive ",  "not ", "to ", "be ", "a ", "success, ", "but ", "rather ", "to ", "be ", "of ", "value.' ", "-", "Albert ", "Einstein"]
+list-7 = [list: true, false, true, true, false, true, true]
+list-8 = [list: rc, wc, bc]
+list-9 = [list: rr, wr, rr, wr, rr, wr, rr, wr, rr, wr, rr, wr, rr]
+list-0 = empty
+
+
+##########################################################################################
+
+examples: 
+  list-sum(list-1) is fold(_ + _, 0, list-1)
+  list-sum(list-2) is fold(_ + _, 0, list-2)
+  list-sum(list-3) is fold(_ + _, 0, list-3)
+end
+fun list-sum(some-list):
+  fold(_ + _, 0, some-list)
+end
+
+examples: 
+  list-product(list-1) is fold(_ * _, 1, list-1)
+  list-product(list-2) is fold(_ * _, 1, list-2)
+  list-product(list-3) is fold(_ * _, 1, list-3)
+end
+fun list-product(some-list):
+  fold(_ * _, 1, some-list)
+end
+
+
+################################################
+#1
+# write a function called list-mean that will calculate the mean of a 
+# Numeric list
+ 
+# list-mean :: List -> Number
+# consume a list and produce its sum divided by its length
+examples:
+  list-mean(list-1) is list-sum(list-1) / length(list-1)
+  list-mean(list-2) is list-sum(list-2) / length(list-2)
+end
+fun list-mean(some-list) :
+  list-sum(some-list) / length(some-list)
+end
+
+################################################
+#2
+# write a function called deviations that will transform the list 
+# by taking away the mean from each element of the list
+
+# deviations :: List -> List
+# Consumes a list, calculates the mean and transforms the list by
+# subtracting the mean from each element
+examples:
+  deviations(list-1) is map(_ - list-mean(list-1), list-1)
+  deviations(list-2) is map(_ - list-mean(list-2), list-2)
+end
+fun deviations(some-list):
+  map(_ - list-mean(some-list), some-list)
+end
+  
+################################################
+#3
+# write a function called deviations-sqr that will square each 
+# element of the deviations of a given List.
+
+# 
+# 
+examples:
+  0 is 0
+  0 is 0
+end
+fun f(x): 0
+  
+end
+
+################################################
+#4
+# write a function called variance that will calculate the 
+# sum of the square devations of a given List and divide by 
+# (number of elements minus 1)
+
+# 
+# 
+examples:
+  0 is 0
+  0 is 0  
+end
+fun g(x): 0
+  
+end
+
+################################################
+# 5
+# write a function called stdDev that will calculate the 
+# calcualate the square root of the variance of a given List
+
+# 
+# 
+examples:
+  0 is 0
+  0 is 0  
+end
+fun
+  h(x): 0
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

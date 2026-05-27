@@ -1,0 +1,97 @@
+use context starter2024
+include matrices
+include gdrive-sheets
+include math
+
+google-url   = "https://docs.google.com/spreadsheets/d/"
+sheet-url    = "14EKRK5ro0c7Lzkru_uqY2W9RH8c91GKf7Qic2tDiRcs"
+
+# Load your spreadsheet and define your table
+rectangle-sheet = load-spreadsheet(sheet-url)
+
+master-table = load-table: 
+  rectangle, width, height, area, perimeter, cluster, strata
+  source: rectangle-sheet.sheet-by-name("rectangles", true)
+end
+
+mean        = lam(X): sum(X) / X.length() end
+std-dev     = lam(X): 
+  num-sqrt(sum(map(
+        lam(y): 
+          num-sqr(y - mean(X))
+        end, 
+        X)) / (X.length() - 1)) 
+end
+
+z-score      = lam(x,m,s): (x - m) / s end
+z-scores     = lam(X): map(lam(x): z-score(x,mean(X), std-dev(X)) end, X) end
+
+n            = master-table.length()
+
+rectangles   = master-table.get-column("rectangle")
+width        = master-table.get-column("width")
+height       = master-table.get-column("height")
+area         = master-table.get-column("area")
+perimeter    = master-table.get-column("perimeter")
+
+r-bar        = sum(rectangles) / n
+w-bar        = sum(width) / n
+h-bar        = sum(height) / n
+a-bar        = sum(area) / n
+p-bar        = sum(perimeter) / n
+
+#|
+z-y          = z-scores(y-col)
+z-width      = z-scores(width)
+z-height     = z-scores(height)
+|#
+
+# strictly linear regression (that is the regression curve is a
+# line, plane, or hyper-plane
+fun multiple-LR-coeffs(explainers, response):
+  P      = explainers.length() + 1
+  N      = response.length()
+  beta-0 = repeat(N, 1)
+  Y      = list-to-col-matrix(response)
+  X      = lists-to-matrix([list: beta-0] + explainers).transpose()
+  beta   = (X.transpose() * X).inverse() * X.transpose() * Y
+  mtx-to-list(beta)
+end
+
+# the function that is generated has a single List parameter 
+fun multiple-LR(explainers,response):
+  coeffs    = multiple-LR-coeffs(explainers, response)
+  intercept = coeffs.get(0)
+  non-const = coeffs.drop(1)
+  lam(X): sum(map2(_ * _, X, non-const)) + intercept end
+end
+
+LR-coeffs = multiple-LR-coeffs([list: width, height], perimeter)
+y-hat     = multiple-LR([list: width, height], perimeter)
+
+
+#|
+y-hat        = lam(w,h): 
+    LR-coeffs.get(0) + (LR-coeffs.get(1) * w) + (LR-coeffs.get(2) * h) 
+end
+
+naive        = repeat(n,y-bar)
+prediction   = map2(y-hat, width, height)
+
+
+r2           = 
+  sum(
+    map3(
+      lam(N,P,Y): 
+        ((N - Y) - (P - Y)) / (N - Y) 
+      end, 
+      naive, 
+      prediction, 
+      y-col)) / 100
+
+r = num-sqrt(r2)
+|#
+
+
+
+

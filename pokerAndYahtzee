@@ -1,0 +1,207 @@
+use context shared-gdrive("Uniform Distribution", "1AUgbO4K7eNVuBCEh8_9OV0saCjWXKemy")
+
+# This starter file provides the calculations for the 
+# probability for various hands in 5-card stud poker 
+# and single-roll Yahtzee! as well as an explanation 
+# for the calculation.
+#
+# There values are then place in the tables:
+# yahtzee-table
+# poker-table , and for comparison
+# yahtzee-poker-table
+
+###########################################
+
+fun num-round-n(x,n):
+  num-round(x * num-expt(10,n)) / num-expt(10,n)
+end
+
+###########################################
+
+poker-5K = (
+  combination(13,1)    * # choose a face value
+  combination(4,5)     * # choose 5 out 4 of them
+                         # This is will obviously be zero 
+  factorial(5)           # our hand can be in any order       
+  ) / falling-factorial(52,5)
+
+poker-4K = (
+  combination(13,1)    * # choose a face value
+  combination(4,4)     * # choose 4 out of 4 of them
+  combination(12,1)    * # choose a face value
+  combination(4,1)     * # choose 1 out of 4 of them
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)
+
+poker-3K = (
+  combination(13,1)    * # choose a face value
+  combination(4,3)     * # choose 3 out of 4 of them
+  combination(12,2)    * # choose a face value
+  combination(4,1)     * # choose 1 out of 4 of them
+  combination(4,1)     * # choose 1 out of 4 of them 
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)
+
+poker-FH = (
+  combination(13,1)    * # choose a face value
+  combination(4,3)     * # choose 3 out of 4 of them
+  combination(12,1)    * # choose a face value
+  combination(4,2)     * # choose 2 out of 4 of them
+  factorial(5)           # our hand can be in any order d
+  ) / falling-factorial(52,5)
+
+poker-2K = (
+  combination(13,1)    * # choose a face value
+  combination(4,2)     * # choose 2 out of 4 of them
+  combination(12,3)    * # choose a face value
+  combination(4,1)     * # choose 1 out of 4 of them
+  combination(4,1)     * # choose 1 out of 4 of them
+  combination(4,1)     * # choose 1 out of 4 of them
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)
+
+poker-2P = (
+  combination(13,2)    * # choose a face value
+  combination(4,2)     * # choose 2 out of 4 of them
+  combination(4,2)     * # choose 2 out of 4 of them
+  combination(11,1)    * # choose a face value
+  combination(4,1)     * # choose 1 out of 4 of them
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)
+
+poker-RF = (
+  combination(4,1)     * # choose a suit
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)
+
+poker-SF = ((
+  combination(10,1)    * # 10 options of where to start the striaght
+  combination(4,1)     * # choose a suit
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)) - 
+poker-RF                 # don't count the Royal Flushes
+
+poker-Fl = ((
+  combination(4,1)     * # choose a suit
+  combination(13,5)    * # choose any 5 cards from the suit
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)) - 
+(poker-RF + poker-SF)    # don't count Royal and Straight Flushes 
+
+poker-St = ((
+  combination(10,1)    * # 10 options of where to start the striaght
+  combination(4,1)     * # choose a suit for each card in the straight
+  combination(4,1)     * # choose a suit for each card in the straight
+  combination(4,1)     * # choose a suit for each card in the straight
+  combination(4,1)     * # choose a suit for each card in the straight
+  combination(4,1)     * # choose a suit for each card in the straight
+  factorial(5)           # our hand can be in any order 
+  ) / falling-factorial(52,5)) - 
+(poker-RF + poker-SF)    # don't count Royal and Straight Flushes
+
+
+###########################################
+
+# These calculations can be found in a series of articles by 
+# Courtney Taylor on https://www.thoughtco.com/
+
+yahtzee-5K = 
+  1/6 * 1/6 * 1/6 * 1/6 * 1/6 * 6 * permutation(5,0)
+
+yahtzee-4K = 
+  1/6 * 1/6 * 1/6 * 1/6 * 5/6 * 6 * permutation(5,1)
+
+yahtzee-3K = (
+  1 * 1 * 1 * 6       * # choose one of 6 faces 
+  combination(5,2)    * # choose two different other faces
+  permutation(5,2)      # our hand can be in any order 
+  ) / num-expt(6,5)  
+
+yahtzee-2K = (
+  1 * 1 * 6           * # choose one of the faces
+  combination(5,3)    * # choose three different other faces
+  permutation(5,3)      # our hand can be in any order 
+  ) / num-expt(6,5) 
+
+yahtzee-FH = (
+  combination(6,2)    * # choose to values for the FH
+  2                   * # for each selection, there are two
+                        # FHs: 33322 and 22233 
+  combination(5,3)      # choose where the first three fall in the roll 
+  ) / num-expt(6,5)     # (we could equivalently use C(5,2) )
+
+yahtzee-LS = (
+  2                   * # there are two difference long striaghts 
+  factorial(5)          # our hand can be in any order 
+  ) / num-expt(6,5)     
+
+yahtzee-SS = ((
+    # there are total of 14 possiblities:
+    # 1,2,3,4 + not 5
+    # 2,3,4,5 + not 1 or 6
+    # 3,4,5,6 + not 2
+    # 2 of these (1,2,3,4,6) and (1,3,4,5,6) have unique values
+    2                 * # there are two difference long striaghts 
+    factorial(5)        # our hand can be in any order 
+    )               + ( # now we ADD the other 12 possibilities
+    
+    12                * # for the other 12, we
+    combination(5,2)  * # choose where to place the two repeated dice
+    factorial(3))       # and we can sort the remaining 3 dice
+  ) / num-expt(6,5)     
+
+
+###########################################
+
+poker-table = [table-from-rows:
+  [raw-row: {"hand"; "5 of a Kind"   }, {"probability"; num-round-n(poker-5K,8)} ],
+  [raw-row: {"hand"; "Royal Flush"   }, {"probability"; num-round-n(poker-RF,8)} ],
+  [raw-row: {"hand"; "Straight Flush"}, {"probability"; num-round-n(poker-SF,8)} ],
+  [raw-row: {"hand"; "4 of a Kind"   }, {"probability"; num-round-n(poker-4K,8)} ],
+  [raw-row: {"hand"; "Full House"    }, {"probability"; num-round-n(poker-FH,8)} ],
+  [raw-row: {"hand"; "Flush"         }, {"probability"; num-round-n(poker-Fl,8)} ],
+  [raw-row: {"hand"; "Straight"      }, {"probability"; num-round-n(poker-St,8)} ],
+  [raw-row: {"hand"; "3 of a Kind"   }, {"probability"; num-round-n(poker-3K,8)} ],
+  [raw-row: {"hand"; "2 Pair"        }, {"probability"; num-round-n(poker-2P,8)} ],
+  [raw-row: {"hand"; "1 Pair"        }, {"probability"; num-round-n(poker-2K,8)} ]  ]
+
+yahtzee-table = [table-from-rows:
+  [raw-row: {"hand"; "Yahtzee"       }, {"probability"; num-round-n(yahtzee-5K,8)} ],
+  [raw-row: {"hand"; "4 of a Kind"   }, {"probability"; num-round-n(yahtzee-4K,8)} ],
+  [raw-row: {"hand"; "Long Straight" }, {"probability"; num-round-n(yahtzee-LS,8)} ],
+  [raw-row: {"hand"; "Full House"    }, {"probability"; num-round-n(yahtzee-FH,8)} ],
+  [raw-row: {"hand"; "Short Straight"}, {"probability"; num-round-n(yahtzee-SS,8)} ],
+  [raw-row: {"hand"; "3 of a Kind"   }, {"probability"; num-round-n(yahtzee-3K,8)} ],
+  [raw-row: {"hand"; "2 of a Lind"   }, {"probability"; num-round-n(yahtzee-2K,8)} ]  ]
+
+yahtzee-poker-table = [table-from-rows:
+  [raw-row: 
+    {"hand"   ; "5 of a Kind"             }, 
+    {"yahtzee"; num-round-n(yahtzee-5K, 8)}, 
+    {"poker"  ; num-round-n(poker-5K,   8)}],
+  [raw-row: 
+    {"hand"   ; "4 of a Kind"             }, 
+    {"yahtzee"; num-round-n(yahtzee-4K, 8)}, 
+    {"poker"  ; num-round-n(poker-4K,   8)}],
+  [raw-row: 
+    {"hand"   ; "Full House"              }, 
+    {"yahtzee"; num-round-n(yahtzee-FH, 8)}, 
+    {"poker"  ; num-round-n(poker-FH,   8)}],
+  [raw-row: 
+    {"hand"   ; "(Long) Straight"         }, 
+    {"yahtzee"; num-round-n(yahtzee-LS, 8)}, 
+    {"poker"  ; num-round-n(poker-St,   8)}],
+  [raw-row: 
+    {"hand"   ; "3 of a Kind"             }, 
+    {"yahtzee"; num-round-n(yahtzee-3K, 8)}, 
+    {"poker"  ; num-round-n(poker-3K,   8)}],
+  [raw-row: 
+    {"hand"   ; "2 of a Lind"             }, 
+    {"yahtzee"; num-round-n(yahtzee-2K, 8)}, 
+    {"poker"  ; num-round-n(poker-2K,   8)}]  ]
+
+
+
+
+
+

@@ -1,0 +1,87 @@
+use context starter2024
+include math
+
+fun differences(seq):
+  A = seq.drop(1)
+  B = seq.take(length(seq) - 1)
+  
+  map2(lam(x,y): x - y end,  A,B)
+end
+
+fun factors(seq):
+  A = seq.drop(1)
+  B = seq.take(length(seq) - 1)
+  
+  map2(lam(x,y): x / y end,  A,B)
+end
+  
+seqA = [list: 0, 1, 4, 9, 16, 25, 36]
+seqB = differences(seqA)
+seqC = differences(seqB)
+
+seqD = [list: 1,2,4,8,16,32]
+seqE = factors(seqD)
+
+seqF = [list: 3,6,9,12]
+seqG = [list: 1,2,3,4,5]
+
+seqH = [list: 1, 1/2, 1/4, 1/8, 1/16, 1/32]
+
+seqA
+seqB
+seqC
+
+seqD
+seqE
+
+# build-linear :: List<Number> -> Function
+fun build-linear(seq):
+  a1 = seq.get(0)
+  d = differences(seq).get(0)
+  lam(x): (d * (x - 1)) + a1
+  end
+end
+
+fun build-expt(seq):
+  a1 = seq.get(0)
+  r = factors(seq).get(0)
+  lam(x): expt(r,(x - 1)) * a1
+  end
+end
+
+f = build-linear(seqG)
+g = build-expt(seqH)
+
+factors(map(g, range(1,10)))
+
+
+fun series(fn, n):
+  sum(map(fn, range(1,n + 1)))
+end
+
+map(lam(x): series(g,x) end, range(0, 20)).last()
+
+series(g,2000)
+
+
+fun make-differences(seq):
+  fun pos-difference(x):
+    seq.get(x + 1) - seq.get(x)
+  end
+  map(pos-difference, range(0,length(seq) - 1))
+end
+
+fun make-factors(seq):
+  fun pos-factors(x):
+    seq.get(x + 1) / seq.get(x)
+  end
+  map(pos-factors, range(0,length(seq) - 1))
+end
+
+make-differences(make-differences(seqC))
+make-factors(make-factors(seqD))
+
+
+
+
+

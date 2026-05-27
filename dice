@@ -1,0 +1,162 @@
+use context essentials2021
+
+reverse-put-image = lam(bs,x,y,im): put-image(im,x,y,bs) end
+
+pip-clr = "white"
+bck-clr = "black"
+
+em      = empty-image                  # represents a missing pip
+pip     = circle( 5, "solid", pip-clr) # a pip
+back    = point-polygon([list:         # beveled square
+    point( 5.0, 0.0),                  
+    point( 3.0, 0.5),  
+    point( 1.5, 1.5),
+    point( 0.5, 3.0),
+    point( 0.0, 5.0),
+    point( 0.0,45.0),
+    point( 0.5,47.0),
+    point( 1.5,48.5),
+    point( 3.5,49.5),
+    point( 5.0,50.0),
+    point(45.0,50.0),
+    point(47.0,49.5),
+    point(48.5,48.5),
+    point(49.5,47.0),
+    point(50.0,45.0),
+    point(50.0, 5.0),
+    point(49.5, 3.0),
+    point(48.5, 1.5),
+    point(47.0, 0.5),  
+    point(45.0, 0.0),
+  ], "solid", bck-clr)
+
+ems    = lam(x): repeat(x,em) end   # list of missing pips
+pips   = lam(x): repeat(x,pip) end  # list of pips
+
+# there are 9 different available positions we can place pips
+# with the following coordinates
+pipX   = [list: 10,25,40,10,25,40,10,25,40]
+pipY   = [list: 10,10,10,25,25,25,40,40,40]
+
+# are the lists of pips/missing pips for each dice value
+pips1  = ems(4)  + pips(1) + ems(4)
+pips2  = pips(1) + ems(7)  + pips(1)
+pips3  = pips(1) + ems(3) + pips(1) + ems(3) + pips(1)
+pips4  = pips(1) + ems(1) + pips(1) + ems(3) + pips(1) + ems(1) + pips(1)
+pips5  = fold(append,pips(1), repeat(4, ems(1) + pips(1)))
+pips6  = fold(append,[list:],repeat(3,pips(1) + ems(1) + pips(1)))
+
+# with all the building blocks, we can build our dice
+d-one  = fold3(reverse-put-image,back, pipX,pipY,pips1)
+d-two  = fold3(reverse-put-image,back, pipX,pipY,pips2)
+d-thr  = fold3(reverse-put-image,back, pipX,pipY,pips3)
+d-fou  = fold3(reverse-put-image,back, pipX,pipY,pips4)
+d-fiv  = fold3(reverse-put-image,back, pipX,pipY,pips5)
+d-six  = fold3(reverse-put-image,back, pipX,pipY,pips6)
+
+
+# a function to build the any dice face
+fun build-dice(x):
+  r = num-random(4)
+  ask:
+    | (x == 1) then: rotate(r * 90, d-one)
+    | (x == 2) then: rotate(r * 90, d-two)
+    | (x == 3) then: rotate(r * 90, d-thr)
+    | (x == 4) then: rotate(r * 90, d-fou)
+    | (x == 5) then: rotate(r * 90, d-fiv)
+    | (x == 6) then: rotate(r * 90, d-six)
+  end
+end
+
+fun build-oriented-dice(n,r):
+  ask:
+    | (n == 1) then: rotate(r * 90, d-one)
+    | (n == 2) then: rotate(r * 90, d-two)
+    | (n == 3) then: rotate(r * 90, d-thr)
+    | (n == 4) then: rotate(r * 90, d-fou)
+    | (n == 5) then: rotate(r * 90, d-fiv)
+    | (n == 6) then: rotate(r * 90, d-six)
+  end
+end
+
+data Dice:
+    generate-die(value :: Number, face :: Image) 
+end
+
+fun die(n):
+  face = build-dice(n)
+  generate-die(n, face)
+end
+
+fun oriented-die(n,r):
+  face = build-oriented-dice(n,r)
+  generate-die(n, face)
+end
+  
+fun single-roll(n):
+  roll-value = num-random(6) + 1
+  die(roll-value)
+end
+
+fun roll(n):
+  dice   = map(single-roll, range(0,n))
+  values = map(lam(x): x.value end, dice)
+  faces  = map(lam(x): x.face end, dice)
+  generate-roll(dice)
+end
+
+fun rigged-roll(desired-values, desired-rotation):
+  dice   = map2(lam(x,y): oriented-die(x,y) end, desired-values, desired-rotation)
+  values = map(lam(x): x.value end, dice)
+  faces  = map(lam(x): x.face end, dice)
+  generate-roll(dice)
+end
+  
+data Roll:
+    generate-roll(dice :: List) with:
+    method show(self): map(lam(x): x.face end, self.dice) end,
+    method faces(self): map(lam(x): x.face end, self.dice) end,
+    method values(self): map(lam(x): x.value end, self.dice) end,
+end
+
+fun show(a-roll):
+  a-roll.faces()
+end
+
+fun get-values(a-roll):
+  a-roll.values()
+end
+
+#############################3
+# starter file
+
+# Click Run.
+
+# this file loads into Pyret a dice simulator 
+# that will roll as many six sided dice you want.
+# we have already tested the simulator and created 
+# some rolls to look at. we have rolls r1, r2, . . . r4
+
+# To view the rolls type "show(r1)" into the interactions window.
+
+
+v1 = [list:1,2,3,4,5,6]
+a1 = [list:0,0,0,0,0,0]
+v2 = [list:1,2,3,4,5,6]
+a2 = [list:1,2,3,4,6,7]
+v3 = [list:1,4,2,6,3,5]
+a3 = [list:0,0,0,0,0,0]
+v4 = [list:]
+a4 = [list:]
+
+r1 = rigged-roll(v1,a1)
+r2 = rigged-roll(v2,a2)
+r3 = rigged-roll(v3,a3)
+r4 = rigged-roll(v4,a4)
+  
+#|
+show(r1)
+show(r2)
+show(r3)
+|#
+

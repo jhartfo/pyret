@@ -1,0 +1,216 @@
+use context starter2024
+
+#|
+   1. Frequency Table are away to summarize single categorical variable
+   2. Continguency tables are a summarize multiple categorical variables
+      into n dimensional arrays or tables
+   3. Two-way table is a 2D continguency table
+   4. A binary two-way table is a 2x2 table for summarizing two binary
+      variables
+   5. Confusion Matrix is special application of the binary two-way
+      table where the two variables are a real condition set against
+      some diagnosis or test.
+|#
+
+
+
+include math
+import color as C
+shadow color = C.color
+
+MARGIN = 5
+FNT-SZ = 30
+HT     = 40
+BG-CLR = "ivory"
+LN-CLR = "black"
+H1-CLR = "sky blue"
+H2-CLR = "cornflower-blue"
+
+data BooleanPair:
+    bp(t:: Number, f:: Number) with:
+    method total(self)     : self.t + self.f       end,
+    method P(self)         : self.t / self.total() end,
+    method notP(self)      : self.f / self.total() end
+end
+
+data BinaryTwoWayTable:
+    binary-two-way(A:: BooleanPair, notA :: BooleanPair) with:
+    method totalA(self)     : self.A.total()                   end,
+    method totalnotA(self)  : self.notA.total()                end,
+    method totalB(self)     : self.A.t      + self.notA.t      end,
+    method totalnotB(self)  : self.A.f      + self.notA.f      end,
+    method total(self)      : self.totalA() + self.totalnotA() end,
+    
+    method P(self, A)       : ask:
+        |A == "A"         then: self.A.total()           / self.total()
+        |A == "notA"      then: self.notA.total()        / self.total()
+        |A == "B"         then: (self.A.t + self.notA.t) / self.total()
+        |A == "notB"      then: (self.A.f + self.notA.f) / self.total()
+
+        |A == "A|B"       then: self.A.t                 / self.totalB()
+        |A == "A|notB"    then: self.A.f                 / self.totalnotB()
+        |A == "notA|B"    then: self.notA.t              / self.totalB()
+        |A == "notA|notB" then: self.notA.f              / self.totalnotB()
+        |A == "B|A"       then: self.A.t                 / self.totalA()
+        |A == "B|notA"    then: self.notA.t              / self.totalnotA()
+        |A == "notB|A"    then: self.A.f                 / self.totalA()
+        |A == "notB|notA" then: self.notA.f              / self.totalnotA()
+        |otherwise: -1
+      end
+    end,
+    
+    method sensativity(self): self.P("B|A") end,
+    method specificity(self): self.P("notB|notA") end,
+    
+    method relative-risk(self, A): ask:
+        |A == "A"         then: self.A.t / self.A.f
+        |A == "notA"      then: self.notA.t / self.notA.f
+        |A == "B"         then: self.A.t / self.notA.t
+        |A == "notB"      then: self.A.f / self.notA.f
+        |otherwise: 0
+      end
+    end,
+    method odds-ratio(self): 
+    self.relative-risk("A") / self.relative-risk("notA")end,
+    
+    method venn(self)       : venn(self) end,
+    method display(self)    : two-way-table(self, repeat(9,0), repeat(6,0)) end,
+    method Pdisplay(self,A) : 
+      Dclrs = ask:
+        |A == "A"         then: [list: 1,1,2,0,0,0,0,0,2]
+        |A == "notA"      then: [list: 0,0,0,1,1,2,0,0,2]
+        |A == "B"         then: [list: 1,0,0,1,0,0,2,0,2]
+        |A == "notB"      then: [list: 0,1,0,0,1,0,0,2,2]
+
+        |A == "A|B"       then: [list: 2,0,0,1,0,0,2,0,0]
+        |A == "A|notB"    then: [list: 0,2,0,0,1,0,0,2,0]
+        |A == "notA|B"    then: [list: 1,0,0,2,0,0,2,0,0]
+        |A == "notA|notB" then: [list: 0,1,0,0,2,0,0,2,0]
+        |A == "B|A"       then: [list: 2,1,2,0,0,0,0,0,0]
+        |A == "B|notA"    then: [list: 0,0,0,2,1,2,0,0,0]
+        |A == "notB|A"    then: [list: 1,2,2,0,0,0,0,0,0]
+        |A == "notB|notA" then: [list: 0,0,0,1,2,2,0,0,0]
+        |otherwise:             [list: 0,0,0,0,0,0,0,0,0]
+      end
+      Tclrs = ask:
+        |A == "A"         then: [list: 1,0,0,0,0,0]
+        |A == "notA"      then: [list: 0,1,0,0,0,0]
+        |A == "B"         then: [list: 0,0,0,1,0,0]
+        |A == "notB"      then: [list: 0,0,0,0,1,0]
+
+        |A == "A|B"       then: [list: 1,0,0,1,0,0]
+        |A == "A|notB"    then: [list: 1,0,0,0,1,0]
+        |A == "notA|B"    then: [list: 0,1,0,1,0,0]
+        |A == "notA|notB" then: [list: 0,1,0,0,1,0]
+        |A == "B|A"       then: [list: 1,0,0,1,0,0]
+        |A == "B|notA"    then: [list: 0,1,0,1,0,0]
+        |A == "notB|A"    then: [list: 1,0,0,0,1,0]
+        |A == "notB|notA" then: [list: 0,1,0,0,1,0]
+        |otherwise:             [list: 0,0,0,0,0,0]
+      end
+      two-way-table(self, Dclrs, Tclrs)
+    end,
+end
+
+fun btwt(a,b,c,d): 
+  binary-two-way(bp(a,b),bp(c,d))
+end
+
+fun venn(m):
+  BLUE   = color(  0,  0,255,0.4)
+  RED    = color(255,  0,  0,0.4)
+  CB     = circle(100, "solid", RED)
+  CA     = circle(100, "solid", BLUE)
+  BG     = rectangle(400, 300, "solid", "white")
+  titleA = text("A", 50, "black")
+  titleB = text("B", 50, "black")
+  A      = text(num-to-string(m.A.t)   , FNT-SZ, "black")
+  B      = text(num-to-string(m.A.f)   , FNT-SZ, "black")
+  C      = text(num-to-string(m.notA.t), FNT-SZ, "black")
+  D      = text(num-to-string(m.notA.f), FNT-SZ, "black")
+  
+  put-image(
+    A, 200, 180, put-image(
+      B, 70, 180, put-image(
+        C, 330, 180, put-image(
+          D, 200, 40, put-image(
+            titleA, 140, 260, put-image(
+              titleB, 260, 260, put-image(
+                CA, 140, 180, put-image(
+                  CB, 260, 180, BG))))))))
+end
+
+fun two-way-table(m, clrs, title-clrs):
+  title-names = map(
+    lam(x): text(x, HT, LN-CLR) end, 
+    [list: "T", "F", "Total", "T", "F", "Total"
+    ])
+  values = map(num-to-image, [list:
+      m.A.t, 
+      m.A.f, 
+      m.totalA(), 
+      m.notA.t,
+      m.notA.f,
+      m.totalnotA(),
+      m.totalB(),
+      m.totalnotB(),
+      m.total()
+    ])
+  
+  size     = find-size(values)
+  blockify = lam(x,clr): to-block(x,size, clr) end
+  
+  blocks   = map2(blockify, values     , map(num-to-color, clrs))
+  titles   = map2(blockify, title-names, map(num-to-color,title-clrs))
+  pan-ht   = (HT   * 3) + (2 * MARGIN)
+  pan-wt   = (size * 3) + (2 * MARGIN)
+  crner-ht = (2 * HT) + (2 * MARGIN)
+  crner-wt = size + HT + (2 * MARGIN)
+  titleB   = to-block(text("B",HT, LN-CLR), pan-wt, BG-CLR)
+  titleA   = rotate(-90,
+    (to-block(rotate(90,text("A",HT, LN-CLR)), pan-ht , BG-CLR)))
+
+  row2     = beside(titles.get(3), beside(titles.get(4), titles.get(5)))
+  row3     = beside(blocks.get(0), beside(blocks.get(1), blocks.get(2)))
+  row4     = beside(blocks.get(3), beside(blocks.get(4), blocks.get(5)))
+  row5     = beside(blocks.get(6), beside(blocks.get(7), blocks.get(8)))
+  col2     = above( titles.get(0), above( titles.get(1), titles.get(2)))  
+  corner   = rectangle(crner-wt, crner-ht, "solid",BG-CLR)
+  left     = above(corner, beside(titleA, col2))
+  right    = fold(above, empty-image, [list: titleB, row2, row3, row4, row5])
+  
+  beside(left, right)
+end
+
+fun find-size(A):
+  value = max(map(image-width, A)) 
+  total = image-width(text("Total", HT, LN-CLR))
+  max([list: value, total])
+end
+
+fun to-block(n, s, clr):
+  block = overlay(
+    rectangle(s + MARGIN, HT + MARGIN, "outline", LN-CLR),
+    rectangle(s + MARGIN, HT + MARGIN, "solid"  , clr))
+  overlay-align("center", "center",n, block)
+end
+
+fun num-to-image(n):
+  text(num-to-string(n), HT, LN-CLR)
+end
+
+fun num-to-color(n):
+  if n == 1: H1-CLR
+  else if n == 2: H2-CLR
+  else: BG-CLR
+  end
+end
+
+fun btw-from-ssg(sens,spec, gamma):
+  A = sens * gamma
+  B = gamma - A
+  D = (1 - gamma) * spec
+  C = (1 - gamma) - D
+  btwt(A,B,C,D)
+end
+

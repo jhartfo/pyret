@@ -1,0 +1,43 @@
+use context starter2024
+include reactors
+import color as C
+
+alt-url     = "https://code.pyret.org/shared-image-contents?sharedImageId=10bjX7aCuuTxx9_t6H6i6k3PC0IiCOcFt"
+TSA-url     = "https://code.pyret.org/shared-image-contents?sharedImageId=11s0TyJ4hHUP_CafjD8MMl1DVLm7im-hs"
+
+alternity   = image-url(alt-url)
+TSA         = image-url(TSA-url)
+
+grad-orange = lam(x): C.color(155 + x, 65 + x, 0, 1) end
+
+
+backup     = rectangle(1000, 400, "solid","orange")
+backdn     = above(
+  rectangle(1000, 100, "solid", "orange"),
+  fold(above, empty-image, 
+    map(lam(x): rectangle(1000, 1, "solid",grad-orange(x)) end, range(0,100).reverse())))
+
+
+fun to-draw(x):
+  put-image(TSA, 500, 330,
+    above(
+      overlay-align("center","bottom", scale(x,alternity), backup),
+      backdn))
+end
+
+fun update(state):
+  if state < 1: state + 0.005
+  else: state
+  end
+end
+
+
+r = reactor:
+  init: 0,
+  on-tick: update,
+  to-draw: to-draw
+end
+  
+interact(r)
+
+

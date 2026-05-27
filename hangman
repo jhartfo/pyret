@@ -1,0 +1,174 @@
+use context shared-gdrive("hangman-teacher-pack.arr", "1wNhaTrMgjteAq_MYHYgbtoCZvW1dXqfQ")
+
+include reactors
+
+############################################
+# We will need several different data types
+
+# there is a predefined data type called Hangman
+
+data Letter:
+  |word-letter(char :: String, visible :: Boolean) with:
+    method display(self): 
+      if self.visible:
+        view-word-letter(self.char, "black")
+      else:
+        view-word-letter(self.char, "white")
+      end
+    end,
+        
+  |letter(char :: String, used :: Boolean) with:
+    method display(self): 
+      if self.used:
+        view-used-letter(self.char, "black") 
+      else:
+        view-used-letter(self.char, "white") 
+      end
+    end
+end
+
+fun update-word(lst, A):
+  if length(lst) <= 1: 
+    if lst.first.char == A:
+      link(word-letter(lst.first.char, true), empty)
+    else:
+      link(lst.first, empty)
+    end
+  else:
+    if lst.first.char == A:
+      link(word-letter(lst.first.char, true), update-word(lst.rest, A))
+    else:
+      link(lst.first, update-word(lst.rest, A))
+    end
+  end
+end
+
+fun update-letters(lst, A):
+  if length(lst) <= 1: 
+    if lst.first.char == A:
+      link(letter(lst.first.char, true), empty)
+    else:
+      link(lst.first, empty)
+    end
+  else:
+    if lst.first.char == A:
+      link(letter(lst.first.char, true), update-letters(lst.rest, A))
+    else:
+      link(lst.first, update-letters(lst.rest, A))
+    end
+  end
+end
+
+data Letter-List:
+  | word-letters(chars:: List) with:
+    method update(self, A): word-letters(update-word(self.chars,A)) end,
+    method display(self):
+      fold(beside, empty-image,map(_.display(), self.chars))
+    end
+  | all-letters(chars:: List) with:
+    method update(self, A): all-letters(update-letters(self.chars,A)) end,
+    method display(self):
+      above(above(
+          fold(beside, empty-image,map(_.display(), self.chars.take(13))),
+          rectangle(20, 3, "solid", "transparent")),
+        fold(beside, empty-image,map(_.display(), self.chars.drop(13))))
+    end
+end
+
+data Game-Data:
+    game-data(
+      HM       :: Hangman,
+      word-raw :: List,
+      word     :: Letter-List,
+      letters  :: Letter-List
+      )
+end
+
+############################################
+# list of letters
+# from https:
+
+letters-raw = [list: 
+  "A", "B", "C", "D", "E", "F", 
+  "G", "H", "I", "J", "K", "L", 
+  "M", "N", "O", "P", "Q", "R", 
+  "S", "T", "U", "V", "W", "X", 
+  "Y", "Z" ]
+
+# we will go ahead and map the list of letters
+# onto our Letter data structure so we can keep 
+# track whether we've used each letter
+
+letter-list = map(letter(_, false), letters-raw)
+
+############################################
+# Drawing letters 
+
+fun to-draw(state):
+  clr = 
+    if state.HM.status == 6: KO-CLR
+    else if all(_ == true, map(_.visible, state.word.chars)): WN-CLR
+    else: BG-CLR
+  end
+    
+  put-image(
+    state.HM.display(), 100, 99, put-image(
+      state.word.display(), 372, 150, put-image(
+        state.letters.display(), 400, 50, gallows(clr)
+        )))
+end
+
+fun guess(state, key):
+  k = string-to-upper(key)
+  if member(letters-raw, string-to-upper(k)):
+    if member(state.word-raw,k):
+      game-data(
+        state.HM,
+        state.word-raw,
+        state.word.update(k),
+        state.letters.update(k)
+        )
+    else:
+      game-data(
+        state.HM.advance(),
+        state.word-raw,
+        state.word,
+        state.letters.update(k)
+        )
+    end
+  else:
+    state
+  end
+end
+
+fun on-tick(state):
+  if state.HM.status == 6:
+    game-data(
+      state.HM,
+      state.word-raw,
+      word-letters(map(word-letter(_,true), state.word-raw)),
+      all-letters(map(letter(_, true), letters-raw))
+      )
+  else:
+    state
+  end
+end
+
+idx           = num-random(table.length())
+word          = table.row-n(idx)["characters"]
+
+start-game    = game-data(
+  hangman-0,
+  word,
+  word-letters(map(word-letter(_,false), word)),
+  all-letters(letter-list))
+
+hm = reactor:
+  init    : start-game,
+  to-draw : to-draw,
+  on-key  : guess,
+  on-tick : on-tick
+end
+
+a = interact(hm)
+
