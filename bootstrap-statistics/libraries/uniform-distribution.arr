@@ -1,7 +1,6 @@
-use context starter2024
+use context include url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr")
 provide *
 
-#include url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr")
 import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr") as BSDS
 provide from BSDS: * ,
   type *,
@@ -11,8 +10,8 @@ end
 #import math as Math
 #import statistics as Stats
 
-factorial = BSDS.factorial
-iqr = BSDS.iqr
+#factorial = BSDS.factorial
+#iqr = BSDS.iqr
 
 fun raise-non-number-list(fn):
   raise("Cannot calculate the " + 
