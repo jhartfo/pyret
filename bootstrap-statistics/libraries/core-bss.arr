@@ -18,8 +18,6 @@ provide:
   module Math
 end
 
-shadow jhartfo-repo = "https://raw.githubusercontent.com/jhartfo/pyret/main/" 
-
 # export every symbol from starter2024 except for those we override
 import starter2024 as Starter
 provide from Starter:
@@ -2770,6 +2768,8 @@ end
 data Pair:
     pair(key, value)
 end
+
+shadow jhartfo-repo = "https://raw.githubusercontent.com/jhartfo/pyret/main/" 
 
 fun list-to-table(lst) block:
   [T.table-from-columns: {"list values"; lst}] 
