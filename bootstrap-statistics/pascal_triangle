@@ -1,5 +1,8 @@
 use context starter2024
 
+# this program generates an Image of Pascal's Triangle
+# that is colored as in Sierpinski's triangle 
+
 radius = 20
 row    = 32
 shell  = 1.05
