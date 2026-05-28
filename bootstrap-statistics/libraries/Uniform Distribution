@@ -1,7 +1,7 @@
-use context shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8")
+use context url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr")
 provide *
 
-import shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8") as BSDS
+import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr") as BSDS
 provide from BSDS: * ,
   type *,
   data *
