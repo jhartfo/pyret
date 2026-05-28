@@ -1,6 +1,7 @@
 use context starter2024
 provide *
 
+include url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr")
 import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr") as BSDS
 provide from BSDS: * ,
   type *,
