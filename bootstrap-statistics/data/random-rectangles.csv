@@ -1,4 +1,4 @@
-Rectangle,Width,Height,Area,Perimeter,Cluster,Strata
+rectangle,width,height,area,perimeter,cluster,strata
 1,1,1,1,4,1,1
 2,1,1,1,4,2,1
 3,1,1,1,4,2,1
