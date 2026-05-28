@@ -7,8 +7,8 @@ provide from BSDS: * ,
   data *
 end
 
-#import math as Math
-#import statistics as Stats
+import math as Math
+import statistics as Stats
 
 fun raise-non-number-list(fn):
   raise("Cannot calculate the " + 
