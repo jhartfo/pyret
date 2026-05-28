@@ -18,7 +18,7 @@ provide:
   module Math
 end
 
-jhartfo-repo = "https://raw.githubusercontent.com/jhartfo/pyret/main/" 
+shadow jhartfo-repo = "https://raw.githubusercontent.com/jhartfo/pyret/main/" 
 
 # export every symbol from starter2024 except for those we override
 import starter2024 as Starter
