@@ -1,5 +1,8 @@
 use context starter2024
 
+# modified from bootstrapworld/starter-files/fall2026/libraries/core.arr
+# added list functions for statistics
+
 provide: 
   *,
   type Posn,
