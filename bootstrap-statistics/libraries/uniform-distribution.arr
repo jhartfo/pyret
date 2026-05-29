@@ -27,7 +27,9 @@ fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ + 
 fun list-squared-sum(lst :: List<Number>%(is-all-numbers)) -> Number  : list-sum(map(num-sqr, lst)) end
 fun num-triangular(  n   :: Number) -> Number : (n * (n + 1)) / 2 end 
 
-fun factorial(n :: NumInteger):
+#############################################
+
+fun factorial(n :: NumInteger) -> Number:
   if (n == 1) or (n == 0): 1
   else:
     n * factorial(n - 1)
@@ -38,37 +40,23 @@ list-sqr-sum      = list-squared-sum
 tri-number        = num-triangular
 triangular-number = num-triangular
 
-#|
-
-
-fun falling-factorial(n,k):
-  if is-number(n) and is-number(k):
-    list-product(range-by((n - k) + 1, n + 1, 1))
+fun falling-factorial(n:: Number, k :: Number) -> Number:
+  if k == 1: n
   else:
-    raise-non-number("falling factorial power")
+    n * ff(n - 1, k - 1)
   end
 end
 
 fun rising-factorial(n,k):
-  if is-number(n) and is-number(k):
-    list-product(range-by(n, n + k, 1))
+  if (k - 0) == 1: n
   else:
-    raise-non-number("rising factorial power")
+    n * rf(n + 1, k - 1)
   end
 end
 
-fun permutation(n,k):
-  if is-number(n) and is-number(k):
-    if k > n: 0
-    else:
-      factorial(n) / factorial(n - k)
-    end
-  else:
-    raise-non-number("permutations")
-  end
-end
+permutation = falling-factorial
 
-fun combination(n,k):
+fun combination(n:: Number, k :: Number) -> Number:
   if is-number(n) and is-number(k):
     permutation(n,k) / factorial(k)
   else:
@@ -85,6 +73,9 @@ fun pascal-triangle(n):
     raise-non-number("pascal's triangle")
   end
 end
+
+#############################################
+#|
 
 fun list-mean(some-list):
   if some-list.all(is-number):
