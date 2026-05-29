@@ -58,44 +58,6 @@ data Pair:
     pair(key, value)
 end
 
-fun list-to-table(lst) block:
-  [T.table-from-columns: {"list values"; lst}] 
-end
-  
-# list-index :: List, ele -> Number
-# Consumes a List and an element from the list
-# and produces the index of the first insistence
-# of the element in the list. If the element is not
-# the List, raises element not in list error.
-list-index :: List, Any -> Number
-fun list-index(lst, ele) block:
-  if lst.member(ele):
-    values = range-by(0,lst.length(), 1)#.reverse()
-    dict   = map2(pair, lst, values).filter(lam(x): x.key == ele end)
-    dict.get(0).value
-  else:
-    raise(tostring(ele) + " is not an element in the list.")
-  end
-end
-
-# this function equivalent to .get-column from the Table library
-get-column :: Table, String -> List
-fun get-column(tbl, col) block:
-  tbl.get-column(col)
-end
-
-# equivalent to range-by but avoids the confusion 
-# over the use of the word "range" as used in Pyret 
-# versus the statistical use of "range"
-# instead we use the algebraic term "arithmetic"
-# as in arithmetic sequence. The first two Numbers 
-# provide the start and finish values. The third Number
-# is the common difference or step size
-arithmetic :: Number, Number, Number -> List
-fun arithmetic(a,b,d) block:
-  range-by(a,b,d)
-end
-
 # produces a sequence using the given Function 
 sequence :: Number, Number, Function -> List
 fun sequence(a, b, fn) block:
@@ -104,6 +66,48 @@ end
 
 fun geometric(a,b,r) block:
   sequence(a,b,num-expt(r,_))
+end
+
+arithmetic = range-by
+
+list-to-table :: List -> Table
+# recasts a list as a single column Table
+fun list-to-table(lst) block:
+  [T.table-from-columns: {"list values"; lst}] 
+end
+
+cutoff-at-value :: List, Any -> List
+# consumes a List and a value, if the value
+# is a member of the List, produces a new
+# containing elements before the frst appearance
+# of the value, otherwise returns the List
+fun cuttoff-at-value(lst, b):
+  if lst == empty:
+    empty
+  else if lst.first == b:
+    empty
+  else:
+    link(lst.first, cuttoff-at-value(lst.rest, b))
+  end
+end
+
+list-index :: List, Any -> Number
+# consumes a List and a value, if the value
+# is a member of the List, returns the length
+# of the cutoff-at-value of the List, representing
+# the index. Otherwise, raise the value is not in the list
+fun list-index(lst, b):
+  if member(lst,b):
+    length(cuttoff-at-value(lst,b))
+  else:
+    raise(tostring(b) + " is not a member of the list")
+  end
+end
+
+# this function equivalent to .get-column from the Table library
+get-column :: Table, String -> List
+fun get-column(tbl, col) block:
+  tbl.get-column(col)
 end
 
 # similar to .sort for from List library with the 
