@@ -25,7 +25,7 @@ fun list-product(    lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ * 
 fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ + _, 0, lst) end
 
 fun list-squared-sum(lst :: List<Number>%(is-all-numbers)) -> Number  : list-sum(map(num-sqr, lst)) end
-fun num-triangular  (n   :: Number) -> Number : (n * (n + 1)) / 2
+fun num-triangular  (n   :: Number) -> Number : (n * (n + 1)) / 2 end 
 
 list-sqr-sum      = list-squared-sum
 tri-number        = num-triangular
