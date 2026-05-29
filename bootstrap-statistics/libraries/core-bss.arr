@@ -23,13 +23,8 @@ provide from I:
   data *
 end
 
-import lists as L
-provide from L: * hiding(filter, range, sort), type *, data * end
-
 import constants as Consts
 provide from Consts: PI, E end
-import reactors as R
-provide from R: * end
 
 import gdrive-sheets as G
 provide from G:
@@ -37,9 +32,6 @@ provide from G:
   type *,
   data *
 end
-
-import tables as T
-provide from T: * end
 
 col-sort    = Core.sort
 col-filter  = Core.filter
