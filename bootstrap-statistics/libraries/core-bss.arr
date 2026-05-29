@@ -189,7 +189,7 @@ fun bar-chart-from-freq(summary, lbl) block:
 end
 
 fun frequency-table(tbl, col) block:
-  sort(Core.count(tbl, col), "frequency", false)
+  Core.sort(Core.count(tbl, col), "frequency", false)
 end
 
 fun rel-freq-table(tbl, col) block:
