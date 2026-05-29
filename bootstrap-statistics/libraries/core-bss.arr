@@ -31,6 +31,11 @@ provide from G:
   data *
 end
 
+import tables as T
+import lists  as L
+provide from T: * end
+provide from L: * hiding(filter, range, sort), type *, data * end
+
 col-sort    = Core.sort
 col-filter  = Core.filter
 col-mean    = Core.mean
