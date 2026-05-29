@@ -178,7 +178,7 @@ end
 fun build-freq-table(tbl, col, value) block:
   Core.sort([T.table-from-columns:
       {"value"; col},
-      {"frequency"; map(lam(x): count-value(tbl, x, value) end, get-column(tbl,col)) }], 
+      {"frequency"; map(lam(x): count-value(tbl, col, x) end, get-column(tbl,col)) }], 
     "frequency", false)
 end
 
