@@ -27,6 +27,38 @@ provide from Starter:
     * hiding(translate, filter, range, sort, sin, cos, tan)
 end
 
+include charts
+
+import image as I
+provide from I:
+    * hiding(translate),
+  type *,
+  data *
+end
+
+import lists as L
+provide from L: * hiding(filter, range, sort), type *, data * end
+
+import color as C
+import constants as Consts
+provide from Consts: PI, E end
+import reactors as R
+
+import either as Eth
+import error as Err
+import sets as Sets
+import tables as T
+import string-dict as SD
+import statistics as Stats
+import math as Math
+
+import gdrive-sheets as G
+provide from G:
+    * hiding(load-spreadsheet),
+  type *,
+  data *
+end
+
 col-sort    = Core.sort
 col-filter  = Core.filter
 col-mean    = Core.mean
