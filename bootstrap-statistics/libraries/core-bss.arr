@@ -38,6 +38,9 @@ provide from G:
   data *
 end
 
+import tables as T
+provide from T: * end
+
 col-sort    = Core.sort
 col-filter  = Core.filter
 col-mean    = Core.mean
