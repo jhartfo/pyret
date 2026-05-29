@@ -104,10 +104,10 @@ end
 ########################################################################
 # Tables and Lists
 
-list-to-table :: List -> Table
+list-to-table :: List, String -> Table
 # recasts a list as a single column Table
-fun list-to-table(lst) block:
-  [T.table-from-columns: {"list values"; lst}] 
+fun list-to-table(lst, lbl) block:
+  [T.table-from-columns: {lbl; lst}] 
 end
 
 # this function equivalent to .get-column from the Table library
@@ -168,7 +168,7 @@ end
 fun freq-to-data(f-table):
   value  = f-table.column-names().get(0) 
   series = f-table.build-column("repeats", lam(r): repeat(r["frequency"], r[value]) end).get-column("repeats")
-  list-to-table(fold(append, empty, series))
+  list-to-table(fold(append, empty, series), value)
 end
 
 fun frequency-table(tbl, col) block:
