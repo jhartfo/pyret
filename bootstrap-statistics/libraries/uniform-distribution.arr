@@ -25,20 +25,21 @@ fun list-product(    lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ * 
 fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ + _, 0, lst) end
 
 fun list-squared-sum(lst :: List<Number>%(is-all-numbers)) -> Number  : list-sum(map(num-sqr, lst)) end
-fun num-triangular  (n   :: Number) -> Number : (n * (n + 1)) / 2 end 
+fun num-triangular(  n   :: Number) -> Number : (n * (n + 1)) / 2 end 
+
+fun factorial(n :: NumInteger):
+  if (n == 1) or (n == 0): 1
+  else:
+    n * factorial(n - 1)
+  end
+end
 
 list-sqr-sum      = list-squared-sum
 tri-number        = num-triangular
 triangular-number = num-triangular
 
 #|
-fun factorial(n):
-  if is-number(n):
-    list-product(range-by(1, n + 1, 1))
-  else:
-    raise-non-number("factorial")
-  end
-end
+
 
 fun falling-factorial(n,k):
   if is-number(n) and is-number(k):
