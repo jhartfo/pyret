@@ -1,12 +1,26 @@
 use context stater2024
 
-provide *
+provide: 
+  *,
+  type Posn,
+  type TaggedFunction,
+  module Eth,
+  module Err,
+  module Sets,
+  module T,
+  module SD,
+  module R,
+  module L,
+  module Stats,
+  module Math
+end
 
 # importing boostraps core data science library.
 # make sure we are using the most current branch.
 import url("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/libraries/core.arr") as Core
 provide from Core: 
     * hiding(sort, filter, mean, median, modes, maximum, minimum, iqr, IQR, sum, range, stdev, q1, q3, factorial)
+end
 
 import starter2024 as Starter
 provide from Starter:
