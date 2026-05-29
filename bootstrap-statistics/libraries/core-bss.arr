@@ -171,16 +171,15 @@ fun list-histogram(lst, bin) block:
   Core.histogram(tbl, "list values", "list values", bin)
 end
 
+fun count-value(tbl, col, value) block:
+  tbl.filter(lam(r): r[col] == value end).length()
+end
 
 fun build-freq-table(tbl, col, value) block:
   Core.sort([T.table-from-columns:
       {"value"; col},
-      {"frequency"; map(count-value(tbl, _, value), col) }], 
+      {"frequency"; map(lam(x): count-value(tbl, x, value) end, col) }], 
     "frequency", false)
-end
-
-fun count-value(tbl, col, value) block:
-  tbl.filter(lam(r): r[col] == value end).length()
 end
 
 fun bar-chart-from-freq(summary, lbl) block:
