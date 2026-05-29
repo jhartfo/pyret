@@ -1,19 +1,6 @@
 use context starter2024
 
-provide: 
-  *,
-  type Posn,
-  type TaggedFunction,
-  module Eth,
-  module Err,
-  module Sets,
-  module T,
-  module SD,
-  module R,
-  module L,
-  module Stats,
-  module Math
-end
+provide: * end
 
 # importing boostraps core data science library.
 # make sure we are using the most current branch.
@@ -27,8 +14,6 @@ provide from Starter:
     * hiding(translate, filter, range, sort, sin, cos, tan)
 end
 
-include charts
-
 import image as I
 provide from I:
     * hiding(translate),
@@ -39,18 +24,10 @@ end
 import lists as L
 provide from L: * hiding(filter, range, sort), type *, data * end
 
-import color as C
 import constants as Consts
 provide from Consts: PI, E end
 import reactors as R
-
-import either as Eth
-import error as Err
-import sets as Sets
-import tables as T
-import string-dict as SD
-import statistics as Stats
-import math as Math
+provide from R: * end
 
 import gdrive-sheets as G
 provide from G:
