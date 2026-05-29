@@ -8,12 +8,8 @@ provide from BSDS: * hiding(dilate),
   data *
 end
 
-
 import math as Math
 import statistics as Stats
-
-#factorial = BSDS.factorial
-#iqr = BSDS.iqr
 
 fun raise-non-number-list(fn):
   raise("Cannot calculate the " + 
@@ -25,33 +21,36 @@ fun raise-non-number(fn):
     fn + "because the argument(s) were not an NumIntegers")
 end
 
-
-fun list-product(some-list):
-  if some-list.all(is-number):
-    fold(_ * _, 1, some-list)
+list-product :: List<Number> -> Number
+fun list-product(lst):
+  if lst.all(is-number):
+    fold(_ * _, 1, lst)
   else:
     raise-non-number-list("product")
   end
 end
 
-fun list-sum(some-list):
-  if some-list.all(is-number):
-    fold(_ + _, 0, some-list)
+list-sum :: List<Number> -> Number
+fun list-sum(lst):
+  if lst.all(is-number):
+    fold(_ + _, 0, lst)
   else:
     raise-non-number-list("sum")
   end
 end  
 
-fun list-difference(some-list):
-  if some-list.all(is-number):
-    fold(_ - _, 0, some-list)
+list-difference :: List<Number> -> Number
+fun list-difference(lst):
+  if lst.all(is-number):
+    fold(_ - _, 0, lst)
   else:
     raise-non-number-list("difference")
   end
 end  
 
-fun list-squared-sum(some-list):
-  list-sum(map(num-sqr, some-list))
+list-squared-sum :: List<Number> -> Number
+fun list-squared-sum(lst):
+  list-sum(map(num-sqr, lst))
 end
 
 list-sqr-sum = list-squared-sum
@@ -67,6 +66,7 @@ end
 tri-number        = num-triangular
 triangular-number = num-triangular
 
+#|
 fun factorial(n):
   if is-number(n):
     list-product(range-by(1, n + 1, 1))
@@ -294,3 +294,5 @@ end
 fun simulate-uniform(a,b, d,n):
   map(lam(x):random-uniform(a,b,d) end, range-by(0,n + 1,1))
 end
+
+|#
