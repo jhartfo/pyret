@@ -30,14 +30,15 @@ fun list-product(lst):
   end
 end
 
-list-sum :: List<Number> -> Number
-fun list-sum(lst):
+#list-sum :: List<Number> -> Number
+fun list-sum(lst :: List<Number>) -> Number: fold(_ + _, 0, lst) end
+  #|
   if lst.all(is-number):
     fold(_ + _, 0, lst)
   else:
     raise-non-number-list("sum")
   end
-end  
+end |# 
 
 list-difference :: List<Number> -> Number
 fun list-difference(lst):
