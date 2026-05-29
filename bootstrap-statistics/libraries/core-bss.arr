@@ -141,13 +141,13 @@ end
 list-dot-plot :: List -> Image
 fun list-dot-plot(lst) block:
   tbl = list-to-table(lst)
-  dot-plot(tbl, "list values", "list values")
+  Core.dot-plot(tbl, "list values", "list values")
 end
   
 list-histogram :: List, Number -> Image
 fun list-histogram(lst, bin) block:
   tbl = list-to-table(lst)
-  histogram(tbl, "list values", "list values", bin)
+  Core.histogram(tbl, "list values", "list values", bin)
 end
 
 fun build-freq-table(tbl, col, value) block:
@@ -162,12 +162,12 @@ fun count-value(tbl, col, value) block:
 end
 
 fun bar-chart-from-freq(summary, lbl) block:
-  color-table = distinct-colors(summary, "frequency")
-  bar-chart-raw(color-table, "value", "frequency", lbl)
+  color-table = Core.distinct-colors(summary, "frequency")
+  Core.bar-chart-raw(color-table, "value", "frequency", lbl)
 end
 
 fun frequency-table(tbl, col) block:
-  sort(count(tbl, col), "frequency", false)
+  sort(Core.count(tbl, col), "frequency", false)
 end
 
 fun rel-freq-table(tbl, col) block:
