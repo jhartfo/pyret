@@ -45,14 +45,14 @@ triangular-number = num-triangular
 fun falling-factorial(n:: Number, k :: Number) -> Number:
   if k == 1: n
   else:
-    n * ff(n - 1, k - 1)
+    n * falling-factorial(n - 1, k - 1)
   end
 end
 
 fun rising-factorial(n,k):
   if (k - 0) == 1: n
   else:
-    n * rf(n + 1, k - 1)
+    n * rising-factorial(n + 1, k - 1)
   end
 end
 
