@@ -1,7 +1,5 @@
 use context  url("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/libraries/core.arr")
 
-#starter2024
-
 provide: * end
 
 # importing boostraps core data science library.
@@ -13,7 +11,7 @@ end
 
 import starter2024 as Starter
 provide from Starter:
-    * hiding(translate, filter, range, sort, sin, cos, tan)
+    * hiding(translate, filter, sort, sin, cos, tan)
 end
 
 import image as I
