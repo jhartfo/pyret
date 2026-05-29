@@ -153,6 +153,34 @@ fun list-sort(lst, ascend) block:
 end
 
 ########################################################################
+
+fun count-value(tbl, col, value) block:
+  tbl.filter(lam(r): r[col] == value end).length()
+end
+
+fun build-freq-table(tbl, col, value) block:
+  Core.sort([T.table-from-columns:
+      {"value"; get-column(tbl,col) },
+      {"frequency"; map(lam(x): count-value(tbl, col, x) end, get-column(tbl,col)) }], 
+    "frequency", false)
+end
+
+fun freq-to-data(f-table):
+  col = f.table.build-column("repeats", lam(r): repeat(r["frequency"], r["value"]) end).get-column("repeats")
+  (list-to-table(fold(append, empty, col))
+end
+
+fun frequency-table(tbl, col) block:
+  Core.sort(Core.count(tbl, col), "frequency", false)
+end
+
+fun rel-freq-table(tbl, col) block:
+  extend frequency-table(tbl, col) using frequency:
+    rel : frequency / tbl.length()
+  end.rename-column("rel", "rel freq")
+end
+
+########################################################################
 # visualizing lists
 
 list-dot-plot :: List -> Image
@@ -171,30 +199,9 @@ fun list-histogram(lst, bin) block:
   Core.histogram(tbl, "list values", "list values", bin)
 end
 
-fun count-value(tbl, col, value) block:
-  tbl.filter(lam(r): r[col] == value end).length()
-end
-
-fun build-freq-table(tbl, col, value) block:
-  Core.sort([T.table-from-columns:
-      {"value"; get-column(tbl,col) },
-      {"frequency"; map(lam(x): count-value(tbl, col, x) end, get-column(tbl,col)) }], 
-    "frequency", false)
-end
-
 fun bar-chart-from-freq(summary, lbl) block:
   color-table = Core.distinct-colors(summary, "frequency")
   Core.bar-chart-raw(color-table, "value", "frequency", lbl)
-end
-
-fun frequency-table(tbl, col) block:
-  Core.sort(Core.count(tbl, col), "frequency", false)
-end
-
-fun rel-freq-table(tbl, col) block:
-  extend frequency-table(tbl, col) using frequency:
-    rel : frequency / tbl.length()
-  end.rename-column("rel", "rel freq")
 end
 
 ########################################################################
