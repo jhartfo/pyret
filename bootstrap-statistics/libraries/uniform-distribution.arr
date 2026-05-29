@@ -9,8 +9,8 @@ provide from BSDS: * hiding(dilate),
 end
 
 
-#import math as Math
-#import statistics as Stats
+import math as Math
+import statistics as Stats
 
 #factorial = BSDS.factorial
 #iqr = BSDS.iqr
@@ -56,18 +56,17 @@ end
 
 list-sqr-sum = list-squared-sum
 
-fun triangular-number(n):
+fun num-triangular(n):
   if is-number(n):
     list-sum(range-by(0,n + 1,1))
   else:
     raise-non-number("triangular number")
   end
-  
 end
 
-tri-number = triangular-number
+tri-number        = num-triangular
+triangular-number = num-triangular
 
-#|
 fun factorial(n):
   if is-number(n):
     list-product(range-by(1, n + 1, 1))
@@ -75,7 +74,6 @@ fun factorial(n):
     raise-non-number("factorial")
   end
 end
-|#
 
 fun falling-factorial(n,k):
   if is-number(n) and is-number(k):
