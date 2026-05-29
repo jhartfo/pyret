@@ -6,75 +6,30 @@ provide *
 # make sure we are using the most current branch.
 import url("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/libraries/core.arr") as Core
 provide from Core: 
-    * hiding(sort, filter)
+    * hiding(sort, filter, mean, median, modes, maximum, minimum, iqr, IQR, sum, range, stdev, q1, q3, factorial)
 
 import starter2024 as Starter
 provide from Starter:
     * hiding(translate, filter, range, sort, sin, cos, tan)
 end
 
-import math as Math
-
-column-sort    = Core.sort
-column-filter  = Core.filter
-column-mean    = Core.mean
-column-median  = Core.median
-column-modes   = Core.modes
-column-minimum = Core.minimum
-column-maximum = Core.maximum
-
-fun iqr(t :: Table, col :: String) block:
-  check-integrity(t, [list: col])
-  l = t.column(col).sort()
-  first-half = l.split-at(num-floor(l.length() / 2)).prefix
-  second-half = l.split-at(num-ceiling(l.length() / 2)).suffix
-  num-to-string-digits(Stats.median(second-half) - Stats.median(first-half),2)
-end
-fun IQR(t, col): iqr(t, col) end
-
-fun get-5-num-summary(t :: Table, col :: String) block:
-  check-integrity(t, [list: col])
-  l = t.column(col)
-  shadow l = l.sort()
-  first-half = l.split-at(num-floor(l.length() / 2)).prefix
-  second-half = l.split-at(num-ceiling(l.length() / 2)).suffix
-  shadow minimum = num-to-string-digits(Math.min(l), 2)
-  Q1 = num-to-string-digits(Stats.median(first-half), 2)
-  Q2 = num-to-string-digits(Stats.median(l), 1)
-  Q3 = num-to-string-digits(Stats.median(second-half), 2)
-  shadow maximum = num-to-string-digits(Math.max(l), 2)
-  R = num-to-string-digits(Math.max(l) - Math.min(l), 2)
-  [list: "Min:", minimum, ",  Q1:", Q1, ",  Median:", Q2, ",  Q3:", Q3, ",  Max:", maximum].join-str("")
-end
-
-
-
-# if the column is a boolean, convert to a number and sort
-shadow sort = lam(t :: Table, col :: String, asc :: Boolean):
-  if ((t.all-rows().length() > 0) and is-boolean(t.row-n(0)[col])): t.build-column("tmp", lam(r):to-repr(r[col]) end).order-by("tmp", asc).drop("tmp")
-  else: t.order-by(col, asc)
-  end
-end
-
-
-
-mean
-median 
-modes 
-
-shadow sum = lam(t :: Table, col :: String) block:
-  check-integrity(t, [list: col])
-  if not(is-number(t.column(col).get(0))):
-    raise(Err.message-exception("Cannot compute the sum, because the specified column does not contain numeric data"))
-  else:
-    Math.sum(ensure-numbers(t.column(col)))
-  end
-end
-
-stdev
-r-value
-
-
+col-sort    = Core.sort
+col-filter  = Core.filter
+col-mean    = Core.mean
+col-median  = Core.median
+col-modes   = Core.modes
+col-minimum = Core.minimum
+col-maximum = Core.maximum
+col-iqr     = Core.iqr
+col-IQR     = Core.iqr
+col-sum     = Core.sum
+col-stdev   = Core.stdev
+col-range   = Core.range
+col-q0      = Core.minimum
+col-q1      = Core.q1
+col-q2      = Core.mean
+col-q3      = Core.q3
+col-q4      = Core.maximum
 
 ########################################################################
 #
@@ -84,8 +39,6 @@ r-value
 data Pair:
     pair(key, value)
 end
-
-shadow jhartfo-repo = "https://raw.githubusercontent.com/jhartfo/pyret/main/" 
 
 fun list-to-table(lst) block:
   [T.table-from-columns: {"list values"; lst}] 
