@@ -1,5 +1,7 @@
 use context starter2024
 
+provide: 
+
 # this program generates an Image of Pascal's Triangle
 # that is colored as in Sierpinski's triangle 
 
