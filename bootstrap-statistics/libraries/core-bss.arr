@@ -1,4 +1,6 @@
-use context starter2024
+use context  url("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/libraries/core.arr")
+
+#starter2024
 
 provide: * end
 
