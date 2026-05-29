@@ -168,7 +168,7 @@ end
 fun freq-to-data(f-table):
   value  = f-table.get-columns().get(0) 
   series = f-table.build-column("repeats", lam(r): repeat(r["frequency"], r[value]) end).get-column("repeats")
-  list-to-table(fold(append, empty, col))
+  list-to-table(fold(append, empty, series))
 end
 
 fun frequency-table(tbl, col) block:
