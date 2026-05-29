@@ -35,7 +35,7 @@ end
 import tables as T
 import lists  as L
 provide from T: * end
-provide from L: * hiding(filter, range, sort), type *, data * end
+provide from L: * hiding(filter, range, sort, length), type *, data * end
 
 col-sort    = Core.sort
 col-filter  = Core.filter
@@ -56,6 +56,7 @@ col-q3      = Core.q3
 col-q4      = Core.maximum
 
 ########################################################################
+# Generating Lists
 
 # produces a sequence using the given Function 
 sequence :: Number, Number, Function -> List
@@ -69,11 +70,8 @@ end
 
 arithmetic = range-by
 
-list-to-table :: List -> Table
-# recasts a list as a single column Table
-fun list-to-table(lst) block:
-  [T.table-from-columns: {"list values"; lst}] 
-end
+########################################################################
+# get the inde of an element in a list
 
 cutoff-at-value :: List, Any -> List
 # consumes a List and a value, if the value
@@ -103,11 +101,44 @@ fun list-index(lst, b):
   end
 end
 
+########################################################################
+# Tables and Lists
+
+list-to-table :: List -> Table
+# recasts a list as a single column Table
+fun list-to-table(lst) block:
+  [T.table-from-columns: {"list values"; lst}] 
+end
+
 # this function equivalent to .get-column from the Table library
 get-column :: Table, String -> List
 fun get-column(tbl, col) block:
   tbl.get-column(col)
 end
+
+# this function equivalent to .length from the Table library
+fun table-length(tbl) block:
+  tbl.length()
+end
+
+element-n :: List, NumInteger -> Any
+# consumes a List and produces the nth element
+# negative index upto (length(lst)  * -1) are
+# allowed
+fun element-n(lst, n) block:
+  if n >= lst.length():
+    raise("element-n : n too large : " + to-string(n))
+  else if n < (-1 * lst.length()):
+    raise("element-n : n too small : " + to-string(n))
+  else:
+    lst.get(num-modulo(n, length(lst)))
+  end
+end
+
+########################################################################
+# list functions
+
+list-length = length
 
 # similar to .sort for from List library with the 
 # added functionality of ascending and descending
@@ -121,37 +152,28 @@ fun list-sort(lst, ascend) block:
   end
 end
 
-list-length = length
-
-fun table-length(tbl) block:
-  tbl.length()
-end
-
-element-n :: List, NumInteger -> Any
-fun element-n(lst, n) block:
-  if n >= lst.length():
-    raise("element-n : n too large : " + to-string(n))
-  else if n < (-1 * lst.length()):
-    raise("element-n : n too small : " + to-string(n))
-  else:
-    lst.get(num-modulo(n, length(lst)))
-  end
-end
+########################################################################
+# visualizing lists
 
 list-dot-plot :: List -> Image
+# consumes a List, cnverts it into a Table 
+# creates a dot-plot
 fun list-dot-plot(lst) block:
   tbl = list-to-table(lst)
   Core.dot-plot(tbl, "list values", "list values")
 end
   
 list-histogram :: List, Number -> Image
+# consumes a List and a Number, cnverts it into a Table 
+# creates a histogram with the bin size set to the Numbern 
 fun list-histogram(lst, bin) block:
   tbl = list-to-table(lst)
   Core.histogram(tbl, "list values", "list values", bin)
 end
 
+
 fun build-freq-table(tbl, col, value) block:
-  sort([T.table-from-columns:
+  Core.sort([T.table-from-columns:
       {"value"; col},
       {"frequency"; map(count-value(tbl, _, value), col) }], 
     "frequency", false)
@@ -176,6 +198,7 @@ fun rel-freq-table(tbl, col) block:
   end.rename-column("rel", "rel freq")
 end
 
+########################################################################
 # this List is randomly sampled from a normal distribution with 
 # n = 1000, mean = 75, stdev = 10
 mystery-2 = 
