@@ -30,8 +30,10 @@ fun list-product(lst):
   end
 end
 
+#fun ensure-numbers(l :: List<Number>%(is-all-numbers)): l end
+
 #list-sum :: List<Number> -> Number
-fun list-sum(lst :: List<Number>) -> Number: fold(_ + _, 0, lst) end
+fun list-sum(lst :: List<Number>%(is-all-numbers)) -> Number: fold(_ + _, 0, lst) end
   #|
   if lst.all(is-number):
     fold(_ + _, 0, lst)
