@@ -21,51 +21,14 @@ fun raise-non-number(fn):
     fn + "because the argument(s) were not an NumIntegers")
 end
 
-list-product :: List<Number> -> Number
-fun list-product(lst):
-  if lst.all(is-number):
-    fold(_ * _, 1, lst)
-  else:
-    raise-non-number-list("product")
-  end
-end
+fun list-product(    lst :: List<Number>%(is-all-numbers)) -> Number:): fold(_ * _, 0, lst) end
+fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number  : fold(_ + _, 0, lst) end
+fun list-difference( lst :: List<Number>%(is-all-numbers)) -> Number  : fold(_ - _, 0, lst) end
 
-#fun ensure-numbers(l :: List<Number>%(is-all-numbers)): l end
+fun list-squared-sum(lst :: List<Number>%(is-all-numbers)) -> Number  : list-sum(map(num-sqr, lst)) end
+fun num-triangular  (n   :: Number) -> Number : (n * (n + 1)) / 2
 
-#list-sum :: List<Number> -> Number
-fun list-sum(lst :: List<Number>%(is-all-numbers)) -> Number: fold(_ + _, 0, lst) end
-  #|
-  if lst.all(is-number):
-    fold(_ + _, 0, lst)
-  else:
-    raise-non-number-list("sum")
-  end
-end |# 
-
-list-difference :: List<Number> -> Number
-fun list-difference(lst):
-  if lst.all(is-number):
-    fold(_ - _, 0, lst)
-  else:
-    raise-non-number-list("difference")
-  end
-end  
-
-list-squared-sum :: List<Number> -> Number
-fun list-squared-sum(lst):
-  list-sum(map(num-sqr, lst))
-end
-
-list-sqr-sum = list-squared-sum
-
-fun num-triangular(n):
-  if is-number(n):
-    list-sum(range-by(0,n + 1,1))
-  else:
-    raise-non-number("triangular number")
-  end
-end
-
+list-sqr-sum      = list-squared-sum
 tri-number        = num-triangular
 triangular-number = num-triangular
 
