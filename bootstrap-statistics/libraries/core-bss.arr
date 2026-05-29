@@ -4,6 +4,7 @@ provide:
   *,
   type Posn,
   type TaggedFunction,
+  type Pair,
   module Eth,
   module Err,
   module Sets,
