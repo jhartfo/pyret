@@ -154,7 +154,7 @@ end
 
 ########################################################################
 
-count-values :: Table, String, Any -> Number
+count-value :: Table, String, Any -> Number
 # consumes a Table, column, and a category, and produces the
 # number of occurences of the caegory in the column
 fun count-value(tbl, col, value) block:
@@ -167,7 +167,7 @@ fun frequency-table(tbl, col) block:
   Core.sort(Core.count(tbl, col), "frequency", false)
 end
 
-frequency-table :: Table, String -> Table
+rel-freq-table :: Table, String -> Table
 # produces a table frequency and relative frequency sorted by frequency in descending order
 fun rel-freq-table(tbl, col) block:
   extend frequency-table(tbl, col) using frequency:
