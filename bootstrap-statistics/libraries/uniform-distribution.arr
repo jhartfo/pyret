@@ -21,9 +21,9 @@ fun raise-non-number(fn):
     fn + "because the argument(s) were not an NumIntegers")
 end
 
-fun list-product(    lst :: List<Number>%(is-all-numbers)) -> Number:): fold(_ * _, 0, lst) end
-fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number  : fold(_ + _, 0, lst) end
-fun list-difference( lst :: List<Number>%(is-all-numbers)) -> Number  : fold(_ - _, 0, lst) end
+fun list-product(    lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ * _, 0, lst) end
+fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ + _, 0, lst) end
+fun list-difference( lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ - _, 0, lst) end
 
 fun list-squared-sum(lst :: List<Number>%(is-all-numbers)) -> Number  : list-sum(map(num-sqr, lst)) end
 fun num-triangular  (n   :: Number) -> Number : (n * (n + 1)) / 2
