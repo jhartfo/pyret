@@ -83,13 +83,13 @@ cutoff-at-value :: List, Any -> List
 # is a member of the List, produces a new
 # containing elements before the frst appearance
 # of the value, otherwise returns the List
-fun cuttoff-at-value(lst, b):
+fun cutoff-at-value(lst, b):
   if lst == empty:
     empty
   else if lst.first == b:
     empty
   else:
-    link(lst.first, cuttoff-at-value(lst.rest, b))
+    link(lst.first, cutoff-at-value(lst.rest, b))
   end
 end
 
