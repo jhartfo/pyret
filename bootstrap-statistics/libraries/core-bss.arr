@@ -31,8 +31,6 @@ provide from G:
   data *
 end
 
-include lists
-
 col-sort    = Core.sort
 col-filter  = Core.filter
 col-mean    = Core.mean
