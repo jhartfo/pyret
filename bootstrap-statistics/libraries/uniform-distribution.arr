@@ -155,5 +155,3 @@ fun simulate-uniform(
     n      :: Number) -> List:
   map(lam(x):random-uniform(min,max,digits) end, range-by(0,n + 1,1))
 end
-
-|#
