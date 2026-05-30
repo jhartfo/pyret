@@ -14,8 +14,6 @@ provide from C:
   * 
 end
 
-#is-all-numbers = _.all(is-number)
-
 fun list-mean(lst:: List<Number>%(is-all-numbers))-> Number:
     Stats.mean(lst)
 end
