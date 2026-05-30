@@ -1,6 +1,6 @@
 use context starter2024
 
-provdie *
+provide *
 
 fun factorial(n :: NumInteger) -> Number:
   if (n == 1) or (n == 0): 1
