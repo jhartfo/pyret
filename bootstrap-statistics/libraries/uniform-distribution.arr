@@ -12,64 +12,10 @@ end
 import math as Math
 import statistics as Stats
 
-fun raise-non-number-list(fn):
-  raise("Cannot calculate the " + 
-    fn + "because the list does not contain numeric data.")
+url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/combinatorics.arr") as C
+provide from C: 
+  * 
 end
-
-fun raise-non-number(fn):
-  raise("Cannot calculate the " + 
-    fn + "because the argument(s) were not an NumIntegers")
-end
-
-fun list-product(    lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ * _, 1, lst) end
-fun list-sum(        lst :: List<Number>%(is-all-numbers)) -> Number : fold(_ + _, 0, lst) end
-
-fun list-squared-sum(lst :: List<Number>%(is-all-numbers)) -> Number  : list-sum(map(num-sqr, lst)) end
-fun num-triangular(  n   :: Number) -> Number : (n * (n + 1)) / 2 end 
-
-#############################################
-# Combinatorics
-
-fun factorial(n :: NumInteger) -> Number:
-  if (n == 1) or (n == 0): 1
-  else:
-    n * factorial(n - 1)
-  end
-end
-
-list-sqr-sum      = list-squared-sum
-tri-number        = num-triangular
-triangular-number = num-triangular
-
-fun falling-factorial(n:: Number, k :: Number) -> Number:
-  if k == 1: n
-  else:
-    n * falling-factorial(n - 1, k - 1)
-  end
-end
-
-fun rising-factorial(n,k):
-  if (k - 0) == 1: n
-  else:
-    n * rising-factorial(n + 1, k - 1)
-  end
-end
-
-permutation = falling-factorial
-
-fun combination(n:: Number, k :: Number) -> Number:
-  permutation(n,k) / factorial(k)
-end
-
-fun pascal-triangle(n :: Number) -> List:
-  map(
-    lam(x): map(combination(x,_), range-by(0,x + 1,1)) end, 
-    range-by(0,n + 1,1))
-end
-
-#############################################
-#|
 
 fun list-mean(some-list):
   if some-list.all(is-number):
