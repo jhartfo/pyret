@@ -1,42 +1,68 @@
 use context starter2024
 
-provide *
+provide: * hiding(
+    # don't pass the incremental helper functions 
+    # for drawing the pascal's triangle
+    num-to-x-range, num-to-y-range, pos-to-x, 
+    build-row-x, pos-to-y, build-row-y)
+end
 
-fun factorial(n :: NumInteger) -> Number:
-  if (n == 1) or (n == 0): 1
-  else:
-    n * factorial(n - 1)
-  end
+# testing has shown forming these functions directly
+# with map and fold is more effecient than using recursion
+
+is-all-numbers = _.all(is-number)
+
+list-product :: List<Number>%(is-all-numbers) -> Number
+fun list-product(lst): 
+  fold(_ * _, 1, lst) 
+end
+
+list-sum :: List<Number>%(is-all-numbers) -> Number
+fun list-sum(lst): 
+  fold(_ + _, 0, lst) 
+end
+
+list-squared-sum :: List<Number>%(is-all-numbers) -> Number
+fun list-squared-sum(lst): 
+  list-sum(map(num-sqr, lst)) 
+end
+
+num-triangular :: NumInteger -> Number
+fun num-triangular(n): 
+  (n * (n + 1)) / 2 
+end 
+
+factorial :: NumInteger -> Number
+fun factorial(n):
+  fold(_ * _, 1, range-by(1,n + 1,1))
+end
+
+falling-factorial :: NumInteger, NumInteger -> Number
+fun falling-factorial(n,k):
+  fold(_ * _, 1, range-by(n - k - -1,n + 1,1))
+end
+
+rising-factorial :: NumInteger, NumInteger -> Number
+fun rising-factorial(n,k):
+  fold(_ * _, 1, range-by(n,n + k,1))
 end
 
 list-sqr-sum      = list-squared-sum
 tri-number        = num-triangular
 triangular-number = num-triangular
+permutation       = falling-factorial
 
-fun falling-factorial(n:: Number, k :: Number) -> Number:
-  if k == 1: n
-  else:
-    n * falling-factorial(n - 1, k - 1)
-  end
-end
-
-fun rising-factorial(n,k):
-  if (k - 0) == 1: n
-  else:
-    n * rising-factorial(n + 1, k - 1)
-  end
-end
-
-permutation = falling-factorial
-
-fun combination(n:: Number, k :: Number) -> Number:
+combination :: NumInteger, NumInteger -> Number
+fun combination(n,k):
   permutation(n,k) / factorial(k)
 end
 
+fun pascals-row(n):
+  map(combination(n,_), range-by(0,n + 1,1))
+end
+
 fun pascals-triangle(n :: Number) -> List:
-  map(
-    lam(x): map(combination(x,_), range-by(0,x + 1,1)) end, 
-    range-by(0,n + 1,1))
+  map(pascals-row, range-by(0,n,1))
 end
 
 #########################################
@@ -55,6 +81,8 @@ CLR4   = "lime green"
 
 #########################################
 
+# just like put-image but inputs are swapped
+# places nicely with fold
 reverse-put-image = lam(base, x,y,im): put-image(im, x,y, base) end
 
 hexagon :: Number, String, String -> Image
@@ -113,10 +141,10 @@ fun num-to-y-range(n, nr):
   repeat(n, ((nr + 1) - n))
 end
 
-to-real-x :: Number, Number, Number -> Number
+pos-to-x :: Number, Number, Number -> Number
 # maps an x position to an x coordinate given
 # a row and number of rows
-fun to-real-x(x, r, nr):
+fun pos-to-x(x, r, nr):
   ((HEX-WT + (BDR-HT * 1/2)) * (nr - r)) +  # ROW START
   ((HEX-WT + BLK-WT) * x)                   # POSITION
 end
@@ -126,13 +154,13 @@ build-row-x :: Number, Number -> List
 # Number into range of numbers from 1 to n+1
 # Then we map number in the new range to the specified coordinates
 fun build-row-x(r,nr):
-  map(to-real-x(_, r, nr), num-to-x-range(r,nr))
+  map(pos-to-x(_, r, nr), num-to-x-range(r,nr))
 end
 
-to-real-y :: Number -> Number
+pos-to-y :: Number -> Number
 # maps an y position to an y coordinate given
 # a row and number of rows
-fun to-real-y(r):
+fun pos-to-y(r):
   (r * (HEX-PT + BLK-MD + BLK-MD)) + BLK-HT + BLK-MD
 end
 
@@ -141,12 +169,12 @@ build-row-y :: Number, Number -> List
 # Number into range of numbers from 1 to n+1
 # Then we map number in the new range to the specified coordinates
 fun build-row-y(r, nr):
-  repeat(r, to-real-y(nr - r))
+  repeat(r, pos-to-y(nr - r))
 end
 
 fun image-pascals-triangle(numrows):
-  wt   = to-real-x(numrows,32,32) + (BLK-WT * 2)
-  ht   = to-real-y(numrows)
+  wt   = pos-to-x(numrows,32,32) + (BLK-WT * 2)
+  ht   = pos-to-y(numrows)
   bg   = rectangle(wt,ht, "solid", CLR4 ) 
   rows = range-by(numrows, 0, -1)
   pt   = pascals-triangle(numrows).reverse()
@@ -154,10 +182,8 @@ fun image-pascals-triangle(numrows):
   X    = fold(append, empty, map(build-row-x(_, numrows), rows))
   Y    = fold(append, empty, map(build-row-y(_, numrows), rows))
  
-  
   fold3(reverse-put-image, bg, X,Y,H)
 end
-
 
 
 
