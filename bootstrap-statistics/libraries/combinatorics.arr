@@ -1,5 +1,164 @@
 use context starter2024
 
+provdie: * end
+
+fun factorial(n :: NumInteger) -> Number:
+  if (n == 1) or (n == 0): 1
+  else:
+    n * factorial(n - 1)
+  end
+end
+
+list-sqr-sum      = list-squared-sum
+tri-number        = num-triangular
+triangular-number = num-triangular
+
+fun falling-factorial(n:: Number, k :: Number) -> Number:
+  if k == 1: n
+  else:
+    n * falling-factorial(n - 1, k - 1)
+  end
+end
+
+fun rising-factorial(n,k):
+  if (k - 0) == 1: n
+  else:
+    n * rising-factorial(n + 1, k - 1)
+  end
+end
+
+permutation = falling-factorial
+
+fun combination(n:: Number, k :: Number) -> Number:
+  permutation(n,k) / factorial(k)
+end
+
+fun pascals-triangle(n :: Number) -> List:
+  map(
+    lam(x): map(combination(x,_), range-by(0,x + 1,1)) end, 
+    range-by(0,n + 1,1))
+end
+
+#########################################
+
+# this section generates an Image of Pascal's Triangle
+# that is colored as in Sierpinski's triangle 
+
+# First a few constants
+
+SHELL  = 1.05
+RADIUS = 20
+CLR1   = "black"
+CLR2   = "sky blue"
+CLR3   = "yellow"
+CLR4   = "lime green"
+
+#########################################
+
+reverse-put-image = lam(base, x,y,im): put-image(im, x,y, base) end
+
+hexagon :: Number, String, String -> Image
+# creates a regular hexagon pointing up, 
+# for tiling the triangle
+fun hexagon(r, style, clr):
+  rotate(90, regular-polygon(r, 6,style , clr))
+end
+
+# if n is even -> CLR2
+# if n is odd  -> CLR3
+fun sierpinski-color(n:: Number):
+  if num-modulo(n,2) == 0: CLR2
+  else: CLR3
+  end
+end
+
+# creates a hexgon with border with the 
+# Number displayed on the interior and
+# colored accoring to the sierpinski triangle
+fun block(n:: Number) -> Image:
+  clr       = sierpinski-color(n)
+  hex-fill  = hexagon(RADIUS,"solid", clr)
+  hex-shell = hexagon(RADIUS * SHELL,"solid", CLR1)
+
+  overlay(text(num-to-string(n), RADIUS * 0.5, CLR1),
+    overlay(hex-fill, hex-shell))
+end
+
+#########################################
+
+HEX-WT = image-width( hexagon(RADIUS,"solid", CLR1)) / 2 
+BLK-WT = image-width( block(1)) / 2
+BDR-WT = BLK-WT - HEX-WT
+
+HEX-MD = RADIUS * cos(2 * PI * 1/6)
+BLK-MD = RADIUS * cos(2 * PI * 1/6) * SHELL
+HEX-PT = (image-height(hexagon(RADIUS,"solid", CLR1)) / 2) - HEX-MD 
+BLK-PT = (image-height(block(1)) / 2)                      - BLK-MD
+BDR-HT = BLK-WT - HEX-WT
+HEX-HT = (image-height(hexagon(RADIUS,"solid", CLR1)) / 2) 
+BLK-HT = (image-height(block(1)) / 2)                      
+
+#########################################
+
+num-to-x-range :: Number, Number -> List
+# creates the list of x positions by row
+fun num-to-x-range(n,nr):
+  range-by(1, n + 1, 1)
+end
+
+num-to-y-range :: Number, Number -> List
+# creates the list of y positions by row
+fun num-to-y-range(n, nr):
+  #f = print(repeat(n, ((nr + 1) - n)))
+  repeat(n, ((nr + 1) - n))
+end
+
+to-real-x :: Number, Number, Number -> Number
+# maps an x position to an x coordinate given
+# a row and number of rows
+fun to-real-x(x, r, nr):
+  ((HEX-WT + (BDR-HT * 1/2)) * (nr - r)) +  # ROW START
+  ((HEX-WT + BLK-WT) * x)                   # POSITION
+end
+
+build-row-x :: Number, Number -> List
+# consumes a Number, n, converts that 
+# Number into range of numbers from 1 to n+1
+# Then we map number in the new range to the specified coordinates
+fun build-row-x(r,nr):
+  map(to-real-x(_, r, nr), num-to-x-range(r,nr))
+end
+
+to-real-y :: Number -> Number
+# maps an y position to an y coordinate given
+# a row and number of rows
+fun to-real-y(r):
+  (r * (HEX-PT + BLK-MD + BLK-MD)) + BLK-HT + BLK-MD
+end
+
+build-row-y :: Number, Number -> List
+# consumes a Number, n, converts that 
+# Number into range of numbers from 1 to n+1
+# Then we map number in the new range to the specified coordinates
+fun build-row-y(r, nr):
+  repeat(r, to-real-y(nr - r))
+end
+
+fun image-pascals-triangle(numrows):
+  wt   = to-real-x(numrows,32,32) + (BLK-WT * 2)
+  ht   = to-real-y(numrows)
+  bg   = rectangle(wt,ht, "solid", CLR4 ) 
+  rows = range-by(numrows, 0, -1)
+  pt   = pascals-triangle(numrows).reverse()
+  H    = map(block, fold(append, empty, pt))
+  X    = fold(append, empty, map(build-row-x(_, numrows), rows))
+  Y    = fold(append, empty, map(build-row-y(_, numrows), rows))
+ 
+  
+  fold3(reverse-put-image, bg, X,Y,H)
+end
+
+
 
 
 
