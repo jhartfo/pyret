@@ -8,13 +8,13 @@ provide from BSDS: * hiding(dilate),
   data *
 end
 
-import math as Math
-import statistics as Stats
-
 import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/combinatorics.arr") as C
 provide from C: 
   * 
 end
+
+import math as Math
+import statistics as Stats
 
 fun list-mean(lst:: List<Number>%(is-all-numbers))-> Number:
     Stats.mean(lst)
