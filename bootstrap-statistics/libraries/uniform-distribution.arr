@@ -2,8 +2,8 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main
 
 provide *
 
-import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr") as BSDS
-provide from BSDS: * hiding(dilate),
+import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/core-bss.arr") as Core
+provide from Core: * hiding(dilate),
   type *,
   data *
 end
@@ -16,7 +16,15 @@ end
 import math as Math
 import statistics as Stats
 
-fun list-mean(lst:: List<Number>%(is-all-numbers))-> Number:
+is-all-numbers = _.all(is-number)
+
+L = [list:1,2,3,4,5,6,7,8]
+M = [list:3,1,4,1,5,9,2,6]
+N = [list:"a", "b"]
+O = [list:-3, 0, 3]
+
+
+fun list-mean(lst:: List<Number> %(is-all-numbers))-> Number:
     Stats.mean(lst)
 end
 
@@ -30,23 +38,43 @@ end
 
 deviations-sqr = deviations-squared
 
-fun variance(lst :: List<Number>%(is-all-numbers)) -> Number:
+fun list-sample-variance(lst :: List<Number>%(is-all-numbers)) -> Number:
   C.list-sqr-sum(deviations(lst)) / (length(lst) - 1)
 end
 
-fun stdDev(lst :: List<Number>%(is-all-numbers)) -> Number:
-    num-sqrt(variance(lst))
+fun list-pop-variance(lst :: List<Number>%(is-all-numbers)) -> Number:
+  C.list-sqr-sum(deviations(lst)) / (length(lst))
 end
 
-fun z-score(x :: Number, xbar :: Number, s :: Number) -> Number:
+fun list-sample-stdev(lst :: List<Number>%(is-all-numbers)) -> Number:
+  num-sqrt(list-sample-variance(lst))
+end
+
+fun list-pop-stdev(lst :: List<Number>%(is-all-numbers)) -> Number:
+  num-sqrt(list-pop-variance(lst))
+end
+
+list-variance = list-sample-variance
+list-var      = list-sample-variance
+list-stdev    = list-sample-stdev
+
+fun x-to-z(x :: Number, xbar :: Number, s :: Number) -> Number:
   (x - xbar) / s
 end
-
-fun z-scores(lst :: List<Number>%(is-all-numbers)) -> List:
-  map(z-score(_, list-mean(lst), stdDev(lst)), lst)
+  
+fun z-to-x(z :: Number, xbar :: Number, s :: Number) -> Number:
+  (z * s) + xbar
 end
 
-fun R(X :: Number,Y :: Number):
+z-score = x-to-z
+
+fun z-scores(lst :: List<Number>%(is-all-numbers)) -> List:
+  map(z-score(_, list-mean(lst), list-stdev(lst)), lst)
+end
+
+fun R(
+    X :: List<Number>%(is-all-numbers),
+    Y :: List<Number>%(is-all-numbers)) -> Number:
   C.list-sum(map2(_ * _, z-scores(X), z-scores(Y))) / (length(X) - 1)
 end
 
@@ -69,7 +97,7 @@ fun list-minimum(lst:: List<Number>%(is-all-numbers)) -> Number:
 end
 
 fun list-maximum(lst:: List<Number>%(is-all-numbers)) -> Number:
-    Math.min(lst)
+  Math.max(lst)
 end
 
 fun list-range(lst:: List<Number>%(is-all-numbers)) -> Number:
@@ -111,14 +139,14 @@ list-q3 = list-Q3
 list-q4 = list-Q4
 
 fun list-outliers(lst:: List<Number>%(is-all-numbers)) -> List:
-  lower-boundary = list-q1(lst) - (1.5 * (col-iqr(lst)))
-  upper-boundary = list-q3(lst) + (1.5 * (col-iqr(lst)))
+  lower-boundary = list-q1(lst) - (1.5 * (list-iqr(lst)))
+  upper-boundary = list-q3(lst) + (1.5 * (list-iqr(lst)))
   list.filter(lam(x): (x < lower-boundary) or (x > upper-boundary) end)
 end
   
 fun list-without-outliers(lst:: List<Number>%(is-all-numbers)) -> List:
-  lower-boundary = list-q1(lst) - (1.5 * (col-iqr(lst)))
-  upper-boundary = list-q3(lst) + (1.5 * (col-iqr(lst)))
+  lower-boundary = list-q1(lst) - (1.5 * (list-iqr(lst)))
+  upper-boundary = list-q3(lst) + (1.5 * (list-iqr(lst)))
   list.filter(lam(x): (x >= lower-boundary) or (x <= upper-boundary) end)   
 end
 
