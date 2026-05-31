@@ -7,6 +7,9 @@ provide: * hiding(
     build-row-x, pos-to-y, build-row-y)
 end
 
+import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/visualizations/pascals-triangle.arr") as PT
+provide from PT: * end
+
 # testing has shown forming these functions directly
 # with map and fold is more effecient than using recursion
 
@@ -65,6 +68,7 @@ fun pascals-triangle(n :: Number) -> List:
   map(pascals-row, range-by(0,n,1))
 end
 
+#|
 #########################################
 
 # this section generates an Image of Pascal's Triangle
@@ -185,6 +189,7 @@ fun image-pascals-triangle(numrows):
   fold3(reverse-put-image, bg, X,Y,H)
 end
 
+|#
 
 
 
