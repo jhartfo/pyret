@@ -1,9 +1,16 @@
-use context starter 2-24
+use context starter2024
 
-provide: image-pascals-triangle
+provide: image-pascals-triangle end
+
+fun combination(n,k):
+  fold(_ * _, 1, range(1, n + 1)) / 
+  fold(_ * _, 1, range(1, k + 1)) / 
+  fold(_ * _, 1, range(1, (n - k) + 1))
+end
 
 fun pascals-row(n):
-  map(combination(n,_), range-by(0,n + 1,1))
+  map(combination(n,_), 
+    range-by(0,n + 1,1))
 end
 
 fun pascals-triangle(n :: Number) -> List:
