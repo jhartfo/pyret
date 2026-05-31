@@ -1,11 +1,14 @@
 use context starter2024
 
-provide: * hiding(
+provide: * 
+
+#|hiding(
     # don't pass the incremental helper functions 
     # for drawing the pascal's triangle
     num-to-x-range, num-to-y-range, pos-to-x, 
     build-row-x, pos-to-y, build-row-y)
 end
+|#
 
 import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/visualizations/pascals-triangle.arr") as PT
 provide from PT: * end
