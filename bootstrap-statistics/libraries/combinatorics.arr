@@ -2,6 +2,14 @@ use context starter2024
 
 provide: * 
 
+
+
+import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/visualizations/pascals-triangle.arr") as PT
+provide from PT: * end
+
+# testing has shown forming these functions directly
+# with map and fold is more effecient than using recursion
+
 #|hiding(
     # don't pass the incremental helper functions 
     # for drawing the pascal's triangle
@@ -9,12 +17,6 @@ provide: *
     build-row-x, pos-to-y, build-row-y)
 end
 |#
-
-import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/visualizations/pascals-triangle.arr") as PT
-provide from PT: * end
-
-# testing has shown forming these functions directly
-# with map and fold is more effecient than using recursion
 
 is-all-numbers = _.all(is-number)
 
