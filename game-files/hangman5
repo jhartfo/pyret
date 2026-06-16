@@ -110,6 +110,15 @@ fun right-arm(clr):
   rotate(10, rectangle(10, 50, "solid", clr))
 end
 
+# man :: Hangman -> Image
+# we are cheating a bit here. The domain of man
+# is a Hangman. But we haven't defined a Hangman 
+# For clarity in the classroom, we wanted this 
+# function with the other drawing functions. 
+# So we need to comment out the contract. Now,
+# man can consume any arument that has the properties:
+# .l-leg, .r-leg, .r-arm, .l-leg, .body, and .head.
+# where these properties contain Colors or Color-Strings
 fun man(clr): 
   put-image(
     leg(clr.l-leg), 40, 31, put-image(
@@ -119,7 +128,6 @@ fun man(clr):
             above(head(clr.head), body(clr.body)), 50,110,
             rectangle(100,160, "solid", "transparent"))))))
 end
-
 
 ############################################
 # Hangman Data type
