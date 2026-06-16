@@ -16,7 +16,7 @@ import sets as S
    
    I would recommend you first skim through the
    sections. When you get to the final section,
-   carefully read through the that section, then
+   carefully read through that section, then
    keep asking yourself "where'd that come from?"
    Then go back through, find the appropriate 
    section, and drill down on the details of how
@@ -246,7 +246,7 @@ end
 # (as an Image). There are many
 # different ways to implement the methods. I think
 # this is the most straightforward. For clarity,
-# how the methods work is defined below a separate 
+# how the methods work is defined below as separate 
 # Functions.
 # 
 # Finally, there is a third method for using
@@ -277,11 +277,11 @@ end
 
 view-secret-letter :: String, String -> Image
 view-used-letter   :: String, String -> Image
-# The two functions consume a String containing
+# The two functions consume a String containing one
 # letter and a Color String and builds a box containing
 # the letter. If the letter should be visible then
 # the background with "white" otherwise the background 
-# is "black." view-secret-letter adds a line add the bottom
+# is "black." view-secret-letter adds a line at the bottom ro
 # serve as a blank to help the player see how many letters
 # are in the secret-word. Both Images have a transparent 
 # rectangle tacked on beside the box to space out the letters
@@ -309,7 +309,7 @@ end
 use-one-letter :: Letter, String -> Letter
 # consumes a Letter and a String. If the 
 # Letter's char matches the String, we produce
-# a new Letter with the used updated to true
+# a new Letter with .used updated to true
 # otherwise we return the original Letter
 fun use-one-letter(ltr,A):
   if ltr.char == A:
@@ -328,7 +328,7 @@ end
 
 string-to-used :: String -> Letter
 # creates a Letter from the String
-# defaults to  used
+# defaults to used
 fun string-to-used(s):
   letter(s, true)
 end
@@ -342,6 +342,12 @@ end
 # to help us manage the game cleanly without getting 
 # lost in the details. Like with Letter, there maybe 
 # other ways to implement this. 
+#
+# This kind of object is called a 'wrapper'
+# because we are takling something already known
+# (in this case a List), and wrapping it, in whole,
+# into a new object, merely to create new custom 
+# properties and methods.
 #
 # Here we have 3 methods: .display-secret() and 
 # .display-used() will use fold to stack together 
@@ -364,7 +370,7 @@ data Letter-List:
     method update-letter-list(self, A): 
       # contract of update-list is
       # update-list:: List -> List
-      # so, we need recast the list as a
+      # so, we need to recast the list as a
       # Letter-List. (I suppose we could create 
       # a custom map Function that plays nicely 
       # with Letter-Lists directly.)
@@ -409,14 +415,14 @@ end
 
 list-to-letter-list :: List -> Letter-List
 # consumes a list of Strings and produces
-# Letter-List containing Letters
+# Letter-List containing not .used Letters 
 fun list-to-letter-list(lst):
   letters(map(string-to-letter, lst))
 end
 
 list-to-used-list :: List -> Letter-List
 # consumes a list of Strings and produces
-# Letter-List containing used Letters
+# Letter-List containing .used Letters
 fun list-to-used-list(lst):
   letters(map(string-to-used, lst))
 end
@@ -555,7 +561,7 @@ word-raw      = table.row-n(idx)["word"]
 word          = table.row-n(idx)["characters"]
 word-list     = list-to-letter-list(word)
 
-start-game    = game-data(
+start-state    = game-data(
   HANGMAN-0,
   word-raw ,
   word-list,
@@ -563,7 +569,7 @@ start-game    = game-data(
   ""       )
 
 hm = reactor:
-  init    : start-game,
+  init    : start-state,
   to-draw : draw-game ,
   on-key  : guess     ,
   on-tick : on-tick
@@ -592,10 +598,10 @@ trace =
   .reverse()
 
 
-# trace now contains are the guesses from the 
+# trace now contains all the guesses from the 
 # game. But because of on-tick there
 # are A LOT of duplicates. recasting the
-# the list as a list-set then back to a list
+# list as a list-set then back to a list
 # will get rid of those duplicates
 guesses = S.list-to-list-set(trace).to-list()
 
