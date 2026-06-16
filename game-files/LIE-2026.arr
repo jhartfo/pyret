@@ -22,17 +22,16 @@ SCREENSHOT    =
 ######################################################
 # 1. Making the Danger and the Target Move
 
-update-danger :: Number, Number -> Number
+update-danger :: Number, Number -> Posn
 # given the danger's x-coordinate, output the NEXT x
 
 # write EXAMPLEs for update-danger below this line
 
 fun update-danger(x,y):
-  x - 5
+  posn(x - 5, y)
 end
 
-
-update-target :: Number, Number -> Number
+update-target :: Number, Number -> Posn
 # given the target's x-coordinate and y-coordinate, output the NEXT x
 
 # write EXAMPLEs for update-target below this line
@@ -40,7 +39,7 @@ examples:
   0 is 0
 end
 fun update-target(x,y):
-  x + 10
+  posn(x + 10, y)
 end
 
 ######################################################
@@ -77,24 +76,52 @@ end
 
 fun update-player(x, y, key):
   if (key == "up") and (y < 520) :
-    y + 10
+    posn(x, y + 10)
+    
   else if (key == "w") and (y < 620):
-    y + 20
+    posn(x, y + 20)
+    
   else if (key == "w") and (y >= 620):
-    -20
+    posn(x, -20)
+    
   else if (key == "down") and (y > -20) :
-    y - 10
+    posn(x, y - 10)
+    
   else if (key == "x") and (y > -20) :
-    y - 20
+    posn(x, y - 20)
+    
   else if (key == "x") and (y <= -20) :
-    620
+    posn(x, 620)
+    
   else if (key == "h")  :
-    -1 * y
+    posn(x, -1 * y)
+
+  else if (key == "s")  :
+    posn(x, -1 * y)
+    
+  else if (key == "right") and (x <= 680) :
+    posn(x + 10, y)
+
+  else if (key == "left")  and (x >= -30):
+    posn(x - 10, y)
+
+  else if (key == "d") and (x <= 700) :
+    posn(x + 20, y)
+
+  else if (key == "a")  and (x >= -50):
+    posn(x - 20, y)
+
+  else if (key == "a")  and (x < -50):
+    posn(680, y)
+
+  else if (key == "d") and (x > 700) :
+    posn(-100, y)    
+    
   else:
-    y
+    posn(x, y)
+    
   end
 end
-
 
 ######################################################
 # 4. Collisions: When the player is close enough to the Target
@@ -144,14 +171,10 @@ fun is-collision(px, py, cx, cy):
   distance(px, py, cx, cy) < 70
 end
 
-
 mystery = radial-star(5, 5, 3, "solid", "silver")
 fun update-mystery(x, y):
   x + 20
 end
-
-
-
 
 ######################################################
 # PROVIDED CODE
