@@ -27,10 +27,10 @@ CLR-R  = 255 # These are the rgb levels for "ivory"
 CLR-G  = 255 # for use with .heatmap
 CLR-B  = 240 # 
 
-# TwoWay is awraper around a Matrix
+# TwoWay is mostly a wraper around a Matrix
 # TwoWay treats the underlying matrix
 # (.matrix() or .m in most cases)
-# as an array of values, and adds row
+# as an array of values, and provides row
 # and column totals. With that information
 # various probabilities can be calculated
 # and various displays of the TwoWay are available
@@ -44,7 +44,7 @@ CLR-B  = 240 #
 #    the default labels are A, ~A, B, ~B.
 #    There is an additional method .venn() available
 #    to display a Venn Diagram of the TwoWay
-# CM is similar to binaryTW, but we are asuuming
+# binaryCM is similar to binaryTW, but we are asuuming
 #     the TwoWay is depicting a Confusion Matrix.
 #     There is additional methods .sensativity()
 #     and .specificity()
@@ -88,7 +88,7 @@ data TwoWay:
     method venn(self): venn(self.matrix()) end,
     
     ####
-  |CM(AB, AnotB, notAB, notAnotB) with:
+  |binaryCM(AB, AnotB, notAB, notAnotB) with:
     method matrix(self): 
       [matrix(2,2): self.AB, self.AnotB, self.notAB, self.notAnotB]
     end,
