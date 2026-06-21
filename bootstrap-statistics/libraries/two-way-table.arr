@@ -7,6 +7,7 @@ provide from UD: * ,
   data *
 end
 
+include valueskeleton
 include matrices
 
 import math as M
@@ -297,6 +298,9 @@ sharing:
       self.withTotals(), 
       zero-matrix(n,m),
       self.Afancy(), self.Bfancy(), false)
+  end,
+  method _output(self):
+    vs-value(self.display())
   end,
   
   method displayJointP(self,a-str,b-str):
