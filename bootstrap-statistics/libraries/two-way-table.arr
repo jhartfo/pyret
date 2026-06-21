@@ -1,4 +1,3 @@
-use context starter2024
 provide * 
 
 import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as UD
@@ -461,6 +460,32 @@ fun twoway-from-table(tbl, A, B):
     [list:B].append(map(tostring,Blevels)))
 end
 
+fun table-to-confusion-matrix(T, col, classifier):
+  PT      = T.build-column("predicted", classifier)
+  Alevels = UD.count(PT, col).get-column(col)
+  Blevels = UD.count(PT, "predicted").get-column("predicted")
+  m       = lists-to-matrix(
+    map(
+      lam(a): 
+        map(lam(b): 
+            PT
+              .filter-by(col, lam(x): x == a end)
+              .filter-by("predicted", lam(x): x == b end).length()
+          end, Blevels)
+      end,Alevels))
+  twoway-with-labels(
+    m,
+    [list:"actual"   ].append(map(tostring,Alevels)),
+    [list:"predicted"].append(map(tostring,Blevels)))
+end
+
+# synonym for twoway-from-table
+# for some reason pyret does not like 
+# table-to-twoway = twoway-from-table
+fun table-to-twoway(tbl, A, B): 
+  twoway-from-table(tbl, A, B)
+end
+
 ###############################
 # displays binary two way tables as a venn diagram
 
@@ -711,6 +736,13 @@ hypo-test-display =
     map(
       lam(x): fold(beside, empty-image,x)end,
       hypo-test-display-elements))
+
+
+
+
+
+
+
 
 
 
