@@ -1,9 +1,8 @@
-
 use context starter2024
-#use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/core-bss.arr")
 provide * 
-import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/core-bss.arr") as BSDS
-provide from BSDS: * ,
+
+import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as UD
+provide from UD: * ,
   type *,
   data *
 end
@@ -121,9 +120,9 @@ data TwoWay:
         build-matrix(6,6, lam(i,j): 1 end) 
       end
     end,
-    method Alevels(self): map(num-to-string, arithmetic(1,7,1))
+    method Alevels(self): map(num-to-string, UD.arithmetic(1,7,1))
       .push("Dice A") end,
-    method Blevels(self): map(num-to-string, arithmetic(1,7,1))
+    method Blevels(self): map(num-to-string, UD.arithmetic(1,7,1))
       .push("Dice B") end,
     method Afancy(self): self.Alevels() end,
     method Bfancy(self): self.Blevels() end, 
@@ -199,8 +198,8 @@ sharing:
   method count(self, a,b):
   if any(lam(x): x == a end, self.Alevels()): block:
       if any(lam(x): x == b end, self.Blevels()):
-          i = list-index(self.Alevels().drop(1), a)
-          j = list-index(self.Blevels().drop(1), b)
+          i = UD.list-index(self.Alevels().drop(1), a)
+          j = UD.list-index(self.Blevels().drop(1), b)
           self.matrix().get(i,j)
     else:
           B = self.Blevels().get(0)
@@ -231,14 +230,14 @@ sharing:
     n = block: 
       if v == a:
         if any(lam(x): x == lvl end, A):
-          idx = list-index(A, lvl) - 1
+          idx = UD.list-index(A, lvl) - 1
           self.row-totals().get(idx)
         else:
           raise("'" + tostring(lvl) + "' is not a category of '" + A + "'")
         end
       else if v == b:
         if any(lam(x): x == lvl end, B):
-          idx = list-index(B, lvl) - 1
+          idx = UD.list-index(B, lvl) - 1
           self.col-totals().get(idx)
         else:
           raise("'" + tostring(lvl) + "' is not a category of '" + A + "'")
@@ -264,7 +263,7 @@ sharing:
         "and the given must be from variable B, or vice versa."
     if (Gv == a) and (Pv == b):
       if any(lam(x): x == Glvl end, A) and any(lam(x): x == Plvl end, B):
-        Gidx = list-index(A.drop(1), Glvl)
+        Gidx = UD.list-index(A.drop(1), Glvl)
         n    = self.count(Glvl, Plvl)
         N    = self.row-totals().get(Gidx) 
         n / N
@@ -273,7 +272,7 @@ sharing:
       end
     else if (Gv == b) and (Pv == a):
       if any(lam(x): x == Glvl end, B) and any(lam(x): x == Plvl end, A):
-        Gidx = list-index(B.drop(1), Glvl)
+        Gidx = UD.list-index(B.drop(1), Glvl)
         N    = self.col-totals().get(Gidx) 
         n    = self.count(Plvl, Glvl)
         n / N
@@ -305,14 +304,14 @@ sharing:
     m    = self.Ylength() + 1
     a    = block:
       if any(lam(x): x == a-str end, self.Alevels()):
-        list-index(self.Alevels(), a-str) - 1
+        UD.list-index(self.Alevels(), a-str) - 1
       else:
         raise("'" + a-str + "' is not a valid category.")
       end
     end
     b    = block:
       if any(lam(x): x == b-str end, self.Blevels()):
-        list-index(self.Blevels(), b-str) - 1
+        UD.list-index(self.Blevels(), b-str) - 1
       else:
         raise("'" + b-str + "' is not a valid category.")
       end
@@ -331,10 +330,10 @@ sharing:
     m      = self.Ylength() + 1  
     mat1   = block:
       if v == self.Alevels().get(0):
-        idx = list-index(self.Alevels().drop(1), lvl)
+        idx = UD.list-index(self.Alevels().drop(1), lvl)
         matrix-ij(n,m,idx, m - 1)
       else if v == self.Blevels().get(0):
-        idx = list-index(self.Blevels().drop(1), lvl)
+        idx = UD.list-index(self.Blevels().drop(1), lvl)
         matrix-ij(n,m, n - 1, idx)
       else:
         raise("'" + lvl + "' is not a valid category.")
@@ -365,10 +364,10 @@ sharing:
         "and the given must be from variable B, or vice versa."
     mat1    = block:
       if (Gv == A.get(0)) and (Pv == B.get(0)):
-        a = list-index(A.drop(1), Glvl)
+        a = UD.list-index(A.drop(1), Glvl)
         matrix-row(n,m,a)
       else if (Pv == A.get(0)) and (Gv == B.get(0)):
-        b = list-index(B.drop(1), Glvl)
+        b = UD.list-index(B.drop(1), Glvl)
         matrix-col(n,m,b)
       else:
         raise(message)
@@ -376,21 +375,21 @@ sharing:
     end
     mat2   = block:
       if (Gv == A.get(0)) and (Pv == B.get(0)):
-        a = list-index(A.drop(1), Glvl)
+        a = UD.list-index(A.drop(1), Glvl)
         matrix-ij(n,m, a, m - 1)
       else:
-        b = list-index(B.drop(1), Glvl)
+        b = UD.list-index(B.drop(1), Glvl)
         matrix-ij(n,m,n - 1,b)
       end
     end
     mat3   = block:
       if (Gv == A.get(0)) and (Pv == B.get(0)):
-        a = list-index(A.drop(1), Glvl)
-        b = list-index(B.drop(1), Plvl)
+        a = UD.list-index(A.drop(1), Glvl)
+        b = UD.list-index(B.drop(1), Plvl)
         matrix-ij(n,m, a, b)
       else:
-        a = list-index(A.drop(1), Plvl)
-        b = list-index(B.drop(1), Glvl)
+        a = UD.list-index(A.drop(1), Plvl)
+        b = UD.list-index(B.drop(1), Glvl)
         matrix-ij(n,m,a,b)
       end
     end
@@ -424,13 +423,13 @@ sharing:
   end,
   
   method fisher(self): 
-    a = combination(
+    a = UD.combination(
       self.row-totals().get(0), 
       self.matrix().get(0,0))
-    b = combination(
+    b = UD.combination(
       self.row-totals().get(1), 
       self.col-totals().get(0) - self.matrix().get(0,0))
-    c = combination(
+    c = UD.combination(
       self.n(),
       self.col-totals().get(0))
     (a * b) / c
@@ -441,8 +440,8 @@ end
 # Consumes a Table and two column names (Strings) and
 # produces a TwoWay frequency table
 fun twoway-from-table(tbl, A, B):
-  Alevels = count(tbl, A).get-column(A)
-  Blevels = count(tbl, B).get-column(B)
+  Alevels = UD.count(tbl, A).get-column(A)
+  Blevels = UD.count(tbl, B).get-column(B)
   m       = lists-to-matrix(
     map(
       lam(a): 
@@ -591,7 +590,7 @@ end
 # produces the TwoWay Table display
 fun build-table(the-data, the-clrs, Xlabels, Ylabels, htmap):
 
-  max-wts = max(
+  max-wts = UD.list-maximum(
     map(
       string-length, 
       Xlabels
@@ -670,63 +669,8 @@ fun matrix-ij(n,m,a,b):
     end)
   end
 
-#################################
-# misc statistical functions
-
-fun factorial(n):
-  if n == 0: 1
-  else if n == 1: 1
-  else:
-    n * factorial(n - 1)
-  end
-end
-
-fun permutation(n,k):
-  factorial(n) / factorial(n - k)
-end
-
-fun combination(n,k):
-  permutation(n,k) / factorial(k)
-end
-
-fun pascal-row(n):
-  map(lam(x): combination(n, x) end, range(0, n + 1))
-end
-
-#|
-### from Bootstrap Datascience Teacher Pack
-fun group(tab, col):
-  values = Sets.list-to-list-set(tab.get-column(col)).to-list()
-  for fold(shadow grouped from table: value, subtable end, v from values):
-    grouped.stack(table: value, subtable
-        row: v, tab.filter-by(col, {(val): val == v})
-      end)
-  end
-end
-
-fun count(tab, col):
-  g = group(tab, col).build-column("frequency", {(r): r["subtable"].length()}).drop("subtable")
-  if is-boolean(g.column("value").get(0)): g
-  else: order g: value ascending end
-  end
-    .rename-column("value", col)
-end
-###################
-|#
-   
-
 
 ##############################################################
-
-# Load your spreadsheet and define your table
-shelter-sheet = load-spreadsheet(
-"https://docs.google.com/spreadsheets/d/1VeR2_bhpLvnRUZslmCAcSRKfZWs_5RNVujtZgEl6umA/")
-
-# load the 'animals' sheet as a table
-animals-table = 
-  load-table: name, species, sex, age, fixed, legs, pounds, weeks
-  source: shelter-sheet.sheet-by-name("pets", true)
-end
 
 
 HYPO-WT = 3
@@ -763,6 +707,8 @@ hypo-test-display =
     map(
       lam(x): fold(beside, empty-image,x)end,
       hypo-test-display-elements))
+
+
 
 
 
