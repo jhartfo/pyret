@@ -20,10 +20,10 @@ import statistics as Stats
 
 is-all-numbers = _.all(is-number)
 
-L = [list:1,2,3,4,5,6,7,8]
-M = [list:3,1,4,1,5,9,2,6]
-N = [list:"a", "b"]
-O = [list:-3, 0, 3]
+#L = [list:1,2,3,4,5,6,7,8]
+#M = [list:3,1,4,1,5,9,2,6]
+#N = [list:"a", "b"]
+#O = [list:-3, 0, 3]
 
 
 fun list-mean(lst:: List<Number> %(is-all-numbers))-> Number:
