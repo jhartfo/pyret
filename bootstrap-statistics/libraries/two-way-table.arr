@@ -739,6 +739,186 @@ hypo-test-display =
       hypo-test-display-elements))
 
 
+#######################################################
+
+fun strip-roughnum-prefix(s :: String) -> String:
+  string-substring(s, 1, string-length(s))
+end
+
+fun round-n(n,d):
+  num-round(n * num-expt(10,d)) / num-expt(10,d)
+end
+
+fun string-number(x:: Number) -> String :
+  if num-is-integer(x):
+    num-to-string(x)
+  else:
+    UD.normalize-exponent(
+      strip-roughnum-prefix(
+        UD.num-to-string(
+          UD.num-to-roughnum(
+            round-n(x,SIGFIG)
+            ))))
+  end
+end
+    
+data Block-Letter:
+    block-letter(
+      value:: String,
+      FG   :: String,
+      BG   :: String,
+      BR   :: String,
+      WT   :: Number,
+      HT   :: Number
+      ) with:
+    method display(self):
+      text-im = text(self.value, FNT-SZ, self.FG)
+      overlay-align("center", "center",
+        overlay-align("center", "center", text-im,
+          rectangle(self.WT - 2, self.HT - 2, "solid", self.BG)),
+        rectangle(self.WT, self.HT, "solid", self.BR))
+    end,
+    method display-up(self):
+      text-im = text(self.value, FNT-SZ, self.FG)
+      overlay-align("center", "bottom",
+        overlay-align("center", "center", text-im,
+          rectangle(self.WT - 2, self.HT - 2, "solid", self.BG)),
+        rectangle(self.WT, self.HT, "solid", self.BR))
+    end,
+    method display-left(self):
+      text-im = text(self.value, FNT-SZ, self.FG)
+      overlay-align("right", "center",
+        overlay-align("center", "center", text-im,
+          rectangle(self.WT - 2, self.HT - 2, "solid", self.BG)),
+        rectangle(self.WT, self.HT, "solid", self.BR))
+    end,
+    method _output(self):
+      vs-value(self.display())
+    end
+end
+      
+fun clr2-fn(x): "ivory" end
+fun clr1-fn(x): "black" end
+
+fun make-grid(m1, m2, wt, ht, c1, c2):
+  values = mtx-to-lists(m1)
+  colors = mtx-to-lists(m2)
+  
+  val2 = map(lam(r): map(string-number, r) end, values)
+  
+  clr2 = map(lam(r): map(c1, r) end, values)
+  clr3 = map(lam(r): map(c2, r) end, values)
+  
+  rows = map3(lam(x,y,z): 
+      fold(beside, empty-image,
+      map3(lam(a,b,c): 
+            block-letter(a,b,c, "black", wt, ht).display()
+          end,  x,y,z))
+    end,
+    val2, clr2, clr3)
+  grid = fold(above, empty-image,rows)
+  overlay-align("center", "center", grid,
+    rectangle(
+      image-width(grid) + 2, 
+      image-height(grid) + 2, 
+      "solid", "black"))
+end
+
+fun make-top(top-title, top-levels, wt, ht):
+  levels = fold(beside, empty-image, map(
+      lam(x):
+        block-letter(
+          x, "black", "ivory", "black", wt, ht).display-up() 
+      end, top-levels))
+  
+  label = block-letter(
+    top-title, 
+    "black", 
+    "ivory", 
+    "black", 
+    image-width(levels), ht).display-up()
+  
+  top = above(label, levels)
+  
+  overlay-align("center", "bottom",
+    top,
+    rectangle(image-width(top) + 2, image-height(top), "solid","black"))
+end
+
+fun make-left(left-title, left-levels, wt, ht):
+  levels = fold(above, empty-image, map(
+      lam(x):
+        block-letter(
+          x, "black", "ivory", "black", wt, ht).display-left() 
+      end, 
+      left-levels))
+  
+  label = block-letter(
+    left-title, 
+    "black", 
+    "ivory", 
+    "black", 
+    image-width(levels), image-height(levels)).display-left()
+  
+  left = beside(label, levels)
+  overlay-align("right", "center",
+    left,
+    rectangle(image-width(left), image-height(left) + 2, "solid","black"))
+end
+
+fun make-display(A, B, m1,m2):
+  top-title   = A.get(0)
+  top-levels  = A.drop(1)
+  left-title  = B.get(0)
+  left-levels = B.drop(1)
+  
+  nums = map(
+    lam(x): 
+      image-width(text(string-number(x), FNT-SZ, "black"))
+    end, 
+    mtx-to-list(m1))
+  top-lbls = map(
+    lam(x): 
+      image-width(text(x, FNT-SZ, "black"))
+    end, 
+    top-levels)
+  left-lbls = map(
+    lam(x): 
+      image-width(text(x, FNT-SZ, "black"))
+    end, A)
+
+  title-width      = image-width(text(top-title, FNT-SZ, "black")) / 
+  UD.list-length(top-levels)
+  
+  longest-nums     = UD.list-maximum(nums)
+  longest-top-lbls = UD.list-maximum(top-lbls)
+
+  cell-width       = UD.list-maximum([list:
+      title-width,
+      longest-nums,
+      longest-top-lbls]) + 20
+
+  left-width       = UD.list-maximum(left-lbls) + 20
+  
+  grid             = make-grid(m1,m2, 
+    cell-width, 
+    SIZE, 
+    clr1-fn, clr2-fn)
+  
+  top              = make-top(
+    top-title, 
+    top-levels, 
+    cell-width, SIZE)
+  
+  left             = make-left(
+    left-title, 
+    left-levels,
+    left-width, SIZE)
+  beside-align("bottom", left, above(top, grid))
+end
+
+
+
 
 
 
