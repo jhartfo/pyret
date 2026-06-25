@@ -77,24 +77,24 @@ cutoff-at-value :: List, Any -> List
 # is a member of the List, produces a new
 # containing elements before the frst appearance
 # of the value, otherwise returns the List
-fun cutoff-at-value(lst, b):
+fun cutoff-at-value(b, lst):
   if lst == empty:
     empty
   else if lst.first == b:
     empty
   else:
-    link(lst.first, cutoff-at-value(lst.rest, b))
+    link(lst.first, cutoff-at-value(b, lst.rest))
   end
 end
 
-list-index :: List, Any -> Number
+list-index :: Any, List -> Number
 # consumes a List and a value, if the value
 # is a member of the List, returns the length
 # of the cutoff-at-value of the List, representing
 # the index. Otherwise, raise the value is not in the list
-fun list-index(lst, b):
+fun list-index(b, lst):
   if member(lst,b):
-    length(cutoff-at-value(lst,b))
+    length(cutoff-at-value(b, lst))
   else:
     raise(tostring(b) + " is not a member of the list")
   end
