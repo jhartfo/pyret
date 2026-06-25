@@ -72,7 +72,7 @@ arithmetic = range-by
 ########################################################################
 # get the inde of an element in a list
 
-cutoff-at-value :: List, Any -> List
+cutoff-at-value :: Any, List -> List
 # consumes a List and a value, if the value
 # is a member of the List, produces a new
 # containing elements before the frst appearance
