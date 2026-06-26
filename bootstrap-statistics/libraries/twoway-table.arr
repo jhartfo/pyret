@@ -1,5 +1,5 @@
 use context starter2024
-provide * 
+provide *  , hiding;(test1, test2)
 
 import url( "https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as UD
 provide from UD: * ,
@@ -40,6 +40,9 @@ CLR-B  = 240 #
 
 # prob-clr  :: Number -> Color
 # htmap-clr :: Number -> Color
+# prob-txt  :: Number -> Color
+# sums-clr  :: Number -> Color
+# sums-txt  :: Number -> Color
 # these functions map Numbers to Colors
 # either as predefined colors as in prob-clr
 # or as gradients as in htmap-clr
@@ -94,7 +97,7 @@ end
 ############################################################
 # Data : Feature
 #
-# stores inforation of about a categorical variable (String)
+# stores information about a categorical variable (String)
 # and the possible levels (List)
 # 
 
@@ -148,7 +151,7 @@ end
 
 
 #######################################################
-# The Block-Letter datatype wrap over a single character 
+# The Block-Letter datatype wraps over a
 # string providing tools to display the string as an
 # image of the string set inside of a block
 
@@ -244,7 +247,7 @@ fun matrix-ij(n,m,a,b):
 #
 # TwoWay is mostly a wrapper around a Matrix 
 # with Table-like labels.
-# TwoWay .m is an array of values, and provides row
+# TwoWay .m is an array of values, and we provide row
 # and column totals. With that information
 # various statistics values can be calculated
 # and various displays of the TwoWay are available
@@ -305,6 +308,7 @@ data TwoWay:
     end,  
     
     # methods for rescaling the matrix
+    # scales the data using Matrix.scale
     method scale(self, x) -> TwoWay:
       new-mtx = self.m.scale(x)
       twoway-with-fancy-labels(
@@ -347,10 +351,7 @@ data TwoWay:
       ...
     end,
     
-    #################################################
-    # this next section provides some useful for statistical 
-    # computations
-    
+    ################################################
     # produces Joint, Marginal, and Conditional Probabilities
     # of the Two Way Table
 
@@ -575,7 +576,7 @@ data TwoWay:
     end,
     
     #######################################
-    # section, along with the Block-Letter 
+    # this section, along with the Block-Letter 
     # datatype, provides the building blocks for
     # creating visualizations for the TwoWay Table
     method make-grid(self, clr1, clr2, wt, ht):
@@ -878,7 +879,7 @@ end
 
 # synonym for twoway-from-table
 # for some reason pyret does not like 
-# table-to-twoway = twoway-from-table
+# table-to-twoway = twoway-from-table . . . 
 fun table-to-twoway(tbl, A, B): 
   twoway-from-table(tbl, A, B)
 end
