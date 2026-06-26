@@ -861,8 +861,7 @@ end
 
 fun table-to-confusion-matrix(T, col, classifier):
   PT      = T.build-column("predicted", classifier)
-  Alevels = UD.count(PT, col).get-column(col)
-  Blevels = UD.count(PT, "predicted").get-column("predicted")
+  levels = UD.count(PT, col).get-column(col)
   m       = lists-to-matrix(
     map(
       lam(a): 
@@ -872,8 +871,8 @@ fun table-to-confusion-matrix(T, col, classifier):
               .filter-by("predicted", lam(x): x == b end).length()
           end, Blevels)
       end,Alevels))
-  A = feat("Actual"   , map(tostring,Alevels))
-  B = feat("Predicted", map(tostring,Blevels))
+  A = feat("Actual"   , map(tostring,levels))
+  B = feat("Predicted", map(tostring,levels))
   twoway-with-fancy-labels(A,B,A,B,m)
 end
 
