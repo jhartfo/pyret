@@ -886,7 +886,7 @@ end
 
 
 ########################################
-#|
+
 test1 = twoway-with-fancy-labels(
   generic-labels("A",2),
   generic-labels("B",3), 
@@ -903,4 +903,4 @@ test2 = twoway-with-fancy-labels(
   [matrix(2,2): 1,2,3,4]
   )
 
-|#
+
