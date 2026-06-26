@@ -827,8 +827,8 @@ fun twoD6(style):
       build-matrix(6,6, lam(i,j): 1 end) 
     end
   end
-  A = feat("A", map(tostring, range(1,7)))
-  B = feat("B", map(tostring, range(1,7)))
+  A = feat("Die A", map(tostring, range(1,7)))
+  B = feat("Die B", map(tostring, range(1,7)))
   
   twoway-with-fancy-labels(A,B,A,B,m)
 end
