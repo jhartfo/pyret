@@ -869,8 +869,8 @@ fun table-to-confusion-matrix(T, col, classifier):
             PT
               .filter-by(col, lam(x): x == a end)
               .filter-by("predicted", lam(x): x == b end).length()
-          end, Blevels)
-      end,Alevels))
+          end, levels)
+      end,levels))
   A = feat("Actual"   , map(tostring,levels))
   B = feat("Predicted", map(tostring,levels))
   twoway-with-fancy-labels(A,B,A,B,m)
