@@ -1,5 +1,5 @@
 use context starter2024
-provide * 
+provide * , hiding(test1, test2)
 
 import url( "https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as UD
 provide from UD: * ,
