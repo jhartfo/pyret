@@ -1,5 +1,5 @@
 use context starter2024
-provide * , hiding(test1, test2)
+provide * 
 
 import url( "https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as UD
 provide from UD: * ,
@@ -886,7 +886,7 @@ end
 
 
 ########################################
-
+#|
 test1 = twoway-with-fancy-labels(
   generic-labels("A",2),
   generic-labels("B",3), 
@@ -903,4 +903,4 @@ test2 = twoway-with-fancy-labels(
   [matrix(2,2): 1,2,3,4]
   )
 
-
+|#
