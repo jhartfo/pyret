@@ -45,7 +45,7 @@ CLR-B  = 240 #
 # sums-txt  :: Number -> Color
 # these functions map Numbers to Colors
 # either as predefined colors as in prob-clr
-# or as gradients as in htmap-clr
+# or as RGB colors as in htmap-clr
 fun prob-clr(n):
   if      n == 2: H2-CLR
   else if n == 1: H1-CLR
@@ -69,18 +69,16 @@ fun htmap-txt(n):
 end
 
 fun sums-clr(n):
+  # We are striping with colors
+  # so we are going just map n (mod 6)
+  # to a unique colors
   ask:
-    | n ==  2 then: "yellow"
-    | n ==  3 then: "orange"
-    | n ==  4 then: "tomato"
-    | n ==  5 then: "violet"
-    | n ==  6 then: "cornflower-blue"
-    | n ==  7 then: "aquamarine"
-    | n ==  8 then: "cornflower-blue"
-    | n ==  9 then: "violet"
-    | n == 10 then: "tomato"
-    | n == 11 then: "orange"
-    | n == 12 then: "yellow"
+    | num-modulo(n,6) == 0 then: "yellow"
+    | num-modulo(n,6) == 1 then: "orange"
+    | num-modulo(n,6) == 2 then: "tomato"
+    | num-modulo(n,6) == 3 then: "violet"
+    | num-modulo(n,6) == 4 then: "cornflower-blue"
+    | num-modulo(n,6) == 5 then: "aquamarine"
     | otherwise: "black"
   end
 end
@@ -537,8 +535,17 @@ data TwoWay:
       map(lam(i): map(prob-clr, i) end, clr-mtx)
     end,
    
-    method heatmap-colors(self) -> List<List>:
-      clr-mtx = mtx-to-lists(self.normalize().withTotals())
+    method heatmap-colors(self, ceiling) -> List<List>:
+  
+      clr-mtx = block:
+        if ceiling == "by rows":
+          mtx-to-lists(self.normalize-rows().withTotals())
+        else if ceiling == "by columns":
+          mtx-to-lists(self.normalize-cols().withTotals())
+        else:
+          mtx-to-lists(self.normalize().withTotals())
+        end
+      end
       
       # Now we map those levels to specific colours 
       # to the a list of lists 
@@ -551,8 +558,17 @@ data TwoWay:
       map(lam(x):repeat(m, FG-CLR) end, range(0,n))
     end,
     
-    method heatmap-text-colors(self) -> List<List>:
-      clr-mtx = mtx-to-lists(self.normalize().withTotals())
+    method heatmap-text-colors(self, ceiling) -> List<List>:
+      
+      clr-mtx = block:
+        if ceiling == "by rows":
+          mtx-to-lists(self.normalize-rows().withTotals())
+        else if ceiling == "by columns":
+          mtx-to-lists(self.normalize-cols().withTotals())
+        else:
+          mtx-to-lists(self.normalize().withTotals())
+        end
+      end
       
       # Now we map those levels to specific colours 
       # to the a list of lists 
@@ -579,12 +595,22 @@ data TwoWay:
     # this section, along with the Block-Letter 
     # datatype, provides the building blocks for
     # creating visualizations for the TwoWay Table
-    method make-grid(self, clr1, clr2, wt, ht):
+ 
+    method make-grid(self, clr1, clr2, wt, ht, totals):
 
-      val2 = map(
-        lam(r): map(string-number, r) end, 
-        mtx-to-lists(self.withTotals())
-        )
+      vals = block:
+        if totals == true:
+          map(
+            lam(r): map(string-number, r) end, 
+            mtx-to-lists(self.withTotals())
+            )
+        else:
+          map(
+            lam(r): map(string-number, r) end, 
+            mtx-to-lists(self.m)
+            )
+        end
+      end
 
       rows = map3(lam(x,y,z): 
           fold(beside, empty-image,
@@ -592,7 +618,7 @@ data TwoWay:
                 block-letter(a,b,c, LN-CLR, wt, ht).display()
               end,  x,y,z))
         end,
-        val2, clr1, clr2)
+        vals, clr1, clr2)
       
       grid = fold(above, empty-image,rows)
       overlay-align("center", "center", grid,
@@ -602,13 +628,20 @@ data TwoWay:
           "solid", LN-CLR))
     end,
     
-    method make-top(self, wt, ht):
+    method make-top(self, wt, ht, totals):
     
+      levels-list = block:
+        if totals == true:
+          self.Bfancy.lvls + [list: "Total"]
+        else:
+          self.Bfancy.lvls
+        end
+      end
       levels = fold(beside, empty-image, map(
           lam(x):
             block-letter(
               x, FG-CLR, BG-CLR, LN-CLR, wt, ht).display-up() 
-          end, self.Bfancy.lvls + [list: "Total"]))
+          end, levels-list))
 
       label = block-letter(
         self.Bfancy.cat, 
@@ -625,14 +658,22 @@ data TwoWay:
           "solid",LN-CLR))
     end,
 
-    method make-left(self, wt, ht):
+    method make-left(self, wt, ht, totals):
+      
+      levels-list = block:
+        if totals == true:
+          self.Afancy.lvls + [list: "Total"]
+        else:
+          self.Afancy.lvls
+        end
+      end
       
       levels = fold(above, empty-image, map(
           lam(x):
             block-letter(
               x, FG-CLR, BG-CLR, LN-CLR, wt, ht).display-left() 
           end, 
-          self.Afancy.lvls + [list: "Total"]))
+          levels-list))
         
       label = block-letter(
         self.Afancy.cat, 
@@ -648,7 +689,7 @@ data TwoWay:
           "solid",LN-CLR))
     end,
 
-    method make-display(self, clr1, clr2):
+    method make-display(self, clr1, clr2, totals):
 
       # first thing we need to do is find the width of our 
       # grid cells. (height is set by the constants SIZE
@@ -689,9 +730,9 @@ data TwoWay:
       
       # Now we can build our display
 
-      grid = self.make-grid(clr1, clr2, cell-width, SIZE)
-      top  = self.make-top(cell-width, SIZE)
-      left = self.make-left(left-width, SIZE)
+      grid = self.make-grid(clr1, clr2, cell-width, SIZE, totals)
+      top  = self.make-top(cell-width, SIZE, totals)
+      left = self.make-left(left-width, SIZE, totals)
       
       beside-align("bottom", left, above(top, grid))
     end,
@@ -703,37 +744,49 @@ data TwoWay:
     method display(self):
       clr1   = self.display-text-colors()
       clr2   = self.display-colors()
-      self.make-display(clr1, clr2)
+      self.make-display(clr1, clr2, true)
+    end,
+    
+    method display-wo-totals(self):
+      clr1   = self.display-text-colors()
+      clr2   = self.display-colors()
+      self.make-display(clr1, clr2, false)
     end,
         
     method display-jointP(self, a,b):
       clr1   = self.display-text-colors()
       clr2   = self.joint-colors(a, b)
-      self.make-display(clr1, clr2)
+      self.make-display(clr1, clr2, true)
     end,
     
     method display-marginalP(self, cat,lvl):
       clr1   = self.display-text-colors()
       clr2   = self.marginal-colors(cat, lvl)
-      self.make-display(clr1, clr2)
+      self.make-display(clr1, clr2, true)
     end,
 
     method display-conditionalP(self, Pcat, Plvl, Gcat, Glvl):
       clr1   = self.display-text-colors()
       clr2   = self.conditional-colors(Pcat, Plvl, Gcat, Glvl)
-      self.make-display(clr1, clr2)
+      self.make-display(clr1, clr2, true)
     end,
 
-    method heatmap(self):
-      clr1   = self.heatmap-text-colors()
-      clr2   = self.heatmap-colors()
-      self.make-display(clr1, clr2)
+    method heatmap(self, ceiling):
+      clr1   = self.heatmap-text-colors(ceiling)
+      clr2   = self.heatmap-colors(ceiling)
+      self.make-display(clr1, clr2, true)
     end,
     
-    method sums(self):
+    method heatmap-wo-totals(self, ceiling):
+      clr1   = self.heatmap-text-colors(ceiling)
+      clr2   = self.heatmap-colors(ceiling)
+      self.make-display(clr1, clr2, false)
+    end,
+    
+    method display-sums(self):
       clr1   = self.sums-text-colors()
       clr2   = self.sums-colors()
-      self.make-display(clr1, clr2)
+      self.make-display(clr1, clr2, false)
     end,
     
     # treats the first level as the affirmative level
@@ -834,6 +887,43 @@ fun twoD6(style):
   twoway-with-fancy-labels(A,B,A,B,m)
 end
 
+fun twoD10(style):
+  m = block: 
+    if style == "probability":
+      build-matrix(10,10, lam(i,j): 1/100 end) 
+    else if style == "sums":
+      build-matrix(10,10, lam(i,j): i + j + 2 end)
+    else:
+      build-matrix(10,10, lam(i,j): 1 end) 
+    end
+  end
+  A = feat("Die A", map(tostring, range(1,11)))
+  B = feat("Die B", map(tostring, range(1,11)))
+  
+  twoway-with-fancy-labels(A,B,A,B,m)
+end
+
+fun percentage-dice(style):
+  m = block: 
+    if style == "probability":
+      build-matrix(10,10, lam(i,j): 1/100 end) 
+    else if style == "sums":
+      build-matrix(10,10, lam(i,j): (i * 10) + j + 1 end)
+    else:
+      build-matrix(10,10, lam(i,j): 1 end) 
+    end
+  end
+  A = feat(
+    "Tens", 
+    [list: "00"] + map(lam(x): tostring(x * 10) end, range(1,10)))
+  B = feat(
+    "Ones", 
+    map(tostring, range(1,11)))
+  
+  twoway-with-fancy-labels(A,B,A,B,m)
+end
+
+
 # z-test analysis
 # this may not make sense to develop...still thinking
 # about it....
@@ -902,8 +992,8 @@ test2 = twoway-with-fancy-labels(
   fancy-labels("B",2),
   [matrix(2,2): 1,2,3,4]
   )
-
 |#
+
 
 
 |#
