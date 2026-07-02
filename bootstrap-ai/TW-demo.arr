@@ -48,7 +48,7 @@ CM2.heatmap("by n")
 # We can .normalize-rows and display the heatmap
 CM2.normalize-rows().heatmap("by rows")
 
-# If displaying totals does not make sense, we take them off
+# If displaying totals does not make sense, we can take them off
 CM2.normalize-rows().heatmap-wo-totals("by rows")
 
 
