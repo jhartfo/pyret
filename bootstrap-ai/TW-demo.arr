@@ -43,12 +43,15 @@ CM2 = TW.table-to-confusion-matrix(training, "species", swims-classifier)
 CM2
 
 # We can display it as a heatmap
-CM2.heatmap()
+CM2.heatmap("by n")
 
 # We can .normalize-rows and display the heatmap
-CM2.normalize-rows().heatmap()
+CM2.normalize-rows().heatmap("by rows")
 
-# we might create a verstion of .make-display() that drops the totals
-# and  sets a different ceiling for heatmaps besides .n()
+# If displaying totals does not make sense, we take them off
+CM2.normalize-rows().heatmap-wo-totals("by rows")
+
+
+
 
 
