@@ -68,6 +68,7 @@ fun htmap-txt(n):
   end
 end
 
+#|
 fun sums-clr(n):
   # We are striping with colors
   # so we are going just map n (mod 6)
@@ -82,7 +83,8 @@ fun sums-clr(n):
     | otherwise: "black"
   end
 end
-
+|#
+   
 fun sums-txt(n):
   if n > 12:
     "black"
@@ -91,6 +93,48 @@ fun sums-txt(n):
   end
 end
 
+fun rainbow(v):
+  x = num-modulo(num-round(v), 1530)
+  if x < (1 * 255):
+    color(255, num-modulo(x, 255), 0, 1)
+
+  else if x < (2 * 255):
+    color((255 - num-modulo(x, 255)), 255, 0, 1)
+  
+  else if x < (3 * 255):
+    color(0, 255, num-modulo(x, 255), 1)
+  
+  else if x < (4 * 255):
+    color(0, (255 - num-modulo(x, 255)), 255, 1)
+  
+  else if x < (5 * 255):
+    color(num-modulo(x, 255), 0, 255, 1)
+  
+  else:
+    color(255, 0, (255 - num-modulo(x, 255)), 1)
+    
+  end
+  
+end
+
+# shuffle(map(rr,range-by(0,1530, 1530 / n)))
+sums-clr :: Number, Boolean -> Function
+fun sums-clr(n, shuffled):
+  clrs = block:
+    if shuffled:
+      shuffle(map(rainbow,range-by(0,1530, 1530 / n)))
+    else:
+      map(rainbow,range-by(0,1530, 1530 / n))
+    end
+  end
+  lam(x :: NumInteger): 
+    if x <= n:
+      clrs.get(x - 1)
+    else:
+      "white"
+    end
+  end
+end
 
 ############################################################
 # Data : Feature
@@ -575,12 +619,12 @@ data TwoWay:
       map(lam(i): map(htmap-txt, i) end, clr-mtx)
     end,
     
-    method sums-colors(self) -> List<List>:
+    method sums-colors(self,n, shuffled) -> List<List>:
       clr-mtx = mtx-to-lists(self.withTotals())
-      
+      clr-fn = sums-clr(n, shuffled)
       # Now we map those levels to specific colours 
       # to the a list of lists 
-      map(lam(i): map(sums-clr, i) end, clr-mtx)
+        map(lam(i): map(clr-fn, i) end, clr-mtx)
     end,
     
     method sums-text-colors(self) -> List<List>:
@@ -783,9 +827,9 @@ data TwoWay:
       self.make-display(clr1, clr2, false)
     end,
     
-    method display-sums(self):
+    method display-sums(self,n, shuffled):
       clr1   = self.sums-text-colors()
-      clr2   = self.sums-colors()
+      clr2   = self.sums-colors(n, shuffled)
       self.make-display(clr1, clr2, false)
     end,
     
@@ -993,6 +1037,9 @@ test2 = twoway-with-fancy-labels(
   [matrix(2,2): 1,2,3,4]
   )
 |#
+
+
+
 
 
 
