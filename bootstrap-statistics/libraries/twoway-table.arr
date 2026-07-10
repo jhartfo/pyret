@@ -114,7 +114,7 @@ fun sums-clr(n, shuffled):
     if x <= n:
       clrs.get(x - 1)
     else:
-      "white"
+      BG-CLR
     end
   end
 end
