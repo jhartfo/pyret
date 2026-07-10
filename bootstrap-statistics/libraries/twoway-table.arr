@@ -67,23 +67,6 @@ fun htmap-txt(n):
     LN-CLR
   end
 end
-
-#|
-fun sums-clr(n):
-  # We are striping with colors
-  # so we are going just map n (mod 6)
-  # to a unique colors
-  ask:
-    | num-modulo(n,6) == 0 then: "yellow"
-    | num-modulo(n,6) == 1 then: "orange"
-    | num-modulo(n,6) == 2 then: "tomato"
-    | num-modulo(n,6) == 3 then: "violet"
-    | num-modulo(n,6) == 4 then: "cornflower-blue"
-    | num-modulo(n,6) == 5 then: "aquamarine"
-    | otherwise: "black"
-  end
-end
-|#
    
 fun sums-txt(n):
   if n > 12:
