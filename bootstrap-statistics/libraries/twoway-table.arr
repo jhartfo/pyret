@@ -1001,6 +1001,17 @@ fun table-to-twoway(tbl, A, B):
   twoway-from-table(tbl, A, B)
 end
 
+##########################
+# Added demo functions for Long Beach 2026
+
+fun pred-given-actual(TW, A,B):
+  TW.display-conditionalP("Predicted", A, "Actual", B)
+end
+
+fun actual-given-pred(TW, A,B):
+  TW.display-conditionalP("Actual", A, "Predicted", B)
+end
+
 
 ########################################
 #|
