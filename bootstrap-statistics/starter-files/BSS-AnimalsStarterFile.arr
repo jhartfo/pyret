@@ -1,4 +1,3 @@
-
 use context url-file("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/data-science", "../libraries/core.arr")
 # Load your spreadsheet and define your table
 
