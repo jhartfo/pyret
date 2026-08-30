@@ -6,7 +6,7 @@ provide: * end
 # MAKE SURE WE ARE USING THE MOST CURRENT BRANCK.
 import url("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/libraries/core.arr") as Core
 provide from Core: 
-    * hiding(sort, filter, mean, median, modes, maximum, minimum, iqr, IQR, sum, range, stdev, q1, q3, factorial)
+    * hiding(mean, median, modes, maximum, minimum, iqr, IQR, sum, range, stdev, q1, q3, factorial)
 end
 
 import starter2024 as Starter
