@@ -1,4 +1,4 @@
-use context url-file("https://raw.githubusercontent.com/bootstrapworld/starter-files/fall2026/data-science", "../libraries/core.arr")
+use context url("https://raw.githubusercontent.com/jhartfo/pyret/mainlibraries/BSS-core.arr")
 # Load your spreadsheet and define your table
 
 shelter-sheet = load-spreadsheet(
