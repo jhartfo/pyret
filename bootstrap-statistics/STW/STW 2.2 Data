@@ -1,4 +1,6 @@
-use context shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8")
+use context starter2024
+
+provide *
 
 tabor = [list: 12, 17, 22, 25, 29, 31, 32, 32, 35, 35, 35, 36, 36, 37, 37, 37, 38, 38, 38, 38, 40, 40, 41, 42, 43, 44, 45, 45, 45, 48]
 
