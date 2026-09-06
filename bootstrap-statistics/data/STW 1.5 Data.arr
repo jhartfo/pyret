@@ -2,10 +2,6 @@ use context starter2024
 
 provide *
 
-use context starter2024
-
-provide *
-
 E9 = [list: 
   220, 249, 213, 245, 256, 182, 227, 223, 224, 149,
   288, 162, 220, 279, 146, 250, 307, 242, 306, 257,
