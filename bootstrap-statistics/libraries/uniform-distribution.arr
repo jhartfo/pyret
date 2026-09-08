@@ -74,6 +74,10 @@ fun z-scores(lst :: List<Number>%(is-all-numbers)) -> List:
   map(z-score(_, list-mean(lst), list-stdev(lst)), lst)
 end
 
+fun z-score-m-s(value, xbar, s):
+  (value - xbar) / s
+end
+
 fun R(
     X :: List<Number>%(is-all-numbers),
     Y :: List<Number>%(is-all-numbers)) -> Number:
