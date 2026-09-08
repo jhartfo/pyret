@@ -69,10 +69,13 @@ fun z-to-x(z :: Number, xbar :: Number, s :: Number) -> Number:
 end
 
 z-score = x-to-z
+standard-score = x-to-z
 
 fun z-scores(lst :: List<Number>%(is-all-numbers)) -> List:
   map(z-score(_, list-mean(lst), list-stdev(lst)), lst)
 end
+
+standard-scores = z-scores
 
 fun z-score-m-s(value, xbar, s):
   (value - xbar) / s
@@ -89,6 +92,51 @@ fun R2(
     Y :: List<Number>%(is-all-numbers)) -> Number:
   num-sqr(R(X,Y))
 end
+
+#|
+   fun r(x-list, y-list):
+  sum(map2(_ * _, z-scores(x-list),z-scores(y-list ))) / (length(x-list) - 1)
+end
+  
+fun slope(x-list, y-list):
+  r(x-list, y-list) * (stdDev(y-list) / stdDev(x-list))
+end
+
+fun intercept(x-list, y-list):
+  mean(y-list) - (slope(x-list, y-list) * mean(x-list))
+end
+
+fun interpolation(x-list, y-list):
+  model = lam(x): (slope(x-list, y-list) * x ) + intercept(x-list, y-list) end
+  
+  map(model, x-list)
+end
+
+fun residuals(x-list, y-list):
+  y-hat = interpolation(x-list, y-list)
+  map2(lam(x,y): x - y end, y-list, y-hat)
+end
+  
+fun residuals-sqr(x-list, y-list):
+  map(num-sqr,residuals(x-list, y-list))
+end
+
+fun residuals-stdDev(x-list, y-list):
+  num-sqrt(sum(residuals-sqr(x-list, y-list))) / (length(x-list) - 2)
+end
+
+fun mean-price-residuals-sqr(x-list, y-list):
+  map(lam(x): num-sqr(x - mean(y-list)) end, y-list)
+end
+
+fun r-sqr(x-list, y-list):
+  a = sum(mean-price-residuals-sqr(x-list, y-list))
+  b = sum(residuals-sqr(x-list, y-list))
+  (a - b) / a
+end
+
+|#
+
 
 fun list-median(lst :: List<Number>%(is-all-numbers)) -> Number:
     Stats.median(lst)
@@ -191,3 +239,7 @@ fun simulate-uniform(
     n      :: Number) -> List:
   map(lam(x):random-uniform(min,max,digits) end, range-by(0,n + 1,1))
 end
+
+
+
+
