@@ -1,0 +1,12 @@
+use contest starter 2024
+
+var CONST = 0
+
+fun update():
+  CONST := CONST + 1
+end
+
+
+
+
+
