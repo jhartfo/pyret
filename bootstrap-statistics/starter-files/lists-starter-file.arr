@@ -1,4 +1,4 @@
-use context shared-gdrive("modified_Bootstrap-DataScience-v2.2.arr", "11ZHV3T0ElK7EOdX7PDV7X2yHoTag6rq8")
+use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/core-bss.arr")
 
 # in Pyret, Lists are an ordered container that holds 
 # information from other data types
