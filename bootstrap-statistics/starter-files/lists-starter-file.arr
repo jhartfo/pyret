@@ -19,9 +19,9 @@ br = rectangle(300, 10, "solid", "blue")
 # the other temperature scale
 
 # c-to-f :: Number -> Number 
-fun f-to-c(f): 5/9 * (f - 32) end
+fun f-to-c(f): 5/9 * (f - 32) end # Fahrenheit to Celsius
 # f-to-c :: Number -> Number
-fun c-to-f(c): (9/5 * c) + 32 end
+fun c-to-f(c): (9/5 * c) + 32 end # Celsius to Fahrenheit
 
 ######################################
 # Below we have defined a few example lists defined
@@ -36,7 +36,7 @@ list-6 = [list: "'Strive ",  "not ", "to ", "be ", "a ", "success, ", "but ", "r
 list-7 = [list: true, false, true, true, false, true, true]
 list-8 = [list: rc, wc, bc]
 list-9 = [list: rr, wr, rr, wr, rr, wr, rr, wr, rr, wr, rr, wr, rr]
-
+list-d = [list: 0, 100, 32, 212]
 
 
 
