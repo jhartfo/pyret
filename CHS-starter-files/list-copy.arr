@@ -13,6 +13,10 @@ import valueskeleton as VS
 # allow running directly on CPO/PBO.
 # In particular, many methods were redefined
 # independent from the function equivalent.
+#
+# Additionally, where blocks are commented out. 
+# there is <error rendering embedded value; details logged to console>
+# for all functions that produce Lists
 
 # List come in two flavors: and empty and a link
 # each with its own methods plus some share methods
