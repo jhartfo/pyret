@@ -1,4 +1,4 @@
-use context essentials2020
+use context empty-context
 #lang pyret/library
 provide *
 provide-types *
@@ -9,7 +9,16 @@ include either
 import equality as equality
 import valueskeleton as VS
 
+# some changes wher edone to the original library to 
+# allow running directly on CPO/PBO.
+# In particular, many methods were redefined
+# independent from the function equivalent.
+
+# List come in two flavors: and empty and a link
+# each with its own methods plus some share methods
 data List<a>:
+
+    ###############################################
   | empty with:
     method length(self :: List<a>) -> Number:
       doc: "Takes no other arguments and returns the number of links in the list"
@@ -84,6 +93,8 @@ data List<a>:
             sorted by the default ordering and equality```
       self
     end,
+    
+    ###############################################
   | link(first :: a, rest :: List<a>) with:
 
     method length(self :: List<a>) -> Number:
@@ -91,18 +102,40 @@ data List<a>:
       1 + self.rest.length()
     end,
 
-    method partition(self :: List<a>, f :: (a -> Boolean)) -> {is-true :: List<a>, is-false :: List<a>}:
+    method partition(self :: List<a>, f :: (a -> Boolean)) -> {is-true :: List<a>, is-false :: List<a>} block:
       doc: ```Takes a predicate and returns an object with two fields:
             the 'is-true' field contains the list of items in this list for which the predicate holds,
             and the 'is-false' field contains the list of items in this list for which the predicate fails```
-      partition(f, self)
+      var is-true = empty
+      var is-false = empty
+      fun help(inner-lst):
+        if is-empty(inner-lst) block:
+          nothing
+        else:
+          help(inner-lst.rest)
+          if f(inner-lst.first):
+            is-true := inner-lst.first ^ link(_, is-true)
+          else:
+            is-false := inner-lst.first ^ link(_, is-false)
+          end
+        end
+      end
+      help(self)
+      { is-true: is-true, is-false: is-false }
     end,
 
     method find(self :: List<a>, f :: (a -> Boolean)) -> Option<a>:
       doc: "Takes a predicate and returns on option containing either the first item in this list that passes the predicate, or none"
-      find(f, self)
+      if is-empty(self):
+        none
+      else:
+        if f(self.first):
+          some(self.first)
+        else:
+          self.rest.find(f)
+        end
+      end
     end,
-
     method member(self :: List<a>, elt :: a) -> Boolean:
       doc: "Returns true when the given element is equal to a member of this list"
       (elt == self.first) or self.rest.member(elt)
@@ -146,9 +179,69 @@ data List<a>:
       doc: ```Takes a comparator to check for elements that are strictly greater
             or less than one another, and an equality procedure for elements that are
             equal, and sorts the list accordingly.  The sort is guaranteed to be stable.```
-      stable-sort-by(self, cmp, eq)
+      fun mergesort(arr, scratch, low, high):
+        if ((high - low) <= 1) block:
+          arr
+        else:
+          mid = num-floor((low + high) / 2)
+          mergesort(arr, scratch, low, mid)
+          mergesort(arr, scratch, mid, high)
+          merge(arr, scratch, low, mid, high)
+          arr
+        end
+      end
+      fun merge(source, scratch, low, mid, high) block:
+        var curLowIdx = low
+        var curHiIdx = mid
+        var curCopyIdx = low
+        fun copyPart1():
+          when (curLowIdx < mid) and (curHiIdx < high) block:
+            curLow = raw-array-get(source, curLowIdx)
+            curHi = raw-array-get(source, curHiIdx)
+            if cmp(curLow, curHi) or eq(curLow, curHi) block:
+              raw-array-set(scratch, curCopyIdx, curLow)
+              curLowIdx := curLowIdx + 1
+            else:
+              raw-array-set(scratch, curCopyIdx, curHi)
+              curHiIdx := curHiIdx + 1
+            end
+            curCopyIdx := curCopyIdx + 1
+            copyPart1()
+          end
+        end
+        fun copyPart2():
+          when (curLowIdx < mid) block:
+            raw-array-set(scratch, curCopyIdx, raw-array-get(source, curLowIdx))
+            curLowIdx := curLowIdx + 1
+            curCopyIdx := curCopyIdx + 1
+            copyPart2()
+          end
+        end
+        fun copyPart3():
+          when (curHiIdx < high) block:
+            raw-array-set(scratch, curCopyIdx, raw-array-get(source, curHiIdx))
+            curHiIdx := curHiIdx + 1
+            curCopyIdx := curCopyIdx + 1
+            copyPart2()
+          end
+        end
+        fun copyPart4(cur):
+          when cur < high block:
+            raw-array-set(source, cur, raw-array-get(scratch, cur))
+            copyPart4(cur + 1)
+          end
+        end
+        copyPart1()
+        copyPart2()
+        copyPart3()
+        copyPart4(low)
+        source
+      end
+      arr = raw-array-from-list(self)
+      scratch = raw-array-from-list(self)
+      raw-array-to-list(mergesort(arr, scratch, 0, raw-array-length(arr)))
     end,
-
+    
     method sort-by(self :: List<a>, cmp :: (a, a -> Boolean), eq :: (a, a -> Boolean)) -> List<a> block:
       doc: ```Takes a comparator to check for elements that are strictly greater
             or less than one another, and an equality procedure for elements that are
@@ -178,6 +271,8 @@ data List<a>:
             sorted by the default ordering and equality```
       self.sort-by(lam(e1,e2): e1 < e2 end, within(~0))
     end,
+    
+    ###############################################
 sharing:
   method _output(self :: List<a>) -> VS.ValueSkeleton: VS.vs-collection("list", self.map(VS.vs-value)) end,
 
@@ -187,64 +282,126 @@ sharing:
 
   method map<b>(self, f :: (a -> b)) -> List<b>:
     doc: "Takes a function and returns a list of the result of applying that function every element in this list"
-    map(f, self)
+    builtins.raw-list-map(f, self)
   end,
 
   method filter(self :: List<a>, f :: (a -> Boolean)) -> List<a>:
     doc: "Takes a predicate and returns a list containing the items in this list for which the predicate returns true."
-    filter(f, self)
+    builtins.raw-list-filter(f, self)
   end,
 
-  method each(self :: List<a>, f :: (a -> Nothing)) -> Nothing:
+  method each(self :: List<a>, f :: (a -> Nothing)) -> Nothing block:
     doc: "Takes a function and calls that function for each element in the list. Returns nothing"
-    each(f, self)
+    self.fold(lam(_, elt): f(elt) end, nothing)
+    nothing
   end,
 
   method reverse(self :: List<a>) -> List<a>:
     doc: "Returns a new list containing the same elements as this list, in reverse order"
-    reverse(self)
+    self.fold(lam(acc, elt): link(elt, acc) end, empty)
   end,
 
   method push(self :: List<a>, elt :: a) -> List<a>:
     doc: "Adds an element to the front of the list, returning a new list"
     link(elt, self)
   end,
-  method split-at(self :: List<a>, n :: Number) -> { prefix :: List<a>, suffix :: List<a> }:
+  method split-at(self :: List<a>, n :: Number) -> { prefix :: List<a>, suffix :: List<a> } block:
     doc: "Splits this list into two lists, one containing the first n elements, and the other containing the rest"
-    split-at(n, self)
+    var prefix = empty
+    var suffix = empty
+    fun help(ind, l):
+      if ind == 0: suffix := l
+      else:
+        cases(List) l block:
+          | empty => raise("Index too large")
+          | link(fst, rst) =>
+            help(ind - 1, rst)
+            prefix := fst ^ link(_, prefix)
+        end
+      end
+    end
+    help(n, self)
+    { prefix: prefix, suffix: suffix }
   end,
   method take(self :: List<a>, n :: Number) -> List<a>:
     doc: "Returns the first n elements of this list"
-    split-at(n, self).prefix
+    self.split-at(n).prefix
   end,
   method drop(self :: List<a>, n :: Number) -> List<a>:
     doc: "Returns all but the first n elements of this list"
-    split-at(n, self).suffix
+    self.split-at(n).suffix
   end,
 
   method get(self :: List<a>, n :: Number) -> a:
     doc: "Returns the nth element of this list, or raises an error if n is out of range"
-    get(self, n)
+    fun help(l, cur):
+      if is-empty(l): raise("get: n too large " + tostring(n))
+      else if cur == 0: l.first
+      else: help(l.rest, cur - 1)
+      end
+    end
+    if n < 0: raise("get: invalid argument: " + tostring(n))
+    else: help(self, n)
+  end
   end,
   method set(self :: List<a>, n :: Number, e :: a) -> List<a>:
     doc: "Returns a new list with the nth element set to the given value, or raises an error if n is out of range"
-    set(self, n, e)
+    fun help(l, cur):
+      if is-empty(l): raise("set: n too large " + tostring(n))
+      else if cur == 0: e ^ link(_, l.rest)
+      else: l.first ^ link(_, help(l.rest, cur - 1))
+      end
+    end
+    if n < 0: raise("set: invalid argument: " + tostring(n))
+    else: help(self, n)
+    end
   end,
-  method remove(self :: List<a>, e :: a) -> List<a>:
+  method remove(self :: List<a>, elt :: a) -> List<a>:
     doc: "Returns the list without the element if found, or the whole list if it is not"
-    remove(self, e)
+    if is-empty(self):
+      empty
+    else:
+      if elt == self.first:
+        self.rest.remove(elt)
+      else:
+        link(self.first, self.restremove(elt))
+      end
+    end
   end,
   method join-str(self :: List<a>, sep :: String) -> String:
     doc: ```Returns a string containing the tostring() forms of the elements of this list,
           joined by the provided separator string.```
-    join-str(self, sep)
+    builtins.raw-list-join-str-last(self, sep)
   end,
   method join-str-last(self :: List<a>, sep :: String, last-sep :: String) -> String:
     doc: ```Returns a string containing the tostring() forms of the elements of this list,
             joined by the provided separator string, and the provided last-separator before the last string```
-    join-str-last(self, sep, last-sep)
+    builtins.raw-list-join-str-last(self, sep, last-sep)
   end,
+  
+  #Added
+  method fold(self, f, base :: a) -> a:
+    doc: ```Takes a function, an initial value and a list, and folds the function over the list from the left,
+        starting with the initial value```
+    builtins.raw-list-fold(f, base, self)
+  end,  
+  
+  
 end
+
+###################################################
+
+list = {
+  make: raw-array-to-list,
+  make0: lam(): empty end,
+  make1: lam(a): link(a, empty) end,
+  make2: lam(a, b): link(a, link(b, empty)) end,
+  make3: lam(a, b, c): link(a, link(b, link(c, empty))) end,
+  make4: lam(a, b, c, d): link(a, link(b, link(c, link(d, empty)))) end,
+  make5: lam(a, b, c, d, e): link(a, link(b, link(c, link(d, link(e, empty))))) end,
+}
+
+###################################################
 
 fun length<a>(lst :: List<a>) -> Number:
   doc: "Takes a list and returns the number of links in the list"
@@ -968,12 +1125,5 @@ member-always3 = member3
 member-always = member
 foldl = fold
 
-list = {
-  make: raw-array-to-list,
-  make0: lam(): empty end,
-  make1: lam(a): link(a, empty) end,
-  make2: lam(a, b): link(a, link(b, empty)) end,
-  make3: lam(a, b, c): link(a, link(b, link(c, empty))) end,
-  make4: lam(a, b, c, d): link(a, link(b, link(c, link(d, empty)))) end,
-  make5: lam(a, b, c, d, e): link(a, link(b, link(c, link(d, link(e, empty))))) end,
-}
+
+
