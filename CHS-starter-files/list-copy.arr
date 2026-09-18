@@ -432,10 +432,10 @@ fun same-length<a, b>(lst1 :: List<a>, lst2 :: List<b>) -> Boolean:
         | link(_, rest2) => same-length(rest1, rest2)
       end
   end
-where:
+#|where:
   same-length([list: 1, 2], [list: true, false]) is true
   same-length([list: 1, 2, 3], [list: true, false]) is false
-  same-length([list: ], [list: true, false]) is false
+  same-length([list: ], [list: true, false]) is false |#
 end
 
 fun longer-than<a>(lst :: List<a>, len :: Number) -> Boolean:
@@ -444,10 +444,10 @@ fun longer-than<a>(lst :: List<a>, len :: Number) -> Boolean:
     | empty => len < 0
     | link(_, rest) => (len < 1) or longer-than(rest, len - 1)
   end
-where:
+#|where:
   longer-than([list: 1, 2, 3], 2) is true
   longer-than([list: 1, 2, 3], 4) is false
-  longer-than([list:], 0) is false
+  longer-than([list:], 0) is false |#
 end
 
 fun shorter-than<a>(lst :: List<a>, len :: Number) -> Boolean:
@@ -456,10 +456,10 @@ fun shorter-than<a>(lst :: List<a>, len :: Number) -> Boolean:
     | empty => len > 0
     | link(_, rest) => (len > 1) and shorter-than(rest, len - 1)
   end
-where:
+#|where:
   shorter-than([list: 1, 2, 3], 2) is false
   shorter-than([list: 1, 2, 3], 4) is true
-  shorter-than([list:], 0) is false
+  shorter-than([list:], 0) is false|#
 end
 
 fun get<a>(lst :: List<a>, n :: Number) -> a:
@@ -492,9 +492,9 @@ end
 fun reverse<a>(lst :: List<a>) -> List<a>:
   doc: "Returns a new list containing the same elements as this list, in reverse order"
   fold(lam(acc, elt): link(elt, acc) end, empty, lst)
-where:
+#|where:
   reverse([list: ]) is [list: ]
-  reverse([list: 1, 3]) is [list: 3, 1]
+  reverse([list: 1, 3]) is [list: 3, 1]|#
 end
 
 fun push<a>(l :: List<a>, elt :: a) -> List<a>:
@@ -618,13 +618,13 @@ fun range-by(start :: Number, stop :: Number, delta :: Number) -> List<Number>:
     len = num-max(num-ceiling((stop - start) / delta), 0)
     raw-array-to-list(raw-array-build(lam(i): start + (i * delta) end, len))
   end
-where:
+#|where:
   range-by(1, 10, 4) is [list: 1, 5, 9]
   range-by(10, 1, -4) is [list: 10, 6, 2]
   range-by(3, 20, 9) is [list: 3, 12]
   range-by(20, 3, 9) is empty
   range-by(20, 3, -9) is [list: 20, 11]
-  range-by(2, 3, 0) raises "interval of 0"
+  range-by(2, 3, 0) raises "interval of 0"|#
 end
 
 fun repeat<a>(n :: Number, e :: a) -> List<a>:
@@ -1094,31 +1094,31 @@ fun take-while<A>(pred :: (A -> Boolean), lst :: List<A>) -> {List<A>; List<A>}:
     end
   end
   { help(lst); tail }
-where:
+#|where:
   take-while(_ > 0, [list: 5, 3, 1, 0, 1, 2, 3]) is { [list: 5, 3, 1]; [list: 0, 1, 2, 3] }
   take-while(_ > 0, empty) is { empty; empty }
   take-while(_ > 0, [list: 0, 1, 2, 3]) is { empty; [list: 0, 1, 2, 3] }
   take-while(_ > 0, [list: 5, 4, 3, 2, 1]) is { [list: 5, 4, 3, 2, 1]; empty }
-  take-while(_ == true, [list: true, true, false, true]) is { [list: true, true]; [list: false, true] }
+  take-while(_ == true, [list: true, true, false, true]) is { [list: true, true]; [list: false, true] }|#
 end
 
 fun join-str<a>(l :: List<a>, sep :: String) -> String:
   builtins.raw-list-join-str-last(l, sep, sep)
-where:
+#|where:
   join-str([list: 1, "2", 3], "+") is "1+2+3"
   join-str([list: ], "+") is ""
   join-str([list: 1], "+") is "1"
-  join-str([list: 1, 2], "+") is "1+2"
+  join-str([list: 1, 2], "+") is "1+2"|#
 end
 
 fun join-str-last<a>(l :: List<a>, sep :: String, last-sep :: String) -> String:
   builtins.raw-list-join-str-last(l, sep, last-sep)
-where:
+#|where:
   join-str-last([list: 1, "2", 3], "+", "-") is "1+2-3"
   join-str-last([list: ], "+", "-") is ""
   join-str-last([list: 1], "+", "-") is "1"
   join-str-last([list: 1, 2], "+", "-") is "1-2"
-  join-str-last([list: 1, 2, 3, 4], "+", "-") is "1+2+3-4"
+  join-str-last([list: 1, 2, 3, 4], "+", "-") is "1+2+3-4"|#
 end
 
 fun build-list<A>(f :: (Number -> A), size :: Number) -> List<A>:
