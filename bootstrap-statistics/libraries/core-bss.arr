@@ -186,19 +186,19 @@ end
 ########################################################################
 # visualizing lists
 
-list-dot-plot :: List -> Image
-# consumes a List, cnverts it into a Table 
+list-dot-plot :: List, String -> Image
+# consumes a List, converts it into a Table 
 # creates a dot-plot
-fun list-dot-plot(lst) block:
-  tbl = list-to-table(lst)
+fun list-dot-plot(lst, lbl) block:
+  tbl = list-to-table(lst, "values")
   Core.dot-plot(tbl, "list values", "list values")
 end
   
 list-histogram :: List, Number -> Image
-# consumes a List and a Number, cnverts it into a Table 
+# consumes a List and a Number, converts it into a Table 
 # creates a histogram with the bin size set to the Numbern 
 fun list-histogram(lst, bin) block:
-  tbl = list-to-table(lst)
+  tbl = list-to-table(lst, "values")
   Core.histogram(tbl, "list values", "list values", bin)
 end
 
