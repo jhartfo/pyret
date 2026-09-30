@@ -4,7 +4,8 @@ provide:
   mystery01, mystery02, mystery03, mystery04,
   mystery05, mystery06, mystery07, mystery08,
   mystery09, mystery10, mystery11, mystery12,
-  mystery13, mystery14, mystery15, mystery16
+  mystery13, mystery14, mystery15, mystery16,
+  dists
 end
 
 import url-file(
