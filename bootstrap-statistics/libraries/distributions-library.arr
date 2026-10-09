@@ -52,11 +52,11 @@ fun csv-to-table(CSV):
   end
 end
 
-dists = shuffle(map(
+dists = map(
   lam(x):
     csv-to-table(csv-load(x)).get-column("x")
   end, 
-    CSVs))
+    CSVs)
 
 mystery01 = dists.get(0)
 mystery02 = dists.get(1)
