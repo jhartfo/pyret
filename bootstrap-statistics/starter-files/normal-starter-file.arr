@@ -4,8 +4,6 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 # ztable-im-neg 
 # ztable-im-pos 
 # ztable-image 
-# z-tab 
-# ztable
 
 
 
