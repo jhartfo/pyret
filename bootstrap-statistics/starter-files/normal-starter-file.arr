@@ -1,4 +1,4 @@
-use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/normal-distribution.arr")
+use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/normal-library.arr")
 
 # Click 'run.' Then interactions area, try typing 
 # 
