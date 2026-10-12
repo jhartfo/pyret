@@ -1,4 +1,4 @@
-use context
+use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr")
 provide *
 
 # Computing the values in the normal and t distributions 
