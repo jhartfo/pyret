@@ -2,13 +2,23 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 
 # This starter file contains lists 
 # (mystery01 through mystery16) each representing 
-# data collected from an unknown distribution
-# your job is to determine it shape; whether it is 
-# approximately symmetric, skewed left or skewed right;
-# mean (xbar), and standard deviation of the distribution (s),
-# the number of elements in the distribution (n); and a 
-# broad description of the distribution (you can paste in 
-# the histogram if you want.
+# data collected from an unknown distribution.
+
+# use the below lines of code below to find for each list: 
+# * Number of elements (n) ,
+# * Mean (xbar) ,
+# * Standard Deviation (s) ,
+# * Approximately Dymmeteric, Skewed Left, or Skewed right, and 
+# * a brief description of the distribution.
+# 
+# You may find it useful to view the histogram at different
+# bin sizes, and may wish to paste in the final histogram into 
+# the document you where you are answering these questions.
+#
+# Make sure this Typed Assignment is completed with MLA format
+# and turned in on Canvas.
+
+################################################3
 
 # A new function that might be helpful:
 
@@ -16,7 +26,6 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 # (remember the number is the bin size for the hisotgram
 
 # type up your results and turn them in on Canvas
-
 
 # Example
 list-1     = [list:2, 4, 6]

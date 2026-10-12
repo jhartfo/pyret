@@ -22,7 +22,8 @@ url-prefix =
   "https://raw.githubusercontent.com/jhartfo/pyret/" 
   + "main/bootstrap-statistics/data/"
 
-CSVs = [list:
+#|
+CSVs = [list: # in order
   "random-X2-n-1.csv",
   "random-X2-n-2.csv",
   "random-X2-n-3.csv",
@@ -38,8 +39,29 @@ CSVs = [list:
   "random-uniform-0-100.csv",
   "random-uniform-10-20.csv",
   "bimodal-328.csv",
-  "bimodal-819.csv",
+  "bimodal-819.csv"
 ]
+|#
+
+CSVs = [list: # shuffled
+  "random-uniform-0-1.csv", 
+  "random-X2-n-2.csv", 
+  "random-normal-70-10.csv", 
+  "random-X2-n-3.csv", 
+  "random-X2-n-1.csv", 
+  "random-uniform-10-20.csv", 
+  "random-binomial-50-10.csv", 
+  "random-binomial-10-10.csv", 
+  "random-X2-n-9.csv", 
+  "bimodal-328.csv", 
+  "random-normal-0-1.csv", 
+  "random-normal-10-1.csv", 
+  "random-binomial-90-10.csv", 
+  "bimodal-819.csv", 
+  "random-uniform-0-10.csv", 
+  "random-uniform-0-100.csv"
+]
+
 
 fun csv-load(CSV): 
   csv-table-url(url-prefix + CSV , { header-row: false }) 
