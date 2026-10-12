@@ -5,5 +5,9 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 # ztable-im-pos 
 # ztable-image 
 
+# these values are the same as above, but as Pyret tables
+# ztable-negative
+# ztable-positive
+
 
 
