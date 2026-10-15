@@ -1020,7 +1020,7 @@ fun relative-cols(TW):
   TW.normalize-cols()
 end
 
-fun relative-cols(TW):
+fun relative-rows(TW):
   TW.normalize-rows()
 end
 
