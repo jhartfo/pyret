@@ -1012,6 +1012,10 @@ fun actual-given-pred(TW, A,B):
   TW.display-conditionalP("Actual", A, "Predicted", B)
 end
 
+fun relative-table(TW):
+  TW.normalalize()
+end
+
 
 ########################################
 #|
