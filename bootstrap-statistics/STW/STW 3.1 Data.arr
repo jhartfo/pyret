@@ -17,7 +17,7 @@ E11 = TW.twoway(
       "Broken Glass",
       "No Broken Glass"]),
   TW.feat(
-    "@ording", 
+    "Wording", 
     [list: 
       "smashed into", 
       "Hit", 

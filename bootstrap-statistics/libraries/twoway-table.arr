@@ -1013,7 +1013,15 @@ fun actual-given-pred(TW, A,B):
 end
 
 fun relative-table(TW):
-  TW.normalalize()
+  TW.normalize()
+end
+
+fun relative-cols(TW):
+  TW.normalize-cols()
+end
+
+fun relative-cols(TW):
+  TW.normalize-rows()
 end
 
 
