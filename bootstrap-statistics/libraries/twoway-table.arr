@@ -1104,6 +1104,31 @@ fun relative-rows(TW):
   TW.normalize-rows()
 end
 
+fun segmented-bar-by-rows(TW):
+  TW.segmented-bar-by-rows()
+end
+
+fun segmented-bar-by-cols(TW):
+  TW.segmented-bar-by-cols()
+end
+
+fun stacked-bar-by-rows(TW):
+  TW.stacked-bar-by-rows()
+end
+
+fun stacked-bar-by-cols(TW):
+  TW.stacked-bar-by-cols()
+end
+
+fun multi-bar-by-rows(TW):
+  TW.multi-bar-by-rows()
+end
+
+fun multi-bar-by-cols(TW):
+  TW.multi-bar-by-cols()
+end
+
+
 
 ########################################
 #|
