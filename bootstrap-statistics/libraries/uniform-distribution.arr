@@ -25,9 +25,6 @@ is-all-numbers = _.all(is-number)
 #N = [list:"a", "b"]
 #O = [list:-3, 0, 3]
 
-TW-library = "https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/twoway-table.arr"
-
-
 fun list-mean(lst:: List<Number> %(is-all-numbers))-> Number:
     Stats.mean(lst)
 end
