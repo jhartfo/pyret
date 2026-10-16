@@ -10,6 +10,7 @@ end
 include valueskeleton
 include matrices
 include tables
+include reactors
 
 import math as M
 #include gdrive-sheets
@@ -96,7 +97,7 @@ fun rainbow(v):
   
   else:
     color(255, 0, (255 - num-modulo(x, 255)), 1)
-    
+ 
   end
   
 end
@@ -1247,10 +1248,7 @@ fun percentage-dice(style):
   twoway-with-fancy-labels(A,B,A,B,m)
 end
 
-# z-test analysis
-# this may not make sense to develop...still thinking
-# about it....
-fun zt(): ... end
+#########################################
 
 # twoway-from-table :: Table, String, String -> TwoWay
 # Consumes a Table and two column names (Strings) and
@@ -1311,7 +1309,16 @@ fun multi-bar-by-cols(TW):
   TW.multi-bar-by-cols()
 end
 
-##########################
+##########################################
+
+# z-test analysis
+# this may not make sense to develop...still thinking
+# about it....
+fun zt(): ... end
+
+
+
+##########################################
 # Added demo functions for Long Beach 2026
   
 fun pred-given-actual(TW, A,B):
