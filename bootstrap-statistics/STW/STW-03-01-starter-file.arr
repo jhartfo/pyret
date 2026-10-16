@@ -18,10 +18,13 @@ include url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-stat
 
 # Try typing:
 # superpowers
-# segmented-bar-by-rows(superpowers)
-# segmented-bar-by-cols(superpowers)
-# multi-bar-by-rows(superpowers)
+# relative-table(superpowers)
+#
 # multi-bar-by-cols(superpowers)
+# multi-bar-by-rows(superpowers)
+# segmented-bar-by-cols(superpowers)
+# segmented-bar-by-rows(superpowers)
+
 
 
 #####################################################
