@@ -1073,10 +1073,20 @@ end
     
 ##########################################
 
-fun twoway(A,B,m):
+# twoway is intended to be the primary way
+# of creating a TwoWay. tw and binary-tw
+# are intended to quickly and unceremoniously
+# create a TwoWay. 
+
+# twoway requires a Matrix of values along
+# with appropriate labels contained in Features
+fun twoway(A:: Feature, B:: Feature,m :: Matrix):
   twoway-with-fancy-labels(A,B,A,B,m)
 end
-  
+
+# tw only needs the Matrix containing the data
+# then, will on its own create generic "A" and "B"
+# labels
 fun tw(m):
   N = mtx-to-lists(m).length()
   M = mtx-to-lists(m).get(0).length()
@@ -1087,6 +1097,9 @@ fun tw(m):
     fancy-labels("B",M), m)
 end
 
+# Similar to tw, but here we know there will 
+# be exactly 4 values in a 2x2 matrix, so users
+# can simply provides those arguments listed by rows
 fun binary-tw(a,b,c,d):
   twoway-with-fancy-labels(
     feat("A", [list: "A", "~A"]),
