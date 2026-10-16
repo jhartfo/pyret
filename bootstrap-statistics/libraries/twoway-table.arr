@@ -383,13 +383,13 @@ data TwoWay:
       dummy-col = map(
         lam(x): [raw-row: {"dummy"; x}] end, col1)
       
-      dummy-table = fold(
+      base-table = fold(
         lam(x,y): x.add-row(y) end, 
         table: dummy end, dummy-col)
             
       fold2(
         lam(x,y,z): x.add-column(y,z) end, 
-        dummy-table, hdrs, cols
+        base-table, hdrs, cols
         ).rename-column("dummy", hdr1)      
     end,
     
@@ -405,13 +405,13 @@ data TwoWay:
       dummy-col = map(
         lam(x): [raw-row: {"dummy"; x}] end, col1)
       
-      dummy-table = fold(
+      base-table = fold(
         lam(x,y): x.add-row(y) end, 
         table: dummy end, dummy-col)
             
       fold2(
         lam(x,y,z): x.add-column(y,z) end, 
-        dummy-table, hdrs, cols
+        base-table, hdrs, cols
         ).rename-column("dummy", hdr1)      
     end,
     
@@ -568,9 +568,7 @@ data TwoWay:
     
     ##########################################
     # misc calculations
-    
-    method relative-risk(self): ... end,
-    method odds-ratio(self): ... end,
+      
     method expected-value(self): 
       A = list-to-col-matrix(self.row-totals())
       B = list-to-row-matrix(self.col-totals())
@@ -600,8 +598,59 @@ data TwoWay:
       (a * b) / c
     end,
     
-    method sensativity(self): ... end,
-    method specificity(self): ... end,
+    # Must be binary. 
+    # Assume that the TwoWay is a Confusion Matrix
+    # i.e, A is the Actual values (Positive or Negative)
+    # and B is the Predicted values (Positive or Negative)
+    method TP(self):
+      if self.is-binary():
+        self.m.get(0,0)
+      else:
+        raise("must be a binary two-way table.")
+      end
+    end,
+
+    method FN(self):
+      if self.is-binary():
+        self.m.get(0,1)
+      else:
+        raise("must be a binary two-way table.")
+      end
+    end,
+    
+    method FP(self):
+      if self.is-binary():
+        self.m.get(1,0)
+      else:
+        raise("must be a binary two-way table.")
+      end
+    end,
+
+    method TN(self):
+      if self.is-binary():
+        self.m.get(1,1)
+      else:
+        raise("must be a binary two-way table.")
+      end
+    end,
+    
+    method sensativity(self):
+      self.TP() / (self.TP() + self.FN())
+    end,
+    
+    method specificity(self): 
+      self.TN() / (self.TN() + self.FP())
+    end,
+    
+    method odds-ratio(self): 
+      (self.TP() * self.TN()) / (self.FN() * self.FP())
+    end,
+    
+    method relative-risk(self): 
+      n = self.TP() / (self.TP() + self.FP())
+      d = self.FN() / (self.FN() + self.TN())
+      n / d
+    end,
     
     #######################################
     # Displays the TwoWay as Bar Charts
@@ -609,8 +658,8 @@ data TwoWay:
     # bar charts organize by column or by row.
     # 
     # A segmented-bar-chart is a relative
-    # stacked-bar-chart to match Jimmy's
-    # textbook.
+    # stacked-bar-chart to match the language
+    # in Jimmy's textbook.
     
     method stacked-bar-by-cols(self):
       t = self.to-row-table()
@@ -997,6 +1046,32 @@ data TwoWay:
       self.make-display(clr1, clr2, true)
     end,
 
+    # assumes self is a binary confusion matrix
+    method display-sensativity(self):
+      if self.is-binary():
+        self.display-conditionalP(
+          self.B.cat, 
+          self.B.lvls.get(0), 
+          self.A.cat, 
+          self.A.lvls.get(0))
+      else:
+        raise("must be a binary two-way table.")
+      end
+    end,
+    
+    # assumes self is a binary confusion matrix
+    method display-specificity(self):
+      if self.is-binary():
+        self.display-conditionalP(
+          self.B.cat, 
+          self.B.lvls.get(1), 
+          self.A.cat, 
+          self.A.lvls.get(1))
+      else:
+        raise("must be a binary two-way table.")
+      end
+    end,
+    
     method heatmap(self, ceiling):
       clr1   = self.heatmap-text-colors(ceiling)
       clr2   = self.heatmap-colors(ceiling)
@@ -1035,7 +1110,7 @@ data TwoWay:
     # 
     # etc
     method venn(self):
-      if (self.Xlength() == 2) and (self.Ylength() == 2):
+      if self.is-binary():
         CB     = circle(100, "solid", VENN-R)
         CA     = circle(100, "solid", VENN-B)
         titleA = text(self.A.cat, 30, LN-CLR)
@@ -1064,7 +1139,7 @@ data TwoWay:
                       CA, BG-CTR - 60, 180, put-image(
                         CB, BG-CTR + 60, 180, BG))))))))
       else:
-        raise(".venn is only valid for binary two way tables.")
+        raise("must be a binary two-way table.")
       end
     end,
     method _output(self): vs-value(self.display()) end,
@@ -1106,6 +1181,16 @@ fun binary-tw(a,b,c,d):
     feat("B", [list: "B", "~B"]),
     feat("A", [list: "A", "~A"]),
     feat("B", [list: "B", "~B"]),
+    [matrix(2,2): a,b,c,d]
+    )
+end
+
+fun cm(a,b,c,d): 
+   twoway-with-fancy-labels(
+    feat(" Actual " , [list: "Positive", "Negative"]),
+    feat("Predicted", [list: "Positive", "Negative"]),
+    feat(" Actual " , [list: "Positive", "Negative"]),
+    feat("Predicted", [list: "Positive", "Negative"]),
     [matrix(2,2): a,b,c,d]
     )
 end
@@ -1189,41 +1274,8 @@ fun twoway-from-table(tbl, A, B):
   twoway-with-fancy-labels(Afeat,Bfeat, Afeat, Bfeat, m)
 end
 
-fun table-to-confusion-matrix(T, col, classifier):
-  PT      = T.build-column("predicted", classifier)
-  levels = UD.count(PT, col).get-column(col)
-  m       = lists-to-matrix(
-    map(
-      lam(a): 
-        map(lam(b): 
-            PT
-              .filter-by(col, lam(x): x == a end)
-              .filter-by("predicted", lam(x): x == b end).length()
-          end, levels)
-      end,levels))
-  A = feat("Actual"   , map(tostring,levels))
-  B = feat("Predicted", map(tostring,levels))
-  twoway-with-fancy-labels(A,B,A,B,m)
-end
-
-# synonym for twoway-from-table
-# for some reason pyret does not like 
-# table-to-twoway = twoway-from-table . . . 
-fun table-to-twoway(tbl, A, B): 
-  twoway-from-table(tbl, A, B)
-end
-
-##########################
-# Added demo functions for Long Beach 2026
-
-fun pred-given-actual(TW, A,B):
-  TW.display-conditionalP("Predicted", A, "Actual", B)
-end
-
-fun actual-given-pred(TW, A,B):
-  TW.display-conditionalP("Actual", A, "Predicted", B)
-end
-
+table-to-twoway = twoway-from-table
+  
 fun relative-table(TW):
   TW.normalize()
 end
@@ -1260,6 +1312,33 @@ fun multi-bar-by-cols(TW):
   TW.multi-bar-by-cols()
 end
 
+##########################
+# Added demo functions for Long Beach 2026
+  
+fun pred-given-actual(TW, A,B):
+  TW.display-conditionalP("Predicted", A, "Actual", B)
+end
+
+fun actual-given-pred(TW, A,B):
+  TW.display-conditionalP("Actual", A, "Predicted", B)
+end
+  
+fun table-to-confusion-matrix(T, col, classifier):
+  PT      = T.build-column("predicted", classifier)
+  levels = UD.count(PT, col).get-column(col)
+  m       = lists-to-matrix(
+    map(
+      lam(a): 
+        map(lam(b): 
+            PT
+              .filter-by(col, lam(x): x == a end)
+              .filter-by("predicted", lam(x): x == b end).length()
+          end, levels)
+      end,levels))
+  A = feat("Actual"   , map(tostring,levels))
+  B = feat("Predicted", map(tostring,levels))
+  twoway-with-fancy-labels(A,B,A,B,m)
+end
 
 
 ########################################
