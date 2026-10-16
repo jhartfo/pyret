@@ -785,7 +785,8 @@ data TwoWay:
       label = block-letter(
         self.Afancy.cat, 
         FG-CLR, BG-CLR, LN-CLR, 
-        image-width(text(self.A.cat, FNT-SZ, FG-CLR)), 
+        image-width(
+          text(self.A.cat, FNT-SZ, FG-CLR)) + 20, 
         image-height(levels)).display-left()
       
       left = beside(label, levels)
