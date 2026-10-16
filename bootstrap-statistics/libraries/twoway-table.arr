@@ -371,12 +371,9 @@ data TwoWay:
         new-mtx.transpose())
     end,
     
-    # create a new TwoWay by combining cols/rows
-    # so that it is a binary TwoWay
-    method refractor(self):
-      ...
-    end,
-    
+    # outputs the Two-Way as a Pyret Table whose 
+    # headers are category B's levels and whose
+    # first column is category A's levels
     method to-col-table(self):
       hdrs = self.B.lvls
       cols = mtx-to-lists(self.m.transpose())
@@ -396,6 +393,9 @@ data TwoWay:
         ).rename-column("dummy", hdr1)      
     end,
     
+    # outputs the Two-Way as a Pyret Table whose 
+    # headers are category A's levels and whose
+    # first column is category B's levels
     method to-row-table(self):
       hdrs = self.A.lvls
       cols = mtx-to-lists(self.m)
@@ -415,6 +415,115 @@ data TwoWay:
         ).rename-column("dummy", hdr1)      
     end,
     
+    # create a new TwoWay by combining cols
+    # so that it is B is  binary variable
+    method refactor-columns(
+        self,
+        new-columns :: List<String>, 
+        selected-cols :: List<String>) block:
+      
+      when new-columns.length() > 2: raise(
+          "refactor-columns reduces the columns to 2 columns. " + 
+          "Please provide no more than 2 new column names.")
+      end
+      when not(all(member(self.B.lvls, _), selected-cols)): raise(
+          "provided columns must be existing column names.")
+      end
+      
+      new-cols = block:
+        if new-columns.length() == 2:
+          new-columns
+        else if new-columns.length() == 1:
+          new-columns + [list: "not " + new-columns.first]
+        else:
+          raise(          
+            "refactor-columns reduces the columns to 2 columns. " + 
+            "Please provide 2 new column names.")
+        end
+      end
+
+      unselected-cols = self.B.lvls.filter(
+        lam(x): not(member(selected-cols,x)) end
+        )
+      
+      fun assemble-selected(r):
+        fold(_ + _, 0,map(lam(c):r[c] end, selected-cols))
+      end
+      fun assemble-unselected(r):
+        fold(_ + _, 0,map(lam(c):r[c] end, unselected-cols))
+      end  
+      t = self.to-col-table()
+        .build-column("s", assemble-selected)
+        .build-column("u", assemble-unselected)
+      
+      m = lists-to-matrix([list:
+          t.get-column("s"),
+          t.get-column("u"),
+        ]).transpose()
+      
+      A = self.A
+      B = feat(self.B.cat, new-cols)
+      twoway(A,B,m)
+      
+    end,
+    
+    # create a new TwoWay by combining rows
+    # so that it is B is  binary variable
+    method refactor-rows(        
+        self,
+        new-Rows :: List<String>, 
+        selected-rows :: List<String>) block:
+      
+      when new-Rows.length() > 2: raise(
+          "refactor-columns reduces the row to 2 rows. " + 
+          "Please provide no more than 2 new row names.")
+      end
+      when not(all(member(self.A.lvls, _), selected-rows)): raise(
+          "provided rows must be existing row names.")
+      end
+      
+      new-rows = block:
+        if new-Rows.length() == 2:
+          new-Rows
+        else if new-Rows.length() == 1:
+          new-Rows + [list: "not " + new-Rows.first]
+        else:
+          raise(          
+            "refactor-rows reduces the columns to 2 rows. " + 
+            "Please provide 2 new row names.")
+        end
+      end
+
+      unselected-rows = self.A.lvls.filter(
+        lam(x): not(member(selected-rows,x)) end
+        )
+      
+      fun assemble-selected(r):
+        fold(_ + _, 0,map(lam(c):r[c] end, selected-rows))
+      end
+      fun assemble-unselected(r):
+        fold(_ + _, 0,map(lam(c):r[c] end, unselected-rows))
+      end  
+      t = self.to-row-table()
+        .build-column("s", assemble-selected)
+        .build-column("u", assemble-unselected)
+      
+      m = lists-to-matrix([list:
+          t.get-column("s"),
+          t.get-column("u"),
+        ])
+      
+      B = self.B
+      A = feat(self.A.cat, new-rows)
+      twoway(A,B,m)
+      
+    end,
+    
+    method is-binary(self):
+      if (self.Xlength() == 2) and (self.Ylength() == 2): true
+      else: false
+      end
+    end,
     
     ################################################
     # produces Joint, Marginal, and Conditional Probabilities
@@ -495,6 +604,14 @@ data TwoWay:
     method specificity(self): ... end,
     
     #######################################
+    # Displays the TwoWay as Bar Charts
+    # bootstrap's built-in multi- and stacked- 
+    # bar charts organize by column or by row.
+    # 
+    # A segmented-bar-chart is a relative
+    # stacked-bar-chart to match Jimmy's
+    # textbook.
+    
     method stacked-bar-by-cols(self):
       t = self.to-row-table()
 
