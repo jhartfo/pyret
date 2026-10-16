@@ -1247,7 +1247,6 @@ fun percentage-dice(style):
   twoway-with-fancy-labels(A,B,A,B,m)
 end
 
-
 # z-test analysis
 # this may not make sense to develop...still thinking
 # about it....
