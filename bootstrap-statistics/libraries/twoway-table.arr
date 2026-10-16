@@ -508,13 +508,13 @@ data TwoWay:
         t, t.column-names().first,t.column-names().rest)
     end,
     
-    method rel-stacked-bar-by-cols(self):
+    method segmented-bar-by-cols(self):
       t = self.normalize-cols().to-row-table()
 
       UD.stacked-bar-chart-summarized(
         t, t.column-names().first,t.column-names().rest)
     end,
-    method rel-stacked-bar-by-rows(self):
+    method segmented-bar-by-rows(self):
       t = self.normalize-rows().to-col-table()
 
       UD.stacked-bar-chart-summarized(

@@ -9,6 +9,19 @@ provide from TW: * ,
   data *
 end
 
+superpowers = TW.twoway(
+  TW.feat(
+    "Superpower",
+    [list: 
+      "Invisibility",
+      "Super Stength",
+      "Telepathy",
+      "Fly",
+      "Freeze Time"]),
+  TW.feat(
+    "Sex",
+    [list: "Female", "Male"]),
+  [matrix(5,2): 15,14,3,19,36,6,32,20,18,37])
 
 E11 = TW.twoway(
   TW.feat(
@@ -73,7 +86,7 @@ E14= TW.twoway(
   [matrix(5,2): 32,6,8,20,4,11,17,12,23,17]
   )
 
-
+ 
 
 
 
