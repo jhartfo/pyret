@@ -9,6 +9,7 @@ end
 
 include valueskeleton
 include matrices
+include tables
 
 import math as M
 #include gdrive-sheets
@@ -376,6 +377,45 @@ data TwoWay:
       ...
     end,
     
+    method to-col-table(self):
+      hdrs = self.B.lvls
+      cols = mtx-to-lists(self.m.transpose())
+      hdr1 = self.A.cat
+      col1 = self.A.lvls
+      
+      dummy-col = map(
+        lam(x): [raw-row: {"dummy"; x}] end, col1)
+      
+      dummy-table = fold(
+        lam(x,y): x.add-row(y) end, 
+        table: dummy end, dummy-col)
+            
+      fold2(
+        lam(x,y,z): x.add-column(y,z) end, 
+        dummy-table, hdrs, cols
+        ).rename-column("dummy", hdr1)      
+    end,
+    
+    method to-row-table(self):
+      hdrs = self.A.lvls
+      cols = mtx-to-lists(self.m)
+      hdr1 = self.B.cat
+      col1 = self.B.lvls
+      
+      dummy-col = map(
+        lam(x): [raw-row: {"dummy"; x}] end, col1)
+      
+      dummy-table = fold(
+        lam(x,y): x.add-row(y) end, 
+        table: dummy end, dummy-col)
+            
+      fold2(
+        lam(x,y,z): x.add-column(y,z) end, 
+        dummy-table, hdrs, cols
+        ).rename-column("dummy", hdr1)      
+    end,
+    
+    
     ################################################
     # produces Joint, Marginal, and Conditional Probabilities
     # of the Two Way Table
@@ -453,6 +493,46 @@ data TwoWay:
     
     method sensativity(self): ... end,
     method specificity(self): ... end,
+    
+    #######################################
+    method stacked-bar-by-cols(self):
+      t = self.to-row-table()
+
+      UD.stacked-bar-chart-summarized(
+        t, t.column-names().first,t.column-names().rest)
+    end,
+    method stacked-bar-by-rows(self):
+      t = self.to-col-table()
+
+      UD.stacked-bar-chart-summarized(
+        t, t.column-names().first,t.column-names().rest)
+    end,
+    
+    method rel-stacked-bar-by-cols(self):
+      t = self.normalize-cols().to-row-table()
+
+      UD.stacked-bar-chart-summarized(
+        t, t.column-names().first,t.column-names().rest)
+    end,
+    method rel-stacked-bar-by-rows(self):
+      t = self.normalize-rows().to-col-table()
+
+      UD.stacked-bar-chart-summarized(
+        t, t.column-names().first,t.column-names().rest)
+    end,
+    
+    method multi-bar-by-cols(self):
+      t = self.to-row-table()
+
+      UD.multi-bar-chart-summarized(
+        t, t.column-names().first,t.column-names().rest)
+    end,
+    method multi-bar-by-rows(self):
+      t = self.to-col-table()
+
+      UD.multi-bar-chart-summarized(
+        t, t.column-names().first,t.column-names().rest)
+    end,
     
     #######################################
     # This section provides methods to help
