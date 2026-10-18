@@ -160,10 +160,390 @@ fun normalPDF-code(m,s) block:
 end
    
 
-#|
+
 ###################################################   
 # Normal and Student's T Distribution Applet
 
+
+
+fun p-alpha(z):
+  N.normal-cdf(z)
+end
+
+fun test-statistic-for-p(p,n,h):
+  s = num-sqrt( (h * (1 - h)) / n  )
+  (p - h) / s
+end
+
+
+
+
+SCALE-X = 30
+
+fun normal-pdf-points(z):
+  point(z * SCALE-X, N.normal-pdf(z) * 200)   
+end
+
+fun get-normal-points(a,b):
+  map(normal-pdf-points, range-by(a,b, 0.01)) +
+  [list: point(b * SCALE-X, 0), point(a * SCALE-X, 0)]
+end
+
+fun draw-normal-solid(a,b,clr):
+  point-polygon(get-normal-points(a,b), "solid", clr)
+end
+
+fun draw-normal-line(a,b,clr):
+  point-polygon(get-normal-points(a,b), "outline", clr)
+end
+
+fun draw-normal-gap(a):
+  draw-normal-solid(-5,a,"transparent")
+end
+
+fun draw-normal-left(a, clr):
+  draw-normal-solid(-5,a, clr)
+end
+  
+fun draw-normal-a-to-b(a,b,clr):
+  beside-align("bottom",
+    draw-normal-gap(a),
+    draw-normal-solid(a,b, clr))
+end
+  
+fun draw-normal-right(b,clr):
+  beside-align("bottom",
+    draw-normal-gap(b),
+    draw-normal-solid(b,5, clr))
+end
+  
+hatch   = rectangle(1, 10, "solid", "black")
+
+horiz   = overlay(
+  rectangle(10 * SCALE-X, 1, "solid", "black"),
+  rectangle(10 * SCALE-X,20, "solid", "transparent"))
+
+l-arrow = overlay-align("right", "center",
+  rotate( 90, triangle(10, "solid", "black")),
+  rectangle(10,20, "solid", "transparent"))
+
+r-arrow = overlay-align("left", "center",
+  rotate(-90, triangle(10, "solid", "black")),
+  rectangle(10,20, "solid", "transparent"))
+
+
+one-line = beside(l-arrow, beside(
+    fold(
+      lam(y,x): translate(hatch, SCALE-X * x, 10, y) end, 
+      horiz, 
+      range-by(1,10, 1)
+      ), r-arrow))
+
+z-labels = fold(
+  lam(y ,x): 
+    translate(
+      text(num-to-string(x), 12, "black"), 
+      SCALE-X * (x + 5), 
+      10, y) 
+  end, 
+  rectangle(10 * SCALE-X, 20, "solid", "transparent"), 
+  range-by(-4,5, 1))
+
+fun x-labels(m,s): fold(
+    lam(y ,x): 
+      translate(
+        text(num-to-string-digits(
+            num-round(100 * ((x * s) + m)) / 100, 2
+            ), 12, "black"), 
+        SCALE-X * (x + 5), 
+        10, y) 
+    end, 
+    rectangle(10 * SCALE-X, 20, "solid", "transparent"), 
+    range-by(-4,5, 1))
+end
+
+fun num-lines(m,s):
+  fold(above, empty-image,[list:
+      one-line,
+      z-labels,
+      rectangle(10, 10, "solid", "transparent"),
+      one-line,
+      x-labels(m,s)
+    ])
+end
+
+
+
+BG = rectangle(12 * SCALE-X, 300, "solid", "white")
+
+fun draw-normal-left-tail(m,s, a):
+  translate(
+    text("z", 12, "black"), 15,110, translate(
+      text("x", 12, "black"), 15, 60, translate(
+        num-lines(m,s), 6 * SCALE-X, 75, translate(
+          overlay-align("left", "bottom",
+            draw-normal-line(-5,5, "blue"), 
+            draw-normal-left(a, "green")
+            ), 6 * SCALE-X, 150, BG
+          ))))
+end
+
+fun draw-normal-right-tail(m,s, b):
+  translate(
+    text("z", 12, "black"), 15,110, translate(
+      text("x", 12, "black"), 15, 60, translate(
+        num-lines(m,s), 6 * SCALE-X, 75, translate(
+          overlay-align("left", "bottom",
+            draw-normal-line(-5,5, "blue"), 
+            draw-normal-right(b, "green")
+            ), 6 * SCALE-X, 150, BG
+          ))))
+end
+
+fun draw-normal-between(m,s, a, b):
+  translate(
+    text("z", 12, "black"), 15,110, translate(
+      text("x", 12, "black"), 15, 60, translate(
+        num-lines(m,s), 6 * SCALE-X, 75, translate(
+          overlay-align("left", "bottom",
+            draw-normal-line(-5,5, "blue"), 
+            draw-normal-a-to-b(a,b, "green")
+            ), 6 * SCALE-X, 150, BG
+          ))))
+end
+
+fun draw-normal-left-and-right(m,s, a, b):
+  translate(
+    text("z", 12, "black"), 15,110, translate(
+      text("x", 12, "black"), 15, 60, translate(
+        num-lines(m,s), 6 * SCALE-X, 75, translate(
+          overlay-align("left", "bottom",
+            draw-normal-line(-5,5, "blue"), 
+            overlay-align("left", "bottom",
+              draw-normal-left(a, "green"),
+              draw-normal-right(b, "green")
+              )), 6 * SCALE-X, 150, BG
+          ))))
+end
+
+fun P-x-less-than(X,m,s):
+  Z = (X - m) / s
+  series = block:
+    if (Z > -5) and (Z < 5):
+      draw-normal-left-tail(m,s,Z)
+    else:
+      draw-normal-left-tail(m,s,-5)
+    end
+  end
+  fold-items = [list:
+    text("Standard Normal Distribution", 20, "black"),
+    text("P(X < " + num-to-string-digits(X,2) + ") =", 15, "black"),
+    text("P(Z < " + num-to-string-digits(Z,2) + ") \u2248 ", 15, "black"),
+    text(num-to-string-digits(N.normal-cdf(Z),4), 15, "black"),
+  ]
+  fold-x = [list:
+    6 * SCALE-X,6 * SCALE-X,6 * SCALE-X,6 * SCALE-X
+  ]
+  fold-y = [list:
+    280,250,230,210,190
+  ]
+    fold3(
+    lam(z,w, x,y): translate(w,x,y,z) end, 
+    series, fold-items, fold-x, fold-y
+    )
+  
+end
+
+fun P-x-greater-than(X,m,s):
+  Z = (X - m) / s
+  series = block:
+    if (Z > -5) and (Z < 5):
+      draw-normal-right-tail(m,s,Z)
+    else:
+      draw-normal-right-tail(m,s,-5)
+    end
+  end
+  fold-items = [list:
+    text("Standard Normal Distribution", 20, "black"),
+    text(
+      "P(X > " + 
+      num-to-string-digits(X,2) + 
+      ") = 1 - P(X < " +
+      num-to-string-digits(X,2) + 
+      ") ="
+      , 15, "black"),
+    text(
+      "P(Z > " + 
+      num-to-string-digits(Z,2) + 
+      ") = 1 - P(Z < " + 
+      num-to-string-digits(X,2) + 
+      ") \u2248 "
+      , 15, "black"),
+    text(num-to-string-digits(1 - N.normal-cdf(Z),4), 15, "black"),
+  ]
+  fold-x = [list:
+    6 * SCALE-X,6 * SCALE-X,6 * SCALE-X,6 * SCALE-X
+  ]
+  fold-y = [list:
+    280,250,230,210,190
+  ]
+    fold3(
+    lam(z,w, x,y): translate(w,x,y,z) end, 
+    series, fold-items, fold-x, fold-y
+    )
+  
+end
+
+fun P-x-between(a,b,m,s):
+  Za = (a - m) / s
+  Zb = (b - m) / s
+  series = block:
+    if (Za > -5) and (Zb < 5):
+      draw-normal-between(m,s,Za,Zb)
+    else:
+      draw-normal-between(m,s,-5,5)
+    end
+  end
+  fold-items = [list:
+    text("Standard Normal Distribution", 20, "black"),
+    text(
+      "P(" + 
+      num-to-string-digits(a,2) + 
+      " < x < " +
+      num-to-string-digits(b,2) + 
+      ") = P(X < " +
+      num-to-string-digits(a,2) + 
+      ") - P(X < " +
+      num-to-string-digits(b,2) + 
+      ") ="
+      , 15, "black"),
+    text(
+      "P(" + 
+      num-to-string-digits(Za,2) + 
+      " < Z < " + 
+      num-to-string-digits(Zb,2) + 
+      ") = P(Z < " +
+      num-to-string-digits(Za,2) + 
+      ") - P(Z < " +
+      num-to-string-digits(Zb,2) + 
+      ") \u2248"
+      , 15, "black"),
+    text(
+      num-to-string-digits(
+        N.normal-cdf(Zb) - N.normal-cdf(Za),4
+        ), 15, "black"),
+  ]
+  fold-x = [list:
+    6 * SCALE-X,6 * SCALE-X,6 * SCALE-X,6 * SCALE-X
+  ]
+  fold-y = [list:
+    280,250,230,210,190
+  ]
+    fold3(
+    lam(z,w, x,y): translate(w,x,y,z) end, 
+    series, fold-items, fold-x, fold-y
+    )
+  
+end
+
+P-x-less-than(0.5,0,1)
+P-x-greater-than(0.5,0,1)
+
+
+fun draw-empirical-rule(s):
+  fun spread(n):
+    beside(
+      rectangle(1, 10, "solid", "black"), 
+      beside(
+        rectangle(n * SCALE-X, 1, "solid", "black"), 
+        rectangle(1, 10, "solid", "black")))
+  end
+  
+  c1 = block:
+    if s >= 1: C.color(0,0,255,0.33)
+    else: "transparent"
+    end
+  end
+  c2 = block:
+    if s >= 2: C.color(0,0,255,0.33)
+    else: "transparent"
+    end
+  end
+  c3 = block:
+    if s >= 3: C.color(0,0,255,0.33)
+    else: "transparent"
+    end
+  end
+  s1 = block:
+    if s >= 1:
+      above(
+        text("~68% of values lie in this range.", 
+          15, "black"),
+        spread(2))
+    else:
+      empty-image
+    end
+  end
+  s2 = block:
+    if s >= 2:
+      above(
+        text("~95% of values lie in this range.", 
+          15, "black"),
+        spread(4))
+    else:
+      empty-image
+    end
+  end
+  s3 = block:
+    if s >= 3:
+      above(
+        text("~97.5% of values lie in this range.",
+          15, "black"),
+        spread(6))
+    else:
+      empty-image
+    end
+  end
+
+  fold-items = [list:
+    one-line,
+    z-labels,
+    text("z", 12, "black"),
+    overlay-align("left", "bottom",
+      draw-normal-line(-5,5, "blue"), 
+      overlay-align("left", "bottom",
+        overlay-align("left", "bottom",
+          draw-normal-a-to-b(-1, 1, c1),
+              draw-normal-a-to-b(-2, 2, c2)
+          ),
+        draw-normal-a-to-b(-3, 3, c3))),
+    text("Standard Normal Distribution", 20, "black"),
+    text("Empirical Rule", 20, "blue"),
+    s1,s2,s3
+  ]
+  
+  fold-x = [list:
+    6 * SCALE-X, 6 * SCALE-X, 15,
+    6 * SCALE-X, 6 * SCALE-X, 6 * SCALE-X,
+    6 * SCALE-X, 6 * SCALE-X, 6 * SCALE-X
+  ]
+    
+  fold-y = [list:
+    61, 35,61,100,280,260, 150, 120,90    
+  ]
+  
+  fold3(
+    lam(z,w, x,y): translate(w,x,y,z) end, 
+    BG, fold-items, fold-x, fold-y
+    )
+ 
+end
+
+draw-empirical-rule(3)
+
+
+#|   
+   
 # Let's define some constants.
 
 # size of the square interaction window
