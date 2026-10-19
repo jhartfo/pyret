@@ -184,19 +184,26 @@ end
 # empirical rule for standards deviations up to the 
 # given Number
 
-#P-x-less-than    :: Number, Number, Number -> Image
+# empirical-rule      :: Number -> Reactor
+# Consumes a Number (0-3) and opens a reactor 
+# displaying the empirical rule for standards 
+# deviations up to the given Number. "up" and "down"
+# will change the number of standard deviations
+# being displayed
+
+#P-x-less-than        :: Number, Number, Number -> Image
 # consumes the numbers m,s,x and displays 
 # P(X < x) = P(Z < z) where z = (x - m) / s
 
-#P-x-greater-than :: Number, Number, Number -> Image
+#P-x-greater-than     :: Number, Number, Number -> Image
 # consumes the numbers m,s,x and displays 
 # P(X > x) = P(Z > z) where z = (x - m) / s
 
-#P-x-between      :: Number, Number, Number, Number -> Image
+#P-x-between          :: Number, Number, Number, Number -> Image
 # consumes the numbers m,s,a,b and displays
 # P(a < X < b) = P(Za < z <) where z = (x - m) / s
 
-#P-x-beyond       :: Number, Number, Number, Number -> Image
+#P-x-beyond           :: Number, Number, Number, Number -> Image
 # consumes the numbers m,s,a,b and displays
 # P(X < a or X > b) = P(Z < Za or Z > Zb) where z = (x - m) / s
 
@@ -645,4 +652,24 @@ fun draw-empirical-rule(s):
     BG, fold-items, fold-x, fold-y)
  
 end
+
+fun update-empirical(state, key):
+  if (key == "up") and (state < 3):
+    state + 1
+  else if  (key == "down") and (state > 0):
+    state - 1
+  else:
+    state
+  end
+end
+
+fun empirical-rule(n): interact(
+    reactor:
+      init: n,
+      on-key: update-empirical,
+      to-draw: draw-empirical-rule
+    end
+    )
+end
+
 
