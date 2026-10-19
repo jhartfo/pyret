@@ -200,12 +200,12 @@ end
 # consumes the numbers m,s,a,b and displays
 # P(X < a or X > b) = P(Z < Za or Z > Zb) where z = (x - m) / s
 
-SCALE-X = 30
-SCALE-Y = 200
-BG      = rectangle(12 * SCALE-X, 300, "solid", "white")
+SCALE-X = 30 * 3/2
+SCALE-Y = 200 * 3/2
+BG      = rectangle(12 * SCALE-X, 3/2 * SCALE-Y, "solid", "white")
 hatch   = rectangle(1, SCALE-Y / 20, "solid", "black")
-X-lbl   = text("z", (SCALE-Y * 3) / 50, "black")
-Z-lbl   = text("x", (SCALE-Y * 3) / 50, "black")
+Z-LBL   = text("z", (SCALE-Y * 3) / 50, "black")
+X-LBL   = text("x", (SCALE-Y * 3) / 50, "black")
 
 fun normal-pdf-points(z):
   point(z * SCALE-X, N.normal-pdf(z) * SCALE-Y)   
@@ -327,8 +327,8 @@ fun draw-normal-shaded(m,s,a,b, direction):
     end
   end
   translate(
-    X-lbl, SCALE-X / 2, (SCALE-Y * 11) / 20, translate(
-      Z-lbl, SCALE-X / 2, (SCALE-Y * 3) / 10, translate(
+    Z-LBL, SCALE-X / 2, (SCALE-Y * 11) / 20, translate(
+      X-LBL, SCALE-X / 2, (SCALE-Y * 3) / 10, translate(
         num-lines(m,s), 6 * SCALE-X, (SCALE-Y * 3) / 8, translate(
           series, 6 * SCALE-X, (SCALE-Y * 3) / 4, BG
           ))))
@@ -378,7 +378,7 @@ fun P-x-less-than(X,m,s):
     SCALE-Y * 1.40,
     SCALE-Y * 1.25,
     SCALE-Y * 1.15,
-    SCALE-Y * 0.95]
+    SCALE-Y * 1.05]
   
   fold3(
     lam(z,w, x,y): translate(w,x,y,z) end, 
@@ -429,7 +429,7 @@ fun P-x-greater-than(X,m,s):
     SCALE-Y * 1.40,
     SCALE-Y * 1.25,
     SCALE-Y * 1.15,
-    SCALE-Y * 0.95]
+    SCALE-Y * 1.05]
   
   fold3(
     lam(z,w, x,y): translate(w,x,y,z) end, 
@@ -479,7 +479,7 @@ fun P-x-between(a,b,m,s):
   end
   
   fold-items = [list:
-    info("Standard Normal Distribution", TITLE-SIZE, "black"),
+    info("Standard Normal Distribution", TITLE-SIZE),
     info(STRING-1, TXT-SIZE),
     info(STRING-2, TXT-SIZE),
     info(
@@ -491,7 +491,7 @@ fun P-x-between(a,b,m,s):
     SCALE-Y * 1.40,
     SCALE-Y * 1.25,
     SCALE-Y * 1.15,
-    SCALE-Y * 0.95]
+    SCALE-Y * 1.05]
   
   fold3(
     lam(z,w, x,y): translate(w,x,y,z) end, 
@@ -553,7 +553,7 @@ fun P-x-beyond(a,b,m,s):
     SCALE-Y * 1.40,
     SCALE-Y * 1.25,
     SCALE-Y * 1.15,
-    SCALE-Y * 0.95]
+    SCALE-Y * 1.05]
   
   fold3(
     lam(z,w, x,y): translate(w,x,y,z) end, 
@@ -621,7 +621,7 @@ fun draw-empirical-rule(s):
   fold-items = [list:
     one-line,
     z-labels,
-    Z-lbl,
+    Z-LBL,
     series,
     info("Standard Normal Distribution", TITLE-SIZE),
     text("Empirical Rule", TXT-SIZE, "blue"),
