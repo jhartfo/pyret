@@ -659,7 +659,7 @@ fun empirical-rule(n): interact(
 end
 
 
-fun z-test-left-tail(alpha, po, phat, n):  
+fun z-test-left-tail(alpha, n, po, phat):  
   s          = num-sqrt((po * (1 - po)) / n)
   Z          = (phat - po) / s
   Zalpha     = N.normal-inv-cdf(alpha)
