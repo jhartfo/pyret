@@ -160,20 +160,6 @@ fun normalPDF-code(m,s) block:
 end
    
 
-###################################################   
-# Hypothesis Testing for Proportions
-
-
-fun p-alpha(z):
-  N.normal-cdf(z)
-end
-
-fun test-statistic-for-p(p,n,h):
-  s = num-sqrt( (h * (1 - h)) / n  )
-  (p - h) / s
-end
-
-
 
 ###################################################   
 # Normal and Student's T Distribution 
@@ -306,31 +292,31 @@ fun num-lines(m,s):
     ])
 end
 
-fun draw-normal-shaded(m,s,a,b, direction):
+fun draw-normal-shaded(m,s,a,b, direction, ln-clr, sh-clr):
   series = block:
     if direction == "left":
       overlay-align("left", "bottom",
-        draw-normal-line(-5,5, "blue"), 
-        draw-normal-left(a, "green")
+        draw-normal-line(-5,5, ln-clr), 
+        draw-normal-left(a, sh-clr)
         )
     else if direction == "right":
       overlay-align("left", "bottom",
-        draw-normal-line(-5,5, "blue"), 
-        draw-normal-right(b, "green")
+        draw-normal-line(-5,5, ln-clr), 
+        draw-normal-right(b, sh-clr)
         )
     else if direction == "between":
       overlay-align("left", "bottom",
-        draw-normal-line(-5,5, "blue"), 
-        draw-normal-a-to-b(a,b, "green")
+        draw-normal-line(-5,5, ln-clr), 
+        draw-normal-a-to-b(a,b, sh-clr)
         )
     else if direction == "outer-area":
       overlay-align("left", "bottom",
-        draw-normal-line(-5,5, "blue"), 
+        draw-normal-line(-5,5, ln-clr), 
         overlay-align("left", "bottom",
-          draw-normal-left(a, "green"),
-          draw-normal-right(b, "green")))
+          draw-normal-left(a, sh-clr),
+          draw-normal-right(b, sh-clr)))
     else:
-      draw-normal-line(-5,5, "blue")
+      draw-normal-line(-5,5, ln-clr)
     end
   end
   translate(
@@ -341,20 +327,20 @@ fun draw-normal-shaded(m,s,a,b, direction):
           ))))
 end
   
-fun draw-normal-left-tail(m,s, a):
-  draw-normal-shaded(m,s,a,5, "left")
+fun draw-normal-left-tail(m,s,a,ln-clr,sh-clr):
+  draw-normal-shaded(m,s,a,5, "left", ln-clr, sh-clr)
 end
 
-fun draw-normal-right-tail(m,s, b):
-  draw-normal-shaded(m,s,-5,b, "right")
+fun draw-normal-right-tail(m,s,b,ln-clr,sh-clr):
+  draw-normal-shaded(m,s,-5,b, "right", ln-clr, sh-clr)
 end
 
-fun draw-normal-between(m,s, a, b):
-  draw-normal-shaded(m,s,a,b, "between")
+fun draw-normal-between(m,s,a,b,ln-clr,sh-clr):
+  draw-normal-shaded(m,s,a,b, "between", ln-clr, sh-clr)
 end
 
-fun draw-normal-left-and-right(m,s, a, b):
-  draw-normal-shaded(m,s,a,b, "outer-area")
+fun draw-normal-left-and-right(m,s,a,b,ln-clr,sh-clr):
+  draw-normal-shaded(m,s,a,b, "outer-area", ln-clr, sh-clr)
 end
 
 P-x-less-than :: Number, Number, Number -> Image
@@ -368,9 +354,9 @@ fun P-x-less-than(X,m,s):
   
   series     = block:
     if (Z > -5) and (Z < 5):
-      draw-normal-left-tail(m,s,Z)
+      draw-normal-left-tail(m,s,Z,"blue","green")
     else:
-      draw-normal-left-tail(m,s,-5)
+      draw-normal-left-tail(m,s,-5,"blue","green")
     end
   end
   
@@ -419,9 +405,9 @@ fun P-x-greater-than(X,m,s):
   
   series     = block:
     if (Z > -5) and (Z < 5):
-      draw-normal-right-tail(m,s,Z)
+      draw-normal-right-tail(m,s,Z,"blue","green")
     else:
-      draw-normal-right-tail(m,s,-5)
+      draw-normal-right-tail(m,s,-5,"blue","green")
     end
   end
   
@@ -479,9 +465,9 @@ fun P-x-between(a,b,m,s):
   
   series     = block:
     if (Za > -5) and (Zb < 5):
-      draw-normal-between(m,s,Za,Zb)
+      draw-normal-between(m,s,Za,Zb,"blue","green")
     else:
-      draw-normal-between(m,s,-5,5)
+      draw-normal-between(m,s,-5,5,"blue","green")
     end
   end
   
@@ -541,9 +527,9 @@ fun P-x-beyond(a,b,m,s):
   
   series    = block:
     if (Za > -5) and (Zb < 5):
-      draw-normal-left-and-right(m,s,Za,Zb)
+      draw-normal-left-and-right(m,s,Za,Zb,"blue","green")
     else:
-      draw-normal-left-and-right(m,s,-5,5)
+      draw-normal-left-and-right(m,s,-5,5,"blue","green")
     end
   end
   
@@ -673,3 +659,131 @@ fun empirical-rule(n): interact(
 end
 
 
+fun z-test-left-tail(alpha, po, phat, n):  
+  s          = num-sqrt((po * (1 - po)) / n)
+  Z          = (phat - po) / s
+  Zalpha     = N.normal-inv-cdf(alpha)
+  Zwidth     = 5.965 + Zalpha
+  p-value    = N.normal-cdf(Z)
+  p-width    = 5.965 + Z
+  
+  series     = block:
+    if (Zalpha > -5) and (Zalpha < 5):
+      draw-normal-left-tail(po,s,Zalpha,"black","red")
+    else:
+      draw-normal-left-tail(po,s,-5,"black","red")
+    end
+  end
+  
+  TITLE-SIZE = SCALE-Y / 10
+  TXT-SIZE   = (SCALE-Y * 3) / 50
+  
+  STRING-1   = (
+    "H\u2092 : p = " +
+    num-to-string-digits(po,2) + 
+    " ; H\u2090 : p < " +
+    num-to-string-digits(po,2) ) 
+  
+  STRING-2   = (
+    "p̂ = " + 
+    num-to-string-digits(phat,2) +
+    " ; z \u2248 " + 
+    num-to-string-digits(Z,2)
+    )
+  
+  STRING-3   = block:
+    if p-value < alpha:
+      "p-value \u2248 " +
+      num-to-string-digits(p-value,2) + 
+      " < " + 
+      num-to-string-digits(alpha,2)
+    else:
+      "p-value \u2248 " +
+      num-to-string-digits(p-value,2) + 
+      " ≥ " + 
+      num-to-string-digits(alpha,2) + 
+      " = α"
+    end
+  end
+    
+  STRING-4   = block:
+    if p-value < alpha:
+      text("A significant event has been observed; so, we", 
+        TXT-SIZE, "red")
+    else:
+      text("No significant events has been observed; so, we",
+        TXT-SIZE, "violet")
+    end
+  end
+  
+  STRING-5   = block:
+    if p-value < alpha:
+      text("Reject the Null Hypothesis.", 
+        TXT-SIZE, "red")
+    else:
+      text("Fail to Reject the Null Hypothesis.",
+        TXT-SIZE, "violet")
+    end
+  end
+
+  a-line-1   = overlay-align("left", "center",
+    rectangle(SCALE-X * 2.2, 3, "solid", "white"),
+    rectangle(SCALE-X * Zwidth, 1, "solid", "black")) 
+  
+  a-line-2   = rectangle(1, SCALE-Y * 0.20, "solid", "black")
+
+  p-line-1   = overlay-align("left", "center",
+    rectangle(SCALE-X * 2.2, 3, "solid", "white"),
+    rectangle(SCALE-X * p-width, 1, "solid", "black")) 
+  
+  p-line-2   = rectangle(1, SCALE-Y * 0.25, "solid", "black")
+
+  fold-items = [list:
+    info("Significance Test for a Proportion", TITLE-SIZE),
+    info("One Tailed z-Test | " + STRING-1, TXT-SIZE),
+    info(STRING-2, TXT-SIZE),
+    info(STRING-3, TXT-SIZE),
+    STRING-4,
+    STRING-5,
+    a-line-1, a-line-2,
+    info("α: " + num-to-string-digits(alpha,2), TXT-SIZE * 0.75),
+    p-line-1, p-line-2,
+    info("p-value: " + num-to-string-digits(p-value,2), TXT-SIZE * 0.75)  
+  ]
+  
+  fold-x = [list:
+    6.00 * SCALE-X, 6.00 * SCALE-X, 6.00 * SCALE-X, 
+    6.00 * SCALE-X, 6.00 * SCALE-X, 6.00 * SCALE-X,
+    0.50 * Zwidth * SCALE-X, #aline-1
+    1.00 * Zwidth * SCALE-X, #aline-2
+    1.60 * SCALE-X, # alpha
+
+    0.50 * p-width * SCALE-X, #pline-1
+    1.00 * p-width * SCALE-X, #pline-2
+    1.20 * SCALE-X, # pvalue    
+  ]
+  
+  fold-y = [list: 
+    SCALE-Y * 1.40,
+    SCALE-Y * 1.30,
+    SCALE-Y * 1.22,
+    SCALE-Y * 1.14,
+    SCALE-Y * 1.06,
+    SCALE-Y * 0.98,
+    
+    SCALE-Y * 0.75, #aline-1
+    SCALE-Y * 0.65, #aline-2    
+    SCALE-Y * 0.75, #alpla
+    
+
+    SCALE-Y * 0.80, #pline-1
+    SCALE-Y * 0.67, #pline-2    
+    SCALE-Y * 0.80, #pvalue
+  ]
+  fold3(
+    lam(z,w, x,y): translate(w,x,y,z) end, 
+    series, fold-items, fold-x, fold-y)
+  
+end
+  
+  
