@@ -840,7 +840,7 @@ fun z-test-left-tail(alpha, po, phat, n):
   
 end
 
-fun z-test-right-tail(alpha, n, po, phat):  
+fun z-test-right-tail(alpha, po, phat, n):  
   s          = num-sqrt((po * (1 - po)) / n)
   Z          = ((phat - po) / s)
   Zalpha     = -1 * N.normal-inv-cdf(alpha)
