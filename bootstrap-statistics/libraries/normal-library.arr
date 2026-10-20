@@ -197,7 +197,7 @@ SCALE-X    = 30 * 3/2
 SCALE-Y    = 200 * 3/2
 TITLE-SIZE = SCALE-Y / 10
 TXT-SIZE   = (SCALE-Y * 3) / 50
-NUM-SIZE   = 0
+NUM-SIZE   = (SCALE-Y * 3) / 50
 Z-LBL      = text("z", (SCALE-Y * 3) / 50, "black")
 X-LBL      = text("x", (SCALE-Y * 3) / 50, "black")
 hatch      = rectangle(1, SCALE-Y / 20, "solid", "black")
@@ -240,10 +240,6 @@ fun draw-normal-right(b,clr):
     draw-normal-gap(b),
     draw-normal-solid(b,5, clr))
 end
-  
-fun info(txt, sz):
-  text(txt, sz, "black")
-end
 
 horiz   = overlay(
   rectangle(10 * SCALE-X, 1, "solid", "black"),
@@ -257,8 +253,13 @@ r-arrow = overlay-align("left", "center",
   rotate(-90, triangle(SCALE-X / 3, "solid", "black")),
   rectangle(SCALE-X / 3,SCALE-Y / 10, "solid", "transparent"))
 
-one-line = beside(l-arrow, beside(fold(
-      lam(y,x): translate(hatch, SCALE-X * x, SCALE-Y / 20, y) end, 
+one-line = beside(
+  l-arrow, 
+  beside(
+    fold(
+      lam(y,x): 
+        translate(hatch, SCALE-X * x, SCALE-Y / 20, y) 
+      end, 
       horiz, 
       range-by(1,10, 1)
       ), r-arrow))
@@ -266,11 +267,13 @@ one-line = beside(l-arrow, beside(fold(
 z-labels = fold(
   lam(y ,x): 
     translate(
-      text(num-to-string(x), (SCALE-Y * 3) / 50, "black"), 
+      text(num-to-string(x), NUM-SIZE, "black"), 
       SCALE-X * (x + 5), 
       SCALE-Y / 20, y) 
   end, 
-  rectangle(10 * SCALE-X, SCALE-Y / 10, "solid", "transparent"), 
+  rectangle(
+    10 * SCALE-X, SCALE-Y / 10, 
+    "solid", "transparent"), 
   range-by(-4,5, 1))
 
 fun x-labels(m,s): fold(
@@ -278,19 +281,28 @@ fun x-labels(m,s): fold(
       translate(
         text(num-to-string-digits(
             num-round(100 * ((x * s) + m)) / 100, 2
-            ), (SCALE-Y * 3) / 50, "black"), 
+            ), NUM-SIZE, "black"), 
         SCALE-X * (x + 5), 
         10, y) 
     end, 
-    rectangle(10 * SCALE-X, SCALE-Y / 10, "solid", "transparent"), 
+    rectangle(
+      10 * SCALE-X, SCALE-Y / 10, 
+      "solid", "transparent"), 
     range-by(-4,5, 1))
 end
 
 fun num-lines(m,s):
-  fold(above, empty-image,[list:
+  fold(
+    above, 
+    empty-image,
+    [list:
       one-line,
       z-labels,
-      rectangle(SCALE-X / 3, SCALE-Y / 20, "solid", "transparent"),
+      rectangle(
+        SCALE-X / 3, 
+        SCALE-Y / 20, 
+        "solid", 
+        "transparent"),
       one-line,
       x-labels(m,s)
     ])
@@ -357,6 +369,7 @@ P-x-less-than :: Number, Number, Number -> Image
 fun P-x-less-than(X,m,s):
   
   Z          = (X - m) / s
+  
   series     = block:
     if (Z > -5) and (Z < 5):
       draw-normal-left-tail(m,s,Z,"blue","green")
@@ -365,11 +378,24 @@ fun P-x-less-than(X,m,s):
     end
   end
   
+  TITLE-1 = "Standard Normal Distribution"
+  TITLE-2 = (
+    "P(X < " + 
+    num-to-string-digits(X,2) + 
+    ") =")
+  
+  TITLE-3 = (
+    "P(Z < " + 
+    num-to-string-digits(Z,2) + 
+    ") \u2248 ")
+  
+  TITLE-4 = num-to-string-digits(N.normal-cdf(Z),4)
+  
   fold-items = [list:
-    info("Standard Normal Distribution", TITLE-SIZE),
-    info("P(X < " + num-to-string-digits(X,2) + ") =", TXT-SIZE),
-    info("P(Z < " + num-to-string-digits(Z,2) + ") \u2248 ", TXT-SIZE),
-    info(num-to-string-digits(N.normal-cdf(Z),4), TXT-SIZE)]
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE  , "black"),
+    text(TITLE-3, TXT-SIZE  , "black"),
+    text(TITLE-4, TXT-SIZE  , "black")]
   
   fold-x = repeat(4,6 * SCALE-X)
   fold-y = [list: 
@@ -390,20 +416,8 @@ P-x-greater-than :: Number, Number, Number -> Image
 # where z = (x - m) / s
 
 fun P-x-greater-than(X,m,s):
-  Z          = (X - m) / s
-  STRING-1   = (
-    "P(X > " + 
-    num-to-string-digits(X,2) + 
-    ") = 1 - P(X < " +
-    num-to-string-digits(X,2) + 
-    ") =")
   
-  STRING-2 = (
-    "P(Z > " + 
-    num-to-string-digits(Z,2) + 
-    ") = 1 - P(Z < " + 
-    num-to-string-digits(X,2) + 
-    ") \u2248 ")
+  Z          = (X - m) / s
   
   series     = block:
     if (Z > -5) and (Z < 5):
@@ -413,11 +427,29 @@ fun P-x-greater-than(X,m,s):
     end
   end
   
+  TITLE-1 = "Standard Normal Distribution"
+  
+  TITLE-2   = (
+    "P(X > " + 
+    num-to-string-digits(X,2) + 
+    ") = 1 - P(X < " +
+    num-to-string-digits(X,2) + 
+    ") =")
+  
+  TITLE-3 = (
+    "P(Z > " + 
+    num-to-string-digits(Z,2) + 
+    ") = 1 - P(Z < " + 
+    num-to-string-digits(X,2) + 
+    ") \u2248 ")
+  
+  TITLE-4 = num-to-string-digits(1 - N.normal-cdf(Z),4)
+  
   fold-items = [list:
-    info("Standard Normal Distribution", TITLE-SIZE),
-    info(STRING-1, TXT-SIZE),
-    info(STRING-2, TXT-SIZE),
-    info(num-to-string-digits(1 - N.normal-cdf(Z),4), TXT-SIZE)]
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE  , "black"),
+    text(TITLE-3, TXT-SIZE  , "black"),
+    text(TITLE-4, TXT-SIZE  , "black")]
   
   fold-x = repeat(4,6 * SCALE-X)
   fold-y = [list: 
@@ -441,7 +473,16 @@ fun P-x-between(a,b,m,s):
   Za         = (a - m) / s
   Zb         = (b - m) / s
   
-  STRING-1   = (
+  series     = block:
+    if (Za > -5) and (Zb < 5):
+      draw-normal-between(m,s,Za,Zb,"blue","green")
+    else:
+      draw-normal-between(m,s,-5,5,"blue","green")
+    end
+  end
+  
+  TITLE-1   = "Standard Normal Distribution"
+  TITLE-2   = (
     "P(" + 
     num-to-string-digits(a,2) + 
     " < X < " +
@@ -452,7 +493,7 @@ fun P-x-between(a,b,m,s):
     num-to-string-digits(b,2) + 
     ") =")
     
-  STRING-2   = (
+  TITLE-3   = (
     "P(" + 
     num-to-string-digits(Za,2) + 
     " < Z < " + 
@@ -463,21 +504,16 @@ fun P-x-between(a,b,m,s):
     num-to-string-digits(Zb,2) + 
     ") \u2248")
   
-  series     = block:
-    if (Za > -5) and (Zb < 5):
-      draw-normal-between(m,s,Za,Zb,"blue","green")
-    else:
-      draw-normal-between(m,s,-5,5,"blue","green")
-    end
-  end
+
+  TITLE-4 = num-to-string-digits(
+    N.normal-cdf(Zb) - N.normal-cdf(Za),
+    4)
   
   fold-items = [list:
-    info("Standard Normal Distribution", TITLE-SIZE),
-    info(STRING-1, TXT-SIZE),
-    info(STRING-2, TXT-SIZE),
-    info(
-      num-to-string-digits(N.normal-cdf(Zb) - N.normal-cdf(Za),4), 
-      TXT-SIZE)]
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE  , "black"),
+    text(TITLE-3, TXT-SIZE  , "black"),
+    text(TITLE-4, TXT-SIZE  , "black")]
   
   fold-x = repeat(4,6 * SCALE-X)
   fold-y = [list: 
@@ -501,7 +537,18 @@ fun P-x-beyond(a,b,m,s):
   Za         = (a - m) / s
   Zb         = (b - m) / s
   
-  STRING-1   = (
+  series     = block:
+    if (Za > -5) and (Zb < 5):
+      draw-normal-left-and-right(
+        m,s,Za,Zb,"blue","green")
+    else:
+      draw-normal-left-and-right(
+        m,s,-5,5,"blue","green")
+    end
+  end
+  
+  TITLE-1   = "Standard Normal Distribution"
+  TITLE-2   = (
     "P(X < " + 
     num-to-string-digits(a,2) + 
     " or X > " + 
@@ -512,7 +559,7 @@ fun P-x-beyond(a,b,m,s):
     num-to-string-digits(b,2) + 
     ") = ")
   
-  STRING-2   = ( 
+  TITLE-3   = ( 
     "P(Z < " + 
     num-to-string-digits(Za,2) + 
     " or Z > " + 
@@ -523,21 +570,15 @@ fun P-x-beyond(a,b,m,s):
     num-to-string-digits(Zb,2) + 
     ") \u2248 ")  
   
-  series    = block:
-    if (Za > -5) and (Zb < 5):
-      draw-normal-left-and-right(m,s,Za,Zb,"blue","green")
-    else:
-      draw-normal-left-and-right(m,s,-5,5,"blue","green")
-    end
-  end
+  TITLE-4    = num-to-string-digits(
+    1 - (N.normal-cdf(Zb) - N.normal-cdf(Za))
+    ,4) 
   
   fold-items = [list:
-    info("Standard Normal Distribution", TITLE-SIZE),
-    info(STRING-1, TXT-SIZE),
-    info(STRING-2, TXT-SIZE),
-    info(
-      num-to-string-digits(N.normal-cdf(Zb) - N.normal-cdf(Za),4), 
-      TXT-SIZE)]
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE  , "black"),
+    text(TITLE-3, TXT-SIZE  , "black"),
+    text(TITLE-4, TXT-SIZE  , "black")]
   
   fold-x = repeat(4,6 * SCALE-X)
   fold-y = [list: 
@@ -553,53 +594,42 @@ end
 
 ###################################################   
 
+fun spread(n,clr):
+  beside(
+    rectangle(1, 10, "solid", clr), 
+    beside(
+      rectangle(n * SCALE-X, 1, "solid", clr), 
+      rectangle(1, 10, "solid", clr)))
+end
+
+fun shade(s,n): 
+  if s >= n: C.color(0,0,255,0.33)
+  else: "transparent"
+  end
+end
+
+fun shade-txt(s,n): 
+  if s >= n: "black"
+  else: "transparent"
+  end
+end
+
 draw-empirical-rule :: Number -> Image
 # Consumes a Number (0-3) and displays the 
 # empirical rule for standards deviations up to the Number
 fun draw-empirical-rule(s):
+   
+  c1         = shade(s,1)
+  c2         = shade(s,2)
+  c3         = shade(s,3)
+  s1         = shade-txt(s,1)
+  s2         = shade-txt(s,2)
+  s3         = shade-txt(s,3)
   
-  fun spread(n,clr):
-    beside(
-      rectangle(1, 10, "solid", clr), 
-      beside(
-        rectangle(n * SCALE-X, 1, "solid", clr), 
-        rectangle(1, 10, "solid", clr)))
-  end
-  
-  fun shade(n): 
-    if s >= n: C.color(0,0,255,0.33)
-    else: "transparent"
-    end
-  end
-  
-  fun shade-txt(n): 
-    if s >= n: "black"
-    else: "transparent"
-    end
-  end
-  
-  c1         = shade(1)
-  c2         = shade(2)
-  c3         = shade(3)
-  s1         = shade-txt(1)
-  s2         = shade-txt(2)
-  s3         = shade-txt(3)
-    
-  lbl        = fold(
-    above, empty-image,
-    [list:
-      text("~68% of values lie in this range."  , TXT-SIZE, s1),
-      spread(2,s1),
-      square(10, "solid", "transparent"),
-      text("~95% of values lie in this range."  , TXT-SIZE, s2),
-      spread(4,s2),
-      square(10, "solid", "transparent"),
-      text("~99.7% of values lie in this range.", TXT-SIZE, s3),
-      spread(6,s3),
-    ])
-
-  series = fold(
-    lam(a,b): overlay-align("left", "bottom", a,b) end,
+  series     = fold(
+    lam(a,b): 
+      overlay-align("left", "bottom", a,b) 
+    end,
     empty-image,
     [list: 
       draw-normal-line(-5,5, "blue"),
@@ -608,13 +638,33 @@ fun draw-empirical-rule(s):
       draw-normal-a-to-b(-3, 3, c3)]
     )
   
+  TITLE-1    = "Standard Normal Distribution"
+  TITLE-2    = "Empirical Rule"
+  TITLE-3    = "~68% of values lie in this range."
+  TITLE-4    = "~95% of values lie in this range."
+  TITLE-5    = "~99.7% of values lie in this range."
+  
+  lbl        = fold(
+    above, 
+    empty-image,
+    [list:
+      text(TITLE-3, TXT-SIZE, s1),
+      spread(2,s1),
+      square(10, "solid", "transparent"),
+      text(TITLE-4, TXT-SIZE, s2),
+      spread(4,s2),
+      square(10, "solid", "transparent"),
+      text(TITLE-5, TXT-SIZE, s3),
+      spread(6,s3),
+    ])
+  
   fold-items = [list:
     one-line,
     z-labels,
     Z-LBL,
     series,
-    info("Standard Normal Distribution", TITLE-SIZE),
-    text("Empirical Rule", TXT-SIZE, "blue"),
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE  , "blue"),
     lbl]
   
   fold-x = [list:
