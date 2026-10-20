@@ -757,7 +757,7 @@ P-LINE-2 = rectangle(
   1, SCALE-Y * 0.25, "solid", "black")
 
 
-fun z-test-left-tail(alpha, n, po, phat):  
+fun z-test-left-tail(alpha, po, phat, n):  
   s          = num-sqrt((po * (1 - po)) / n)
   Z          = (phat - po) / s
   Zalpha     = N.normal-inv-cdf(alpha)
