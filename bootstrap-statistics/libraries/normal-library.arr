@@ -160,7 +160,7 @@ fun normalPDF-code(m,s) block:
 end
    
 
-
+###################################################   
 ###################################################   
 # Normal and Student's T Distribution 
 # Visualizations and Applets
@@ -193,12 +193,16 @@ end
 # consumes the numbers m,s,a,b and displays
 # P(X < a or X > b) = P(Z < Za or Z > Zb) where z = (x - m) / s
 
-SCALE-X = 30 * 3/2
-SCALE-Y = 200 * 3/2
-BG      = rectangle(12 * SCALE-X, 3/2 * SCALE-Y, "solid", "white")
-hatch   = rectangle(1, SCALE-Y / 20, "solid", "black")
-Z-LBL   = text("z", (SCALE-Y * 3) / 50, "black")
-X-LBL   = text("x", (SCALE-Y * 3) / 50, "black")
+SCALE-X    = 30 * 3/2
+SCALE-Y    = 200 * 3/2
+TITLE-SIZE = SCALE-Y / 10
+TXT-SIZE   = (SCALE-Y * 3) / 50
+NUM-SIZE   = 0
+Z-LBL      = text("z", (SCALE-Y * 3) / 50, "black")
+X-LBL      = text("x", (SCALE-Y * 3) / 50, "black")
+hatch      = rectangle(1, SCALE-Y / 20, "solid", "black")
+BG         = rectangle(
+  12 * SCALE-X, 3/2 * SCALE-Y, "solid", "white")
 
 fun normal-pdf-points(z):
   point(z * SCALE-X, N.normal-pdf(z) * SCALE-Y)   
@@ -326,7 +330,9 @@ fun draw-normal-shaded(m,s,a,b, direction, ln-clr, sh-clr):
           series, 6 * SCALE-X, (SCALE-Y * 3) / 4, BG
           ))))
 end
-  
+
+###################################################   
+
 fun draw-normal-left-tail(m,s,a,ln-clr,sh-clr):
   draw-normal-shaded(m,s,a,5, "left", ln-clr, sh-clr)
 end
@@ -343,15 +349,14 @@ fun draw-normal-left-and-right(m,s,a,b,ln-clr,sh-clr):
   draw-normal-shaded(m,s,a,b, "outer-area", ln-clr, sh-clr)
 end
 
+###################################################   
+
 P-x-less-than :: Number, Number, Number -> Image
 # consumes the numbers m,s,x and displays 
 # P(X < x) = P(Z < z) where z = (x - m) / s
 fun P-x-less-than(X,m,s):
   
-  TITLE-SIZE = SCALE-Y / 10
-  TXT-SIZE   = (SCALE-Y * 3) / 40
   Z          = (X - m) / s
-  
   series     = block:
     if (Z > -5) and (Z < 5):
       draw-normal-left-tail(m,s,Z,"blue","green")
@@ -385,10 +390,7 @@ P-x-greater-than :: Number, Number, Number -> Image
 # where z = (x - m) / s
 
 fun P-x-greater-than(X,m,s):
-  TITLE-SIZE = SCALE-Y / 10
-  TXT-SIZE   = (SCALE-Y * 3) / 40
   Z          = (X - m) / s
-  
   STRING-1   = (
     "P(X > " + 
     num-to-string-digits(X,2) + 
@@ -436,8 +438,6 @@ P-x-between :: Number, Number, Number, Number -> Image
 # where z = (x - m) / s
 fun P-x-between(a,b,m,s):
   
-  TITLE-SIZE = SCALE-Y / 10
-  TXT-SIZE   = (SCALE-Y * 3) / 40
   Za         = (a - m) / s
   Zb         = (b - m) / s
   
@@ -497,9 +497,7 @@ P-x-beyond :: Number, Number, Number, Number -> Image
 # P(X < a or X > b) = P(Z < Za or Z > Zb) 
 # where z = (x - m) / s
 fun P-x-beyond(a,b,m,s):
-  
-  TITLE-SIZE = SCALE-Y / 10
-  TXT-SIZE   = (SCALE-Y * 3) / 40
+
   Za         = (a - m) / s
   Zb         = (b - m) / s
   
@@ -553,6 +551,8 @@ fun P-x-beyond(a,b,m,s):
     series, fold-items, fold-x, fold-y) 
 end
 
+###################################################   
+
 draw-empirical-rule :: Number -> Image
 # Consumes a Number (0-3) and displays the 
 # empirical rule for standards deviations up to the Number
@@ -577,9 +577,6 @@ fun draw-empirical-rule(s):
     else: "transparent"
     end
   end
-  
-  TITLE-SIZE = SCALE-Y / 10
-  TXT-SIZE   = (SCALE-Y * 3) / 40
   
   c1         = shade(1)
   c2         = shade(2)
@@ -658,6 +655,107 @@ fun empirical-rule(n): interact(
     )
 end
 
+###################################################   
+
+# arguments are listed in this order for
+# pedagogical reasons. Students need to know before 
+# we gather data, we need to decide on alpha, 
+# then establish Ho: p = po,  and finally run 
+# the experiment where we determine n and p-hat 
+
+# The following inequalities for two-tail 
+# hypothesis tests are computationally
+# equivalent:
+#
+# p-value =     P(<z) < alpha / 2
+# p-value = 2 * P(Z<z) < alpha
+#
+# Jimmy's textbook uses the latter; so,
+# these functions reflect that. However,
+# he is in favor of the first inequality.
+
+fun title-2-p(tail-type, po):
+  if tail-type == "left tail":
+    "One Tailed z-Test | " +
+    "H\u2092 : p = " +
+    num-to-string-digits(po,2) + 
+    " ; H\u2090 : p < " +
+    num-to-string-digits(po,2) 
+  else if tail-type == "right tail":
+    "One Tailed z-Test | " +
+      "H\u2092 : p = " +
+    num-to-string-digits(po,2) + 
+    " ; H\u2090 : p > " +
+    num-to-string-digits(po,2) 
+  else if tail-type == "two tail":
+    "Two Tailed z-Test | " +
+    "H\u2092 : p = " +
+    num-to-string-digits(po,2) + 
+    " ; H\u2090 : p \u2260 " +
+    num-to-string-digits(po,2) 
+  else:
+    raise('tail type must be "left tail", "right tail", or "two tail".')
+  end
+end
+
+fun title-3-p(phat,Z):
+  "p̂ = " + 
+  num-to-string-digits(phat,2) +
+  " ; z \u2248 " + 
+  num-to-string-digits(Z,2)
+end
+
+fun conclusions(p-value, alpha):
+  if p-value < alpha:
+    {
+      "p-value \u2248 " +
+      num-to-string-digits(p-value,2) + 
+      " < " + 
+      num-to-string-digits(alpha,2) ;
+      
+      "A significant event has been observed; so, we" ;
+      "Reject the Null Hypothesis.";
+      "red"}
+  else:
+    {
+      "p-value \u2248 " +
+      num-to-string-digits(p-value,2) + 
+      " ≥ " + 
+      num-to-string-digits(alpha,2) + 
+      " = α" ; 
+      "No significant events has been observed;" + 
+      " so, we" ;
+      "Fail to Reject the Null Hypothesis.";
+      "violet"}
+  end
+end
+
+fun alpha-label(alpha):
+  "α: " + num-to-string-digits(alpha,2)
+end
+
+fun p-value-label(p-value):
+  "p-value: " + num-to-string-digits(p-value,2)
+end
+
+fun a-line-1(a,b):
+  overlay-align("left", "center",
+    rectangle(SCALE-X * a, 3, "solid", "white"),
+    rectangle(SCALE-X * b, 1, "solid", "black")) 
+end
+
+fun p-line-1(a,b):
+  overlay-align("left", "center",
+    rectangle(SCALE-X * a, 3, "solid", "white"),
+    rectangle(SCALE-X * b, 1, "solid", "black")) 
+end
+  
+A-LINE-2 = rectangle(
+  1, SCALE-Y * 0.20, "solid", "black")
+
+P-LINE-2 = rectangle(
+  1, SCALE-Y * 0.25, "solid", "black")
+
 
 fun z-test-left-tail(alpha, n, po, phat):  
   s          = num-sqrt((po * (1 - po)) / n)
@@ -674,81 +772,36 @@ fun z-test-left-tail(alpha, n, po, phat):
       draw-normal-left-tail(po,s,-5,"black","red")
     end
   end
+ 
+  TITLE-1    = "Significance Test for a Proportion"
+  TITLE-2    = title-2-p("left tail", po)
+  TITLE-3    = title-3-p(phat,Z)
   
-  TITLE-SIZE = SCALE-Y / 10
-  TXT-SIZE   = (SCALE-Y * 3) / 50
-  
-  STRING-1   = (
-    "H\u2092 : p = " +
-    num-to-string-digits(po,2) + 
-    " ; H\u2090 : p < " +
-    num-to-string-digits(po,2) ) 
-  
-  STRING-2   = (
-    "p̂ = " + 
-    num-to-string-digits(phat,2) +
-    " ; z \u2248 " + 
-    num-to-string-digits(Z,2)
-    )
-  
-  STRING-3   = block:
-    if p-value < alpha:
-      "p-value \u2248 " +
-      num-to-string-digits(p-value,2) + 
-      " < " + 
-      num-to-string-digits(alpha,2)
-    else:
-      "p-value \u2248 " +
-      num-to-string-digits(p-value,2) + 
-      " ≥ " + 
-      num-to-string-digits(alpha,2) + 
-      " = α"
-    end
-  end
+  {
+    TITLE-4 ;
+    TITLE-5 ; 
+    TITLE-6 ;
+    conclusion-clr
+  } = conclusions(p-value, alpha)
     
-  STRING-4   = block:
-    if p-value < alpha:
-      text("A significant event has been observed; so, we", 
-        TXT-SIZE, "red")
-    else:
-      text("No significant events has been observed; so, we",
-        TXT-SIZE, "violet")
-    end
-  end
+  A-LINE-1   = a-line-1(2.2, Zwidth) 
+  P-LINE-1   = p-line-1(2.2, p-width) 
   
-  STRING-5   = block:
-    if p-value < alpha:
-      text("Reject the Null Hypothesis.", 
-        TXT-SIZE, "red")
-    else:
-      text("Fail to Reject the Null Hypothesis.",
-        TXT-SIZE, "violet")
-    end
-  end
-
-  a-line-1   = overlay-align("left", "center",
-    rectangle(SCALE-X * 2.2, 3, "solid", "white"),
-    rectangle(SCALE-X * Zwidth, 1, "solid", "black")) 
-  
-  a-line-2   = rectangle(1, SCALE-Y * 0.20, "solid", "black")
-
-  p-line-1   = overlay-align("left", "center",
-    rectangle(SCALE-X * 2.2, 3, "solid", "white"),
-    rectangle(SCALE-X * p-width, 1, "solid", "black")) 
-  
-  p-line-2   = rectangle(1, SCALE-Y * 0.25, "solid", "black")
-
   fold-items = [list:
-    info("Significance Test for a Proportion", TITLE-SIZE),
-    info("One Tailed z-Test | " + STRING-1, TXT-SIZE),
-    info(STRING-2, TXT-SIZE),
-    info(STRING-3, TXT-SIZE),
-    STRING-4,
-    STRING-5,
-    a-line-1, a-line-2,
-    info("α: " + num-to-string-digits(alpha,2), TXT-SIZE * 0.75),
-    p-line-1, p-line-2,
-    info("p-value: " + num-to-string-digits(p-value,2), TXT-SIZE * 0.75)  
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE,   "black"),
+    text(TITLE-3, TXT-SIZE,   "black"),
+    text(TITLE-4, TXT-SIZE,   "black"),
+    text(TITLE-5, TXT-SIZE, conclusion-clr),
+    text(TITLE-6, TXT-SIZE, conclusion-clr),
+    A-LINE-1, A-LINE-2,
+    text(
+      alpha-label(alpha),
+      TXT-SIZE * 0.75, "black"),
+    P-LINE-1, P-LINE-2,
+    text(
+      p-value-label(p-value), 
+      TXT-SIZE * 0.75, "black")  
   ]
   
   fold-x = [list:
@@ -780,10 +833,104 @@ fun z-test-left-tail(alpha, n, po, phat):
     SCALE-Y * 0.67, #pline-2    
     SCALE-Y * 0.80, #pvalue
   ]
+  
   fold3(
     lam(z,w, x,y): translate(w,x,y,z) end, 
     series, fold-items, fold-x, fold-y)
   
 end
+
+fun z-test-right-tail(alpha, n, po, phat):  
+  s          = num-sqrt((po * (1 - po)) / n)
+  Z          = ((phat - po) / s)
+  Zalpha     = -1 * N.normal-inv-cdf(alpha)
+  Zwidth     = 5.965 + Zalpha
+  p-value    = 1 - N.normal-cdf(Z)
+  p-width    = 5.965 + Z
   
+  series     = block:
+    if (Zalpha > -5) and (Zalpha < 5):
+      draw-normal-right-tail(po,s,Zalpha,"black","red")
+    else:
+      draw-normal-right-tail(po,s,5,"black","red")
+    end
+  end
+ 
+  TITLE-1    = "Significance Test for a Proportion"
+  TITLE-2    = title-2-p("right tail", po)
+  TITLE-3    = title-3-p(phat,Z)
+  
+  {
+    TITLE-4 ;
+    TITLE-5 ; 
+    TITLE-6 ;
+    conclusion-clr
+  } = conclusions(p-value, alpha)
+    
+  A-LINE-1   = a-line-1(2.2, Zwidth) 
+  P-LINE-1   = p-line-1(2.2, p-width) 
+  
+  fold-items = [list:
+    text(TITLE-1, TITLE-SIZE, "black"),
+    text(TITLE-2, TXT-SIZE,   "black"),
+    text(TITLE-3, TXT-SIZE,   "black"),
+    text(TITLE-4, TXT-SIZE,   "black"),
+    text(TITLE-5, TXT-SIZE, conclusion-clr),
+    text(TITLE-6, TXT-SIZE, conclusion-clr),
+    A-LINE-1, A-LINE-2,
+    text(
+      alpha-label(alpha),
+      TXT-SIZE * 0.75, "black"),
+    P-LINE-1, P-LINE-2,
+    text(
+      p-value-label(p-value), 
+      TXT-SIZE * 0.75, "black")  
+  ]
+  
+  fold-x = [list:
+    6.00 * SCALE-X, 6.00 * SCALE-X, 6.00 * SCALE-X, 
+    6.00 * SCALE-X, 6.00 * SCALE-X, 6.00 * SCALE-X,
+    0.50 * Zwidth * SCALE-X, #aline-1
+    1.00 * Zwidth * SCALE-X, #aline-2
+    1.60 * SCALE-X, # alpha
+
+    0.50 * p-width * SCALE-X, #pline-1
+    1.00 * p-width * SCALE-X, #pline-2
+    1.20 * SCALE-X, # pvalue    
+  ]
+  
+  fold-y = [list: 
+    SCALE-Y * 1.40,
+    SCALE-Y * 1.30,
+    SCALE-Y * 1.22,
+    SCALE-Y * 1.14,
+    SCALE-Y * 1.06,
+    SCALE-Y * 0.98,
+    
+    SCALE-Y * 0.75, #aline-1
+    SCALE-Y * 0.65, #aline-2    
+    SCALE-Y * 0.75, #alpla
+    
+
+    SCALE-Y * 0.80, #pline-1
+    SCALE-Y * 0.67, #pline-2    
+    SCALE-Y * 0.80, #pvalue
+  ]
+  
+  fold3(
+    lam(z,w, x,y): translate(w,x,y,z) end, 
+    series, fold-items, fold-x, fold-y)
+  
+end
+
+
+
+# CDF vs PDF reactor
+# PDF vs t reactor
+# confusion matrix with information
+# confusion matrix with formulas
+
+# type I and type II error and power
+# plus confusion matrix reactor
+
   
