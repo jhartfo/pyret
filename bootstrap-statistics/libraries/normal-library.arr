@@ -932,5 +932,11 @@ end
 
 # type I and type II error and power
 # plus confusion matrix reactor
-
+# https://melbapplets.ms.unimelb.edu.au/2021/07/12/power-of-a-hypothesis-test/
   
+# other applets:
+# https://statcrunch.pearson.com/applets/type3&samplingdist
+# https://statcrunch.pearson.com/applets/type3&cimean
+# https://statcrunch.pearson.com/applets
+
+
