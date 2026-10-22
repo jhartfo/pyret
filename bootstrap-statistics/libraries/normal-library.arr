@@ -12,6 +12,12 @@ provide from N:
   t-pdf, t-cdf, t-inv-cdf
 end
 
+import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distributions.arr") as Core
+
+provide from Core: 
+    * 
+end
+
 import chart as Ch
 import color as C
 include csv
