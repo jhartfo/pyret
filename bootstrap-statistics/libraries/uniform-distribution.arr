@@ -12,7 +12,8 @@ end
 
 import url("https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/libraries/combinatorics.arr") as C
 provide from C: 
-  * 
+  type *,
+  data *
 end
 
 import math as Math
