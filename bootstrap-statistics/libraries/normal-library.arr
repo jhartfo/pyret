@@ -186,26 +186,6 @@ fun gaussian-code() block:
   nothing
 end
 
-
-g =   print(
-    "# gaussian :: Number -> Number\n" +
-    "# Consumes a Number,z, and produces the height of the \n" + 
-    "# standard normal distribution curve at the given z. \n" + 
-    "examples:\n" + 
-    "   " + 
-    "gaussian(0) is-roughly 1\n" + 
-    "   " + 
-    "gaussian(1) is-roughly ~0.6065306597126334\n" + 
-    "end\n" +
-    "fun gaussian(z):\n" +
-    "   " + 
-    "num-exp(-0.5 * num-sqr(z))\n" +
-    "end"
-    )
-
-
-
-
 ###################################################   
 ###################################################   
 # Normal and Student's T Distribution 
