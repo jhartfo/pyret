@@ -12,7 +12,7 @@ provide from N:
   t-pdf, t-cdf, t-inv-cdf
 end
 
-import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distributions.arr") as Core
+import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as Core
 
 provide from Core: 
   type *,
