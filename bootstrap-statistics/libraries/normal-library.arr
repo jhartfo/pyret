@@ -147,7 +147,7 @@ fun normalPDF-code(m,s) block:
   print(
     "# normalPDF-m-s :: Number -> Number\n" +
     "# Consumes a Number,z, and produces the height of the \n" + 
-    "# standard normal distribution curve at the given z. \n" + 
+    "# normal distribution curve at the given z. \n" + 
     "m = " + tostring(m) + "\n" +
     "s = " + tostring(s) + " \n" +
     "fun normalPDF-m-s(z):\n" +
@@ -159,6 +159,42 @@ fun normalPDF-code(m,s) block:
   nothing
 end
    
+
+fun gaussian-code() block:
+  print(
+    "# gaussian :: Number -> Number\n" +
+    "# Consumes a Number,z, and produces the height of the \n" + 
+    "# standard normal distribution curve at the given z. \n" + 
+    "examples:\n" + 
+    "   " + 
+    "gaussian(0) is-roughly 1\n" + 
+    "   " + 
+    "gaussian(1) is-roughly ~0.6065306597126334\n" + 
+    "end\n" +
+    "fun gaussian(z):\n" +
+    "   " + 
+    "num-exp(-0.5 * num-sqr(z))\n" +
+    "end"
+    )
+  nothing
+end
+g =   print(
+    "# gaussian :: Number -> Number\n" +
+    "# Consumes a Number,z, and produces the height of the \n" + 
+    "# standard normal distribution curve at the given z. \n" + 
+    "examples:\n" + 
+    "   " + 
+    "gaussian(0) is-roughly 1\n" + 
+    "   " + 
+    "gaussian(1) is-roughly ~0.6065306597126334\n" + 
+    "end\n" +
+    "fun gaussian(z):\n" +
+    "   " + 
+    "num-exp(-0.5 * num-sqr(z))\n" +
+    "end"
+    )
+
+
 
 ###################################################   
 ###################################################   
@@ -619,12 +655,12 @@ draw-empirical-rule :: Number -> Image
 # empirical rule for standards deviations up to the Number
 fun draw-empirical-rule(s):
    
-  c1         = shade(s,1)
-  c2         = shade(s,2)
-  c3         = shade(s,3)
-  s1         = shade-txt(s,1)
-  s2         = shade-txt(s,2)
-  s3         = shade-txt(s,3)
+  c1         = shade(1)
+  c2         = shade(2)
+  c3         = shade(3)
+  s1         = shade-txt(1)
+  s2         = shade-txt(2)
+  s3         = shade-txt(3)
   
   series     = fold(
     lam(a,b): 
