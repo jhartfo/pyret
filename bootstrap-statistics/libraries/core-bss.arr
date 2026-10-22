@@ -53,7 +53,7 @@ col-q1      = Core.q1
 col-q2      = Core.mean
 col-q3      = Core.q3
 col-q4      = Core.maximum
-
+line-plot   = Core.def-to-graph
 ########################################################################
 # Generating Lists
 
