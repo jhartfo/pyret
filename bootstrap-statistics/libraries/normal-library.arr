@@ -178,6 +178,8 @@ fun gaussian-code() block:
     )
   nothing
 end
+
+#|
 g =   print(
     "# gaussian :: Number -> Number\n" +
     "# Consumes a Number,z, and produces the height of the \n" + 
@@ -194,6 +196,7 @@ g =   print(
     "end"
     )
 
+|#
 
 
 ###################################################   
