@@ -5,7 +5,7 @@ provide *
 # is expensive. Claude Soonet 5 was used to identify
 # methods used by statistical packages from r, python, etc
 # produce this implementation and validate the accuracy
-import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/normal-approximations.arr") as N
+import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/normal-approximation.arr") as N
 
 provide from N: 
   normal-pdf, normal-cdf, normal-inv-cdf,
