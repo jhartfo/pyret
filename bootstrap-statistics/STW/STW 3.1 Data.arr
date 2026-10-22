@@ -33,7 +33,7 @@ titanic = TW.twoway(
     ),
   TW.feat(
     "Class of Travel",
-    [list: "First", "second", "Third"]
+    [list: "First", "Second", "Third"]
     ),
   [matrix(2,3): 197, 94, 151, 122,167, 476]
   )
@@ -60,7 +60,7 @@ E11 = TW.twoway(
   TW.feat(
     "Wording", 
     [list: 
-      "smashed into", 
+      "Smashed into", 
       "Hit", 
       "Control"]),
   [matrix(2,3): 16,7,6,34,43,44]
