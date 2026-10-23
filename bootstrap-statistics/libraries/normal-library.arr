@@ -15,8 +15,7 @@ end
 import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as Core
 
 provide from Core: 
-  type *,
-  data *
+  *
 end
 
 import chart as Ch
