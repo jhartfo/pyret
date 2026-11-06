@@ -1,4 +1,4 @@
-use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/cose-bss.arr")
+use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/core-bss.arr")
 # Load your spreadsheet and define your table
 
 include url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/normal-distribution.arr")
