@@ -3,12 +3,9 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 include url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/STW/STW%203.2%20Data.arr")
 
 #####################################################
-# The following Two-Way Tables are loaded into the file: 
-# superpowers, titanic, squirrels,
-# E11, E12, E13, E14, E19, E20, E23a, E23b
-
-
-
+# The following Tables are loaded into the file: 
+# faster-farter, weight-training, candy,
+# E07, E08, E09, E10, E15, E16
 
 
 
