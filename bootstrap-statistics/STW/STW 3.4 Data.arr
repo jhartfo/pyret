@@ -37,7 +37,7 @@ E0708 = [table-from-columns:
 
 
 E09 = [table-from-columns:
-  {"month"; [list:"Oct", "Nov, "Dec", "Jan", "Feb", "Mar", "Apr", "May"]},
+  {"month"; [list:"Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"]},
   {"temperature"; [list:49.4, 38.2,27.2,28.6,29.5,46.4,49.7,57.1]},
   {"fuel"; [list: 520, 610, 870, 850, 880, 490, 450,250]}
   ]
@@ -49,7 +49,7 @@ E10 = [table-from-columns:
   ]
 
 E23 = [table-from-columns:
-  {""; [list:]},
-  {""; [list:]}
+  {"speed"; [list:20,30,40,50,60]},
+  {"mileage"; [list:24,28,30,28,24]}
   ]
 
