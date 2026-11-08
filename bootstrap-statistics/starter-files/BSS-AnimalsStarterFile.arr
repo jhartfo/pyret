@@ -1,8 +1,6 @@
 use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/core-bss.arr")
 # Load your spreadsheet and define your table
 
-include url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/normal-distribution.arr")
-
 shelter-sheet = load-spreadsheet(
 "https://docs.google.com/spreadsheets/d/1VeR2_bhpLvnRUZslmCAcSRKfZWs_5RNVujtZgEl6umA/")
 
