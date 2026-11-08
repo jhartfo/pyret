@@ -7,13 +7,17 @@ provide from UD: * ,
   data *
 end
 
+include csv
+include data-source
+
 fun random100(n)   : map(lam(x):num-random(100) + 1 end, range-by(0,n,1)) end
 fun random20(n)    : map(lam(x):num-random( 20) + 1 end, range-by(0,n,1)) end
 fun cluster(row, n): row["cluster"] == n end
 fun strata(row, n) : row["strata" ] == n end
 fun row-select(row,a): a.member(row["rectangle"]) end
 fun truncate(tbl)    : tbl.drop("cluster")
-  .drop("strata").drop("width") .drop("height") end
+    .drop("strata")#.drop("width") .drop("height") 
+end
 
 prefix-url     = "https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/"
 
@@ -27,13 +31,21 @@ clustered-rectangles     = scale(0.25,image-url(prefix-url + clustered-url))
 stratified-rectangles    = scale(0.25,image-url(prefix-url + stratified-url))
 
 # Load your spreadsheet and define your table
-rectangle-sheet = load-spreadsheet(sheet-url)
+rectangle-sheet = csv-table-url(prefix-url + sheet-url, default-options)
 
 master-table             = load-table: 
   rectangle, width, height, area, perimeter, cluster, strata
-  source: rectangle-sheet.sheet-by-name("rectangles", true)
+  source: rectangle-sheet
+  sanitize rectangle using num-sanitizer
+  sanitize width     using num-sanitizer
+  sanitize height    using num-sanitizer
+  sanitize area      using num-sanitizer
+  sanitize perimeter using num-sanitizer
+  sanitize cluster   using num-sanitizer
+  sanitize strata    using num-sanitizer
 end
 
+#|
 weighted-area-table      = load-table: 
   area, frequency, weights
   source: rectangle-sheet.sheet-by-name("weighted area", true)
@@ -43,6 +55,7 @@ weighted-perimeter-table = load-table:
   area, frequency, weights
   source: rectangle-sheet.sheet-by-name("weighted perimeter", true)
 end.rename-column("weights", "perimeter * (freq / n)")
+|#
 
 ########################################################
 rectangles-table         = truncate(master-table)
