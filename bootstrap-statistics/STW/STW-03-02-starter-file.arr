@@ -4,7 +4,7 @@ include url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-stat
 
 #####################################################
 # The following Tables are loaded into the file: 
-# faster-farter, weight-training, candy,
+# faster-farther, weight-training, candy,
 # E07, E08, E09, E10, E15, E16
 
 
