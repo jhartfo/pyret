@@ -26,9 +26,9 @@ random-url     = "images/rr-random-rectangles.png"
 clustered-url  = "images/rr-clustered-rectangles.png"
 stratified-url = "images/rr-stratified-rectangles.png"
 
-random-rectangles        = scale(0.10,image-url(prefix-url + random-url))
-clustered-rectangles     = scale(0.10,image-url(prefix-url + clustered-url))
-stratified-rectangles    = scale(0.10,image-url(prefix-url + stratified-url))
+random-rectangles        = scale(0.15,image-url(prefix-url + random-url))
+clustered-rectangles     = scale(0.15,image-url(prefix-url + clustered-url))
+stratified-rectangles    = scale(0.15,image-url(prefix-url + stratified-url))
 
 # Load your spreadsheet and define your table
 rectangle-sheet = csv-table-url(prefix-url + sheet-url, default-options)
