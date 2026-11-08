@@ -1,7 +1,6 @@
 use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr")
 
-
-import shared-gdrive("Uniform Distribution", "1AUgbO4K7eNVuBCEh8_9OV0saCjWXKemy") as UD
+import url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/uniform-distribution.arr") as UD
 provide *
 provide from UD: * ,
   type *,
@@ -16,19 +15,19 @@ fun row-select(row,a): a.member(row["rectangle"]) end
 fun truncate(tbl)    : tbl.drop("cluster")
   .drop("strata").drop("width") .drop("height") end
 
-google-url               = "https://docs.google.com/spreadsheets/d/"
-sheet-url                = "14EKRK5ro0c7Lzkru_uqY2W9RH8c91GKf7Qic2tDiRcs"
-prefix-url               = "https://drive.google.com/uc?export=download&id="
-random-url               = "1xD9rAf8DKPY-N5w1KHklfGn47cQS4Bmi"
-clustered-url            = "1ndj9GG4sITEJkJ84GK6GZ-D88M3TYIl3"
-stratified-url           = "1CWR3D9Bqjoqt9LOdqwLz4tpbL7zRzMV1"
+prefix-url     = "https://raw.githubusercontent.com/jhartfo/pyret/refs/heads/main/bootstrap-statistics/"
+
+sheet-url      = "data/random-rectangles.csv"
+random-url     = "images/rr-random-rectangles.png"
+clustered-url  = "images/rr-clustered-rectangles.png"
+stratified-url = "images/rr-stratified-rectangles.png"
 
 random-rectangles        = scale(0.25,image-url(prefix-url + random-url))
 clustered-rectangles     = scale(0.25,image-url(prefix-url + clustered-url))
 stratified-rectangles    = scale(0.25,image-url(prefix-url + stratified-url))
 
 # Load your spreadsheet and define your table
-rectangle-sheet = load-spreadsheet(google-url + sheet-url)
+rectangle-sheet = load-spreadsheet(sheet-url)
 
 master-table             = load-table: 
   rectangle, width, height, area, perimeter, cluster, strata
