@@ -47,7 +47,7 @@ E15 = [table-from-columns:
   ]
 
 E16 = [table-from-columns:
-  {"bean"; [list: "soybeans", "garbanzos", "blck beans", "adzuki beans", "cranberry beans", "great northern beans", "kidney beans", "navy beans", "pinto beans", "white beans", "lima beans", "mung beans"]},
+  {"bean"; [list: "soybeans", "garbanzos", "black beans", "adzuki beans", "cranberry beans", "great northern beans", "kidney beans", "navy beans", "pinto beans", "white beans", "lima beans", "mung beans"]},
   {"carbohydrate"; [list: 8.5, 22.5, 20.0, 28.5, 21.5, 18.5, 20.0, 23.5, 22.5, 22.5, 19.5, 19.0]},
   {"protein"; [list: 14,7,8,8.5,8,7,7.5,7.5,7.5,8.5,7,7]}
   ]
