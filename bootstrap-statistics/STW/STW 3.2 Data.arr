@@ -2,15 +2,6 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 
 provide *
 
-include matrices
-
-import url( "https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/twoway-table.arr") as TW
-
-provide from TW: * ,
-  type *,
-  data *
-end
-
 faster-farther = [table-from-columns:
   {"time"; [list: 5.41, 5.05, 7.01, 7.17, 6.73, 5.68, 5.78, 6.31, 6.44, 6.50, 6.80, 7.25]},
   {"distance"; [list: 171,184,90,65,78,130, 173, 143, 92, 139, 120, 110]}

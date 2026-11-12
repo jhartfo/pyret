@@ -2,15 +2,6 @@ use context url("https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-
 
 provide *
 
-include matrices
-
-import url( "https://raw.githubusercontent.com/jhartfo/pyret/main/bootstrap-statistics/libraries/twoway-table.arr") as TW
-
-provide from TW: * ,
-  type *,
-  data *
-end
-
 dinosaurs = [table-from-columns:
   {"femur"; [list:38,56,59,64,74]},
   {"humerus"; [list:41,63,70,72,84]}
