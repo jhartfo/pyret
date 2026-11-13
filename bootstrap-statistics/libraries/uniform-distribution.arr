@@ -92,6 +92,11 @@ fun R2(
   num-sqr(R(X,Y))
 end
 
+fun list-sd-residuals(res :: List<Number>%(is-all-numbers)) -> Number:
+  num-sqrt(C.list-sqr-sum(res) / (length(res) - 2))
+end
+
+
 #|
    fun r(x-list, y-list):
   sum(map2(_ * _, z-scores(x-list),z-scores(y-list ))) / (length(x-list) - 1)
