@@ -93,7 +93,7 @@ fun R2(
 end
 
 fun list-sd-residuals(res :: List<Number>%(is-all-numbers)) -> Number:
-  num-sqrt(C.list-sqr-sum(res) / (length(res) - 2))
+  num-sqrt(C.list-sqr-sum(res) /  (length(res) - 2))
 end
 
 
