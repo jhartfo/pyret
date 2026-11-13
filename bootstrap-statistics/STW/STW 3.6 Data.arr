@@ -51,7 +51,7 @@ E08 = [table-from-columns:
   ]
 
 E09 = [table-from-columns:
-  {"stumps"; [list:2,2,1,3,3,4,3,1,2,5,1,3]},
+  {"stumps"; [list:2,2,1,3,3,4,3,1,2,5,1,3,2,1,2,2,1,1,4,1,2,1,4]},
   {"larvae"; [list:
       10,30, 12, 24, 36,40, 43,11, 27, 56, 18, 40, 
       25, 8, 21, 14, 16, 6, 54, 9, 13, 14, 50]}
@@ -70,7 +70,7 @@ E19 = [table-from-columns:
   {"protein"; [list: 14,7,8,8.5,8,7,7.5,7.5,7.5,8.5,7,7]}
   ]
 
-E22 = [table-from-columns:
+E20 = [table-from-columns:
   {"subject"; [list:1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]},
   {"HbA1c"  ; [list:
       6.1, 6.3, 6.4, 6.8, 7.0, 7.1, 7.5, 7.7, 7.9, 
@@ -104,15 +104,3 @@ E23 = [table-from-columns:
   {"mass"; [list:33, 43, 40, 55, 49]},
   {"rate"; [list:1050, 1120, 1400, 15100, 1700]}
   ]
-
-E15 = [table-from-columns:
-  {"a"; [list:]},
-  {"b"; [list:]}
-  ]
-
-
-E16 = = [table-from-columns:
-  {"a"; [list:]},
-  {"b"; [list:]}
-  ]
-
